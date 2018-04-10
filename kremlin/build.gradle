@@ -117,12 +117,16 @@ publishing {
 			}
 		}
 	}
+	ext {
+		// the password can be specified via command line: gradle publish -P repoPassword=
+		repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
+	}
 	repositories {
 		maven {
 			url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
 			credentials {
-				username sonatypeUsername
-				password sonatypePassword
+				username 'pm-dev'
+				password project.repoPassword
 			}
 		}
 	}
