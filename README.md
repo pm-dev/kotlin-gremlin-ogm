@@ -1,5 +1,7 @@
 # Kremlin - An Object Graph Mapping Library for Kotlin and Gremlin
 
+[![Build Status](https://travis-ci.org/pm-dev/kremlin.svg?branch=master)](https://travis-ci.org/pm-dev/kremlin)
+
 Gremlin is the graph traversal language for the Apache TinkerPop graph framework.
 
 
