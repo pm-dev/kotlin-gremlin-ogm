@@ -1,0 +1,190 @@
+# Kremlin - An Object Graph Mapping Library for Kotlin and Gremlin
+
+Gremlin is the graph traversal language for the Apache TinkerPop graph framework.
+
+
+Define a Vertex
+
+    @Vertex(label = "Person")
+    class Person(
+    
+            @param:ID
+            @properetyID
+            id: Long? = null,
+               
+            @param:Property(key = "name")
+            @param:Property(key = "name")
+            name: String)
+    
+Define a Relationship
+
+       val friends = Relationship.symmetricManyToMany<Person>(name = "friends")
+
+Save a Vertex
+
+        val mighael = graphMapper.saveV(Person(name = "Michael Scott"))
+        val dwight = graphMapper.saveV(Person(name = "Dwight Schrute"))
+        
+Save an Edge
+
+        graphMapper.saveE(michael out friends `in` dwight)
+        
+Traverse an edge
+
+        graphMapper.traverse(michael out friends) // retuns [ dwight ]
+        graphMapper.traverse(dwight out friends) // returns [ michael ]        
+
+More complex examples can be seen in [`tests`](ENTER GITHUB URL FOR FILE HERE) or in the [starwars example project](ENTER GITHUB URL), 
+which exposes a graph database through a GraphQL endpoint.
+
+
+Installation:
+
+- Gradle
+        
+        compile 'com.google.code.gson:gson:2.8.2'
+
+- Maven
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+        
+        
+Advantages:
+
+- The Gremlin `Graph` object is not required. This is essential for some Gremlin implementations such as 
+Amazon Neptune where the `Graph` object is unsupported.
+- No runtime code generation. Other OGMs use 3rd party libraries that generate new classes at runtime.
+- No external dependencies. Only Kotlin's standard library and the gremlin-driver is required. 
+- Annotation-based so you can bring your current POJO domain objects.
+- Kotlin compiler plugins 'all-open' and 'no-arg' are not required.
+
+        
+Gremlin Implementations:
+- [Amazon Neptune](https://aws.amazon.com/neptune/)
+- [JanusGraph](http://janusgraph.org/)
+    * [Apache Cassandra](http://cassandra.apache.org/)
+    * [Apache HBase](http://hbase.apache.org/)
+    * [Google Cloud Bigtable](https://cloud.google.com/bigtable/)
+    * [Oracle BerkeleyDB](http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index.html)
+- [Neo4j](http://tinkerpop.apache.org/docs/current/reference/#neo4j-gremlin)
+
+
+Why use a graph database and ogm?
+- Graph databases are powerful for modeling data that is highly connected.
+- This OGM enables for strong typing of domain objects in the application layer while removing the need for a schema enforced by the db.
+    - This makes migrations much easier.
+    - This allows for data to be backed by a NoSQL datastore. NoSQL datastores are horizontally scalable and can be partition tolerant.
+
+
+Design Principles:
+- Common use-cases should be easy. Uncommon use-cases should be possible.
+- Performance is important.
+- Fail fast with helpful exceptions.
+
+
+Native property types are stored directly in the graph as property values:
+
+- [`String`]()
+- [`Long`]()
+- [`Byte`]()
+- [`Double`]()
+- [`Float`]()
+- [`Int`]()
+- [`Boolean`]()
+
+If your Gremlin implementation does not support one of these native types, make sure to register a 
+property mapper for it with `GraphMapper` using the [`scalarMappers` param]() or declare a [`@Mapper`]() for that property.
+
+
+Built-in property mappers:
+
+- [`Instant` -> `String`]()
+
+To use other property types, register a property mapper with `GraphMapper` using the [`scalarMappers` param]() or declare
+a [`@Mapper`]() for that property.
+
+
+Built-in traversal steps:
+
+- [`Map`]()
+- [`FlatMap`]()
+- [`Filter`]()
+- [`FilterMap`]()
+- [`Slice`]()
+- [`Range`]()
+- [`Dedup`]()
+- [`Sort`]()
+
+
+How the mapping works:
+
+- A description of your graph, based annotations, is processed and cached when your `GraphMapper` is instantiated.
+- Using this description of the graph, we can create 'vertex mappers' that knows how to serialize/deserialize objects marked with `@Vertex` to/from
+the graph.
+- Nested objects are not natively supported by Gremlin. When mapping a nested object to properties of a vertex, 
+the property key uses periods ('.') to denote a nested object. For example:
+
+Given:
+
+        class Name(val first: String, val last: String)
+        class Person(val name: Name)
+
+...is serialized in the vertex as:
+
+        "name.first" -> "Lionel"
+        "name.last" -> "Messi"
+
+- `List` and `Set` types are supported. These collections are stored as follows:
+
+Given:
+
+        class Name(val first: String, val last: String)
+        class Person(val names: Set<Name>)
+        
+...is serialized in the vertex as:
+
+        "names.0.first" -> "Cassius"
+        "names.0.last" -> "Clay"
+        "names.1.first" -> "Muhammad"
+        "names.1.last" -> "Ali"
+        
+Or if the collection is empty we use a special `UUID` token:
+
+        "names" -> "474A56F1-6309-41B5-A632-AD53F57DBDAE"                
+
+...to preserve the difference between an empty and a null list.
+
+
+
+Legal:
+
+Licensed under the Apache Software License 2.0. 
+This code is in no way affiliated with, authorized, maintained, sponsored or endorsed by the Apache Software Foundation.
+
+
+Future improvements to consider:
+
+- First-class edges:
+Gremlin supports edges that have their own properties, however, this library currently 
+does npt support mapping edges to/from objects. I hope to add this feature in an upcoming release, but in the 
+meantime, it's always possible to work around this by introducing another vertex. 
+
+- Deleting edges & vertices:
+Gremlin supports removing edges and vertices, however, I haven't built this yet because removing data
+from the graph is not typically a good idea. It's a better pattern to introduce properties that can be used
+in filtering. This could still be useful however, when doing a migration.
+
+- Default property values:
+If you wanted to add a non-nullable property to a vertex, you would first have to add the property as nullable,
+migrate all vertices in the graph to have a value for that property, then change the property to non-nullable.
+However, if migrating all vertices is too costly in terms of time or cpu, this could potentially be avoided by
+specifying a value (or function producing a value) to use when null is loaded from the graph for a non-nullable property.
+
+- [Coroutine](https://kotlinlang.org/docs/reference/coroutines.html) support:
+For `GraphMapper` functions that execute a traversal, it might be useful to make them a `suspend` function.
+Coroutines are still experimental in Kotlin so I'll likely hold off on this for a bit.
+
