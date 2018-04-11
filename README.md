@@ -37,7 +37,7 @@ Gremlin is the graph traversal language for the Apache TinkerPop graph framework
         graphMapper.traverse(michael out friends) // retuns [ dwight ]
         graphMapper.traverse(dwight out friends) // returns [ michael ]        
 
-More complex examples can be seen in [`tests`](ENTER GITHUB URL FOR FILE HERE) or in the [starwars example project](ENTER GITHUB URL), 
+More complex examples can be seen in [`tests`](https://github.com/pm-dev/kremlin/tree/master/kremlin/src/test/kotlin/util/example) or in the [starwars example project](https://github.com/pm-dev/kremlin/tree/master/example/src/main/kotlin/starwars), 
 which exposes a graph database through a GraphQL endpoint.
 
 
