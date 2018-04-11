@@ -77,19 +77,22 @@ open class GraphMapper private constructor(
      * Queries the graph for vertices with a given id. The returned list will return null
      * for ids that that don't correspond with a vertex in the graph.
      */
-    fun <T : Any> load(vararg ids: Any): Iterable<T?> = load(ids.asIterable())
+    fun <T : Any> load(vararg ids: Any): List<T?> = load(ids.asList())
 
     /**
      * Queries the graph for vertices with a given id. The returned list will return null
      * for ids that that don't correspond with a vertex in the graph.
      */
-    fun <T : Any> load(ids: Iterable<Any>): Iterable<T?> {
+    fun <T : Any> load(ids: Collection<Any>): List<T?> {
         if (ids.none()) {
             return emptyList()
         }
-        val objectsById = g.V(*ids.toList().toTypedArray()).map { vertex ->
-            vertex.get().id() to vertex.get().vertexMapper<T>().inverseMap(vertex.get())
-        }.asSequence().associate { it }
+        val objectsById = ids
+                .map { g.V(it) }
+                .reduce { first, second -> first.union(second) }
+                .map { vertex -> vertex.get().id() to vertex.get().vertexMapper<T>().inverseMap(vertex.get()) }
+                .asSequence()
+                .associate { it }
         return ids.map { id ->
             val obj = objectsById[id]
             if (obj == null) logger.debug("Unable to load object for id $id") else logger.debug("Loaded object for id $id")
@@ -113,9 +116,10 @@ open class GraphMapper private constructor(
             throw UnregisteredClass(kClass)
         }
         logger.debug("Will load all vertices with labels $labels")
-        val first = labels.first()
-        val remaining = labels.subList(1, labels.size)
-        return loadTraversal(g.V().hasLabel(first, *remaining.toTypedArray()))
+        val traversal = labels.map { g.V().hasLabel(it) }.reduce { first, second ->
+            first.union(second)
+        }
+        return loadTraversal(traversal)
     }
 
     /**
@@ -136,7 +140,7 @@ open class GraphMapper private constructor(
      * a new vertex will be created, otherwise this object will overwrite the current vertex with that id.
      * The returned object will always have a non-null @ID
      */
-    fun <T : Any> saveV(vararg objs: T): List<T> = saveV(objs.asIterable())
+    fun <T : Any> saveV(vararg objs: T): List<T> = saveV(objs.asList())
 
     /**
      * Saves an object annotated with @Vertex to the graph. If property annotated with @ID is null,
@@ -150,7 +154,7 @@ open class GraphMapper private constructor(
      * a new vertex will be created, otherwise this object will overwrite the current vertex with that id.
      * The returned object will always have a non-null @ID
      */
-    fun <T : Any> saveV(objs: Iterable<T>): List<T> = objs.map { obj ->
+    fun <T : Any> saveV(objs: List<T>): List<T> = objs.map { obj ->
         val mapper = obj.vertexMapper()
         val vertex = mapper.forwardMap(obj)
         logger.debug("Saved vertex with id ${vertex.id()}")
@@ -322,21 +326,6 @@ open class GraphMapper private constructor(
 
         override fun forwardMap(from: T): Vertex = vertexSerializer(from)
         override fun inverseMap(from: Vertex): T = vertexDeserializer(from)
-
-        fun forwardMapMany(objects: Iterable<T>): GraphTraversal<*, Vertex> {
-            val vertices = objects.map { obj ->
-                this.forwardMap(obj)
-            }
-            return g.inject(*vertices.toTypedArray())
-        }
-
-        fun inverseMapMany(traversal: GraphTraversal<*, Vertex>): Iterable<T> {
-            return Iterable {
-                traversal.map { vertex ->
-                    inverseMap(vertex.get())
-                }
-            }
-        }
     }
 
     private inner class VertexSerializer<in T : Any> private constructor(

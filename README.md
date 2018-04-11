@@ -1,11 +1,12 @@
-# Kremlin - An Object Graph Mapping Library for Kotlin and Gremlin
+# Kremlin - The Object Graph Mapping Library for Kotlin and Gremlin
 
 [![Build Status](https://travis-ci.org/pm-dev/kremlin.svg?branch=master)](https://travis-ci.org/pm-dev/kremlin)
+[![Latest Release](https://maven-badges.herokuapp.com/maven-central/com.github.pm-dev/kremlin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.pm-dev/kremlin/)
 
 Gremlin is the graph traversal language for the Apache TinkerPop graph framework.
 
 
-Define a Vertex
+#####Define a Vertex
 
     @Vertex(label = "Person")
     class Person(
@@ -18,20 +19,20 @@ Define a Vertex
             @param:Property(key = "name")
             name: String)
     
-Define a Relationship
+#####Define a Relationship
 
        val friends = Relationship.symmetricManyToMany<Person>(name = "friends")
 
-Save a Vertex
+#####Save a Vertex
 
         val mighael = graphMapper.saveV(Person(name = "Michael Scott"))
         val dwight = graphMapper.saveV(Person(name = "Dwight Schrute"))
         
-Save an Edge
+#####Save an Edge
 
         graphMapper.saveE(michael out friends `in` dwight)
         
-Traverse an edge
+#####Traverse an edge
 
         graphMapper.traverse(michael out friends) // retuns [ dwight ]
         graphMapper.traverse(dwight out friends) // returns [ michael ]        
@@ -40,32 +41,33 @@ More complex examples can be seen in [`tests`](ENTER GITHUB URL FOR FILE HERE) o
 which exposes a graph database through a GraphQL endpoint.
 
 
-Installation:
+#####Installation:
 
 - Gradle
         
-        compile 'com.google.code.gson:gson:2.8.2'
+        compile 'com.github.pm-dev:kremlin:0.9.0'
 
 - Maven
 
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.8.2</version>
+            <groupId>com.github.pm-dev</groupId>
+            <artifactId>kremlin</artifactId>
+            <version>0.9.0</version>
         </dependency>
         
         
-Advantages:
+#####Advantages:
 
 - The Gremlin `Graph` object is not required. This is essential for some Gremlin implementations such as 
 Amazon Neptune where the `Graph` object is unsupported.
 - No runtime code generation. Other OGMs use 3rd party libraries that generate new classes at runtime.
-- No external dependencies. Only Kotlin's standard library and the gremlin-driver is required. 
+- No external dependencies. Only Kotlin's standard library, the gremlin-driver, and slf4j are required. 
 - Annotation-based so you can bring your current POJO domain objects.
 - Kotlin compiler plugins 'all-open' and 'no-arg' are not required.
 
         
-Gremlin Implementations:
+#####Gremlin Implementations:
+
 - [Amazon Neptune](https://aws.amazon.com/neptune/)
 - [JanusGraph](http://janusgraph.org/)
     * [Apache Cassandra](http://cassandra.apache.org/)
@@ -75,54 +77,56 @@ Gremlin Implementations:
 - [Neo4j](http://tinkerpop.apache.org/docs/current/reference/#neo4j-gremlin)
 
 
-Why use a graph database and ogm?
+#####Why use a graph database and ogm?
 - Graph databases are powerful for modeling data that is highly connected.
 - This OGM enables for strong typing of domain objects in the application layer while removing the need for a schema enforced by the db.
     - This makes migrations much easier.
     - This allows for data to be backed by a NoSQL datastore. NoSQL datastores are horizontally scalable and can be partition tolerant.
 
 
-Design Principles:
+#####Design Principles:
+
 - Common use-cases should be easy. Uncommon use-cases should be possible.
 - Performance is important.
 - Fail fast with helpful exceptions.
 
 
-Native property types are stored directly in the graph as property values:
+#####Native property types are stored directly in the graph as property values:
 
-- [`String`]()
-- [`Long`]()
-- [`Byte`]()
-- [`Double`]()
-- [`Float`]()
-- [`Int`]()
-- [`Boolean`]()
+- `Boolean`
+- `Byte`
+- `Double`
+- `Float`
+- `Int`
+- `Long`
+- `String`
 
 If your Gremlin implementation does not support one of these native types, make sure to register a 
-property mapper for it with `GraphMapper` using the [`scalarMappers` param]() or declare a [`@Mapper`]() for that property.
+property mapper for it with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L50) 
+or declare a [`@Mapper`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
 
-Built-in property mappers:
+#####Built-in property mappers:
 
-- [`Instant` -> `String`]()
+- [`Instant` -> `String`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/InstantPropertyMapper.kt)
+- [`UUID` -> `String`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/UUIDPropertyMapper.kt)
 
-To use other property types, register a property mapper with `GraphMapper` using the [`scalarMappers` param]() or declare
-a [`@Mapper`]() for that property.
-
-
-Built-in traversal steps:
-
-- [`Map`]()
-- [`FlatMap`]()
-- [`Filter`]()
-- [`FilterMap`]()
-- [`Slice`]()
-- [`Range`]()
-- [`Dedup`]()
-- [`Sort`]()
+To use other property types, register a property mapper with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L50) or declare
+a [`@Mapper`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
 
-How the mapping works:
+#####Built-in traversal steps:
+
+- [`Dedup`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Dedup.kt)
+- [`Filter`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Filter.kt)
+- [`FilterMap`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/FilterMap.kt)
+- [`FlatMap`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/FlatMap.kt)
+- [`Map`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Map.kt)
+- [`Slice`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Slice.kt)
+- [`Sort`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Sort.kt)
+
+
+#####How the mapping works:
 
 - A description of your graph, based annotations, is processed and cached when your `GraphMapper` is instantiated.
 - Using this description of the graph, we can create 'vertex mappers' that knows how to serialize/deserialize objects marked with `@Vertex` to/from
@@ -162,13 +166,13 @@ Or if the collection is empty we use a special `UUID` token:
 
 
 
-Legal:
+#####Legal:
 
 Licensed under the Apache Software License 2.0. 
 This code is in no way affiliated with, authorized, maintained, sponsored or endorsed by the Apache Software Foundation.
 
 
-Future improvements to consider:
+#####Future improvements to consider:
 
 - First-class edges:
 Gremlin supports edges that have their own properties, however, this library currently 

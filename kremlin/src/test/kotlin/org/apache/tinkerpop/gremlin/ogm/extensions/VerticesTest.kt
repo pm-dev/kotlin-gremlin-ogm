@@ -44,7 +44,7 @@ class VerticesTest {
     @Test
     fun `test set properties`() {
         vertex.setProperties(serializedProperties)
-        assertThat(vertex.getTestProperties()).containsExactlyInAnyOrder(*vertexProperties.toTypedArray())
+        assertThat(vertex.getTestProperties()).containsAll(vertexProperties)
     }
 
     @Test
