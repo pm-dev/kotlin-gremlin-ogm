@@ -3,14 +3,14 @@ package util.example
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import java.util.*
 
-class Base64Mapper : PropertyBiMapper<String, String> {
+internal class Base64Mapper : PropertyBiMapper<String, String> {
 
     override fun forwardMap(from: String): String = Base64.getEncoder().encodeToString(from.toByteArray())
 
     override fun inverseMap(from: String): String = String(Base64.getDecoder().decode(from))
 }
 
-class NumberToStringMapper : PropertyBiMapper<Number, String> {
+internal class NumberToStringMapper : PropertyBiMapper<Number, String> {
 
     override fun forwardMap(from: Number): String {
         val prefix = when (from) {

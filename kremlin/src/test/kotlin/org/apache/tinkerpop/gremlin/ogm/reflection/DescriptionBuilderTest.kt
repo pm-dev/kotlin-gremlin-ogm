@@ -13,7 +13,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import util.example.Base64Mapper
 
-class DescriptionBuilderTest {
+internal class DescriptionBuilderTest {
 
     class LongToStringMapper : PropertyBiMapper<Long, String> {
         override fun forwardMap(from: Long) = from.toString()

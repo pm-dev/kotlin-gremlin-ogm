@@ -4,7 +4,7 @@ import com.google.common.collect.BiMap
 import org.apache.tinkerpop.gremlin.ogm.mappers.BiMapper
 
 
-interface StaticBiMapper<X : Any, Y : Any> : BiMapper<X, Y> {
+internal interface StaticBiMapper<X : Any, Y : Any> : BiMapper<X, Y> {
 
     val map: BiMap<X, Y>
 

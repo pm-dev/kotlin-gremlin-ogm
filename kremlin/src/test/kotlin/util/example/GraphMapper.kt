@@ -13,7 +13,7 @@ private fun exampleGraph(): TinkerGraph {
     return TinkerGraph.open(conf)
 }
 
-fun exampleGraphMapper() = GraphMapper(
+internal fun exampleGraphMapper() = GraphMapper(
         g = exampleGraph().traversal(),
         vertexClasses = setOf(
                 VertexWithBoolean::class,

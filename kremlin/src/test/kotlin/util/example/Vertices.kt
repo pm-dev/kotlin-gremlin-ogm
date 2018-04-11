@@ -11,7 +11,7 @@ import kotlin.math.absoluteValue
 
 
 @Vertex(label = "VertexWithInt")
-class VertexWithInt(
+internal class VertexWithInt(
 
         @ID
         id: Long? = null,
@@ -26,7 +26,7 @@ class VertexWithInt(
 }
 
 @Vertex(label = "VertexWithByte")
-class VertexWithByte(
+internal class VertexWithByte(
 
         @ID
         id: Long? = null,
@@ -41,7 +41,7 @@ class VertexWithByte(
 }
 
 @Vertex(label = "VertexWithBoolean")
-class VertexWithBoolean(
+internal class VertexWithBoolean(
 
         @ID
         id: Long? = null,
@@ -56,7 +56,7 @@ class VertexWithBoolean(
 }
 
 @Vertex(label = "VertexWithDouble")
-class VertexWithDouble(
+internal class VertexWithDouble(
 
         @ID
         id: Long? = null,
@@ -72,7 +72,7 @@ class VertexWithDouble(
 }
 
 @Vertex(label = "VertexWithFloat")
-class VertexWithFloat(
+internal class VertexWithFloat(
 
         @ID
         id: Long? = null,
@@ -87,7 +87,7 @@ class VertexWithFloat(
 }
 
 @Vertex(label = "VertexWithLong")
-class VertexWithLong(
+internal class VertexWithLong(
 
         @ID
         id: Long? = null,
@@ -102,7 +102,7 @@ class VertexWithLong(
 }
 
 @Vertex(label = "VertexWithString")
-class VertexWithString(
+internal class VertexWithString(
 
         @ID
         id: Long? = null,
@@ -117,7 +117,7 @@ class VertexWithString(
 }
 
 @Vertex(label = "VertexWithInstant")
-class VertexWithInstant(
+internal class VertexWithInstant(
 
         @ID
         id: Long? = null,
@@ -132,7 +132,7 @@ class VertexWithInstant(
 }
 
 @Vertex(label = "VertexWithUUID")
-class VertexWithUUID(
+internal class VertexWithUUID(
 
         @ID
         id: Long? = null,
@@ -147,7 +147,7 @@ class VertexWithUUID(
 }
 
 @Vertex(label = "VertexWithDoubleNested")
-class VertexWithDoubleNested(
+internal class VertexWithDoubleNested(
 
         @ID
         id: Long? = null,
@@ -162,7 +162,7 @@ class VertexWithDoubleNested(
 }
 
 @Vertex(label = "VertexWithPrimitiveList")
-class VertexWithPrimitiveList(
+internal class VertexWithPrimitiveList(
 
         @ID
         id: Long? = null,
@@ -177,7 +177,7 @@ class VertexWithPrimitiveList(
 }
 
 @Vertex(label = "VertexWithPrimitiveSet")
-class VertexWithPrimitiveSet(
+internal class VertexWithPrimitiveSet(
 
         @ID
         id: Long? = null,
@@ -192,7 +192,7 @@ class VertexWithPrimitiveSet(
 }
 
 @Vertex(label = "VertexWithObjectList")
-class VertexWithObjectList(
+internal class VertexWithObjectList(
 
         @ID
         id: Long? = null,
@@ -207,7 +207,7 @@ class VertexWithObjectList(
 }
 
 @Vertex(label = "VertexWithPrimitiveMap")
-class VertexWithPrimitiveMap(
+internal class VertexWithPrimitiveMap(
 
         @ID
         id: Long? = null,
@@ -224,7 +224,7 @@ class VertexWithPrimitiveMap(
 }
 
 @Vertex(label = "VertexWithObjectMap")
-class VertexWithObjectMap(
+internal class VertexWithObjectMap(
 
         @ID
         id: Long? = null,
@@ -241,7 +241,7 @@ class VertexWithObjectMap(
 }
 
 @Vertex(label = "VertexWithEnum")
-class VertexWithEnum(
+internal class VertexWithEnum(
 
         @ID
         id: Long? = null,
@@ -256,7 +256,7 @@ class VertexWithEnum(
 }
 
 @Vertex(label = "VertexWithNumber")
-class VertexWithNumber(
+internal class VertexWithNumber(
 
         @ID
         id: Long? = null,
@@ -271,7 +271,7 @@ class VertexWithNumber(
 }
 
 @Vertex(label = "VertexWithCustomMapper")
-class VertexWithCustomMapper(
+internal class VertexWithCustomMapper(
 
         @ID
         id: Long? = null,
@@ -287,7 +287,7 @@ class VertexWithCustomMapper(
 }
 
 @Vertex(label = "VertexWithNullable")
-class VertexWithNullable(
+internal class VertexWithNullable(
 
         @ID
         id: Long? = null,
@@ -302,7 +302,7 @@ class VertexWithNullable(
 }
 
 @Vertex(label = "VertexWithTransient")
-class VertexWithTransient(
+internal class VertexWithTransient(
 
         @param:ID
         @property:ID
@@ -316,7 +316,7 @@ class VertexWithTransient(
     }
 }
 
-abstract class Base<out T : Any?>(
+internal abstract class Base<out T : Any?>(
 
         @property:ID
         val id: Long? = null,

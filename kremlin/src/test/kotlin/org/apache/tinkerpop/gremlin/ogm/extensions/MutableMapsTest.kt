@@ -3,7 +3,7 @@ package org.apache.tinkerpop.gremlin.ogm.extensions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class MutableMapsTest {
+internal class MutableMapsTest {
 
 
     @Test

@@ -16,7 +16,7 @@ import org.junit.Test
 import util.example.*
 import java.util.*
 
-class GraphMapperTest {
+internal class GraphMapperTest {
 
     private lateinit var gm: GraphMapper
 

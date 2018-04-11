@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableBiMap
 import org.apache.tinkerpop.gremlin.ogm.mappers.EnumBiMapper
 import util.StaticBiMapper
 
-enum class Sport {
+internal enum class Sport {
     BASKETBALL,
     FOOTBALL,
     BASEBALL,

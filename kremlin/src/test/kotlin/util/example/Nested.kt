@@ -3,7 +3,7 @@ package util.example
 import org.apache.tinkerpop.gremlin.ogm.annotations.Property
 import java.util.*
 
-data class ObjectWithInt(
+internal data class ObjectWithInt(
 
         @param:Property(key = "intVal")
         @property:Property(key = "intVal")
@@ -14,7 +14,7 @@ data class ObjectWithInt(
     }
 }
 
-data class Nested(
+internal data class Nested(
 
         @param:Property(key = "objWithInt")
         @property:Property(key = "objWithInt")
