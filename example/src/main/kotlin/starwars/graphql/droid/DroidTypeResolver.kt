@@ -7,7 +7,7 @@ import starwars.graphql.character.CharacterTypeResolver
 import starwars.models.Droid
 
 @Component
-class DroidTypeResolver(
+internal class DroidTypeResolver(
         override val graph: GraphMapper
 ): CharacterTypeResolver, GraphQLResolver<Droid> {
 

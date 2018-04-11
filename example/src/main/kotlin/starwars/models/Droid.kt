@@ -6,7 +6,7 @@ import org.apache.tinkerpop.gremlin.ogm.annotations.Vertex
 import java.time.Instant
 
 @Vertex(label = "Droid")
-class Droid(
+internal class Droid(
 
         @ID
         id: Long? = null,

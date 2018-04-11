@@ -9,7 +9,7 @@ import starwars.models.Human
 import starwars.models.Name
 
 @Component
-class StarwarsGraphMapper : GraphMapper(
+internal class StarwarsGraphMapper : GraphMapper(
         g = TinkerGraph.open().traversal(),
         vertexClasses = setOf(
                 Human::class,

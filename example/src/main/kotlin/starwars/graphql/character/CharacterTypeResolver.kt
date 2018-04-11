@@ -9,7 +9,7 @@ import starwars.models.Name
 import starwars.traversals.character.toSecondDegreeFriends
 
 
-interface CharacterTypeResolver {
+internal interface CharacterTypeResolver {
 
     val graph: GraphMapper
 

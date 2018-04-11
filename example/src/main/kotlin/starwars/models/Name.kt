@@ -3,7 +3,7 @@ package starwars.models
 import org.apache.tinkerpop.gremlin.ogm.annotations.Property
 
 
-data class Name(
+internal data class Name(
 
         @param:Property(key = "first")
         @property:Property(key = "first")

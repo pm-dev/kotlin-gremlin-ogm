@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 import starwars.models.Human
 
 @Component
-class HumanQueryResolver(
+internal class HumanQueryResolver(
         private val graph: GraphMapper
 ) : GraphQLQueryResolver {
 

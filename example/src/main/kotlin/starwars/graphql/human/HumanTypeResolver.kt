@@ -7,7 +7,7 @@ import starwars.graphql.character.CharacterTypeResolver
 import starwars.models.Human
 
 @Component
-class HumanTypeResolver(
+internal class HumanTypeResolver(
         override val graph: GraphMapper
 ): CharacterTypeResolver, GraphQLResolver<Human> {
 

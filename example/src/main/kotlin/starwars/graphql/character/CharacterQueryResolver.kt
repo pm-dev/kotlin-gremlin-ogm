@@ -7,7 +7,7 @@ import starwars.models.Character
 import starwars.models.Name
 
 @Component
-class CharacterQueryResolver(
+internal class CharacterQueryResolver(
         private val gm: GraphMapper
 ) : GraphQLQueryResolver {
 

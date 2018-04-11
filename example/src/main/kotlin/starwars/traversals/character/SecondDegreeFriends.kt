@@ -9,7 +9,7 @@ import starwars.models.Character.Companion.friends
  * Traverse to the Character's second degree friends. The results of this traversal does not include this character
  * nor any first degree friends.
  */
-fun Character.toSecondDegreeFriends(range: LongRange? = null) =
+internal fun Character.toSecondDegreeFriends(range: LongRange? = null) =
     friends
             .to(saveFirstDegreeFriends)
             .to(friends)

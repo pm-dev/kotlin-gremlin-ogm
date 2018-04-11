@@ -8,7 +8,7 @@ import org.apache.tinkerpop.gremlin.ogm.relationships.steps.filter
 import org.apache.tinkerpop.gremlin.ogm.relationships.steps.to
 import java.time.Instant
 
-abstract class Character(
+internal abstract class Character(
         id: Long?,
         createdAt: Instant,
 

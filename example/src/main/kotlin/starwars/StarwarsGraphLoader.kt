@@ -11,7 +11,7 @@ import java.time.Instant
 import java.util.*
 
 @Component
-open class StarwarsGraphLoader(
+internal open class StarwarsGraphLoader(
         private val graph: GraphMapper
 ) : ApplicationListener<ApplicationReadyEvent> {
 

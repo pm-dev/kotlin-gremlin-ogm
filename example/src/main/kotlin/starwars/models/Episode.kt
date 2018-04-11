@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableBiMap
 import framework.StaticBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.EnumBiMapper
 
-enum class Episode {
+internal enum class Episode {
     NEW_HOPE,
     EMPIRE,
     JEDI,

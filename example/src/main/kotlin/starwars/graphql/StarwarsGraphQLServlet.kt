@@ -12,7 +12,7 @@ import starwars.graphql.human.HumanQueryResolver
 import starwars.graphql.human.HumanTypeResolver
 
 @Component
-class StarwarsGraphQLServletRegistrationBean(
+internal class StarwarsGraphQLServletRegistrationBean(
         characterQueryResolver: CharacterQueryResolver,
         humanTypeResolver: HumanTypeResolver,
         humanQueryResolver: HumanQueryResolver,

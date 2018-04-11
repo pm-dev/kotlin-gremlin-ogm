@@ -7,7 +7,7 @@ import starwars.models.Droid
 
 
 @Component
-class DroidQueryResolver(
+internal class DroidQueryResolver(
         private val graph: GraphMapper
 ): GraphQLQueryResolver {
 

@@ -9,7 +9,7 @@ import starwars.models.*
 import java.time.Instant
 
 @Component
-class DroidMutationResolver(
+internal class DroidMutationResolver(
         private val graph: GraphMapper
 ) : GraphQLMutationResolver {
 

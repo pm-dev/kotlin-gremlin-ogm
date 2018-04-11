@@ -4,7 +4,7 @@ import org.apache.tinkerpop.gremlin.ogm.annotations.ID
 import org.apache.tinkerpop.gremlin.ogm.annotations.Property
 import java.time.Instant
 
-abstract class Node(
+internal abstract class Node(
 
         @property:ID
         val id: Long?,
