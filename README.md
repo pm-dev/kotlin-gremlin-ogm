@@ -66,7 +66,7 @@ Amazon Neptune where the `Graph` object is unsupported.
 - Kotlin compiler plugins 'all-open' and 'no-arg' are not required.
 
         
-#####Gremlin Implementations:
+##### Gremlin Implementations:
 
 - [Amazon Neptune](https://aws.amazon.com/neptune/)
 - [JanusGraph](http://janusgraph.org/)
