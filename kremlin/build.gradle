@@ -1,6 +1,8 @@
 buildscript {
 	ext {
 		kotlinVersion = '1.2.31'
+		// the password can be specified via command line: gradle publish -P repoPassword=
+		repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
 	}
 	repositories {
 		mavenCentral()
@@ -116,10 +118,6 @@ publishing {
 				}
 			}
 		}
-	}
-	ext {
-		// the password can be specified via command line: gradle publish -P repoPassword=
-		repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
 	}
 	repositories {
 		maven {
