@@ -66,6 +66,7 @@ internal open class StarwarsGraphLoader(
         graph.saveE(c3po out Character.friends `in` aretoo)
         graph.saveE(hanSolo out Character.friends `in` listOf(leiaOrgana, aretoo))
 
+        graph.g.tx().commit()
         println("Loaded Starwars Graph")
     }
 }

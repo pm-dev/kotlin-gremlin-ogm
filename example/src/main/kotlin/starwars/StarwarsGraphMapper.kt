@@ -1,7 +1,8 @@
 package starwars
 
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
-import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph
+import org.janusgraph.core.JanusGraphFactory
+import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 import starwars.models.Droid
 import starwars.models.Episode
@@ -10,7 +11,7 @@ import starwars.models.Name
 
 @Component
 internal class StarwarsGraphMapper : GraphMapper(
-        g = TinkerGraph.open().traversal(),
+        g = graph.traversal(),
         vertexClasses = setOf(
                 Human::class,
                 Droid::class),
@@ -20,3 +21,8 @@ internal class StarwarsGraphMapper : GraphMapper(
         scalarMappers = mapOf(
                 Episode::class to Episode
         ))
+
+private val graph = JanusGraphFactory.build()
+        .set("storage.backend", "inmemory")
+        .open()
+

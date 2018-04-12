@@ -68,7 +68,6 @@ Amazon Neptune where the `Graph` object is unsupported.
         
 ##### Gremlin Implementations:
 
-- [Amazon Neptune](https://aws.amazon.com/neptune/)
 - [JanusGraph](http://janusgraph.org/)
     * [Apache Cassandra](http://cassandra.apache.org/)
     * [Apache HBase](http://hbase.apache.org/)

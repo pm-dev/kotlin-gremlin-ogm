@@ -344,12 +344,10 @@ open class GraphMapper private constructor(
         )
 
         override fun invoke(from: T): Vertex {
-            val unserializedId = vertexObjectDescription.id.property.get(from)
-            val idMapper = PropertyMapper(vertexObjectDescription.id)
-            val serializedId = idMapper.forwardMap(unserializedId)
-            val traversal = when (serializedId) {
+            val id = vertexObjectDescription.id.property.get(from)
+            val traversal = when (id) {
                 null -> g.addV(vertexObjectDescription.label)
-                else -> g.V(serializedId)
+                else -> g.V(id)
             }
             return traversal.map { vertex ->
                 val serializedProperties = objectSerializer(from)
