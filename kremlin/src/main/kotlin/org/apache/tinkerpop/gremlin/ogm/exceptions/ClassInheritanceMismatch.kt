@@ -5,4 +5,6 @@ import kotlin.reflect.KClass
 internal class ClassInheritanceMismatch(
         lowerBound: KClass<*>,
         upperBound: KClass<*>
-) : AnnotationException("$lowerBound must be a subclass of $upperBound")
+) : AnnotationException(
+        description = "$lowerBound must be a subclass of $upperBound"
+)

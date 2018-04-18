@@ -4,4 +4,6 @@ import kotlin.reflect.KClass
 
 internal class PrimaryConstructorMissing(
         kClass: KClass<*>
-) : AnnotationException("Encountered a vertex object without a primary constructor $kClass")
+) : AnnotationException(
+        description = "Encountered a vertex object without a primary constructor $kClass"
+)

@@ -20,13 +20,14 @@ internal class VertexObjectDescription<T : Any>(
          * The property description for the id of the vertex
          */
         val id: PropertyDescription<T>,
+
         properties: Map<String, PropertyDescription<T>>,
         constructor: KFunction<T>,
         nullConstructorParameters: Collection<KParameter>
 ) : ObjectDescription<T>(
-        properties = properties,
-        constructor = constructor,
-        nullConstructorParameters = nullConstructorParameters
+        properties,
+        constructor,
+        nullConstructorParameters
 ) {
 
     companion object {

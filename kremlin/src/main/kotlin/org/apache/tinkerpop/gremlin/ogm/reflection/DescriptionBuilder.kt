@@ -96,8 +96,8 @@ internal fun <T : Any> buildObjectDescription(
     val idPropertyDescription = if (includeIDDescription) PropertyDescription(idParameter!!, idProperty!!, null) else null
     val nullConstructorParameters: List<KParameter> = nullParameters.toList()
     return BuiltObjectDescription(
-            objectDescription = ObjectDescription(propertyDescriptions, constructor, nullConstructorParameters),
-            idDescription = idPropertyDescription)
+            ObjectDescription(propertyDescriptions, constructor, nullConstructorParameters),
+            idPropertyDescription)
 }
 
 private fun verifyClassifiersAreCompatible(lowerBound: KClassifier?, upperBound: KClassifier?) {

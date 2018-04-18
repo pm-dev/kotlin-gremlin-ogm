@@ -6,5 +6,7 @@ internal class IDAndProperty(
         kClass: KClass<*>,
         name: String?,
         annotationType: AnnotationType
-) : AnnotationException("${annotationType.name.capitalize()} can be annotated with @ID or @Property, but not both. " +
-        "${annotationType.name.capitalize()}: $name. Class: $kClass")
+) : AnnotationException(
+        description = "${annotationType.name.capitalize()} can be annotated with @ID or @Property, but not both. " +
+        "${annotationType.name.capitalize()}: $name. Class: $kClass"
+)

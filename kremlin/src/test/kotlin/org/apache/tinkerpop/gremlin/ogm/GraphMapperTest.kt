@@ -2,13 +2,14 @@ package org.apache.tinkerpop.gremlin.ogm
 
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ConflictingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.MissingEdge
-import org.apache.tinkerpop.gremlin.ogm.relationships.Connection
-import org.apache.tinkerpop.gremlin.ogm.relationships.Relationship
-import org.apache.tinkerpop.gremlin.ogm.relationships.`in`
-import org.apache.tinkerpop.gremlin.ogm.relationships.bound.from
-import org.apache.tinkerpop.gremlin.ogm.relationships.bound.out
-import org.apache.tinkerpop.gremlin.ogm.relationships.link
-import org.apache.tinkerpop.gremlin.ogm.relationships.steps.*
+import org.apache.tinkerpop.gremlin.ogm.paths.Path
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.`in`
+import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Connection
+import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.out
+import org.apache.tinkerpop.gremlin.ogm.paths.relationships.link
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.*
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.internal.bytebuddy.utility.RandomString
 import org.junit.Before

@@ -1,8 +1,8 @@
 package starwars
 
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
-import org.apache.tinkerpop.gremlin.ogm.relationships.`in`
-import org.apache.tinkerpop.gremlin.ogm.relationships.bound.out
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.`in`
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.out
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component

@@ -1,7 +1,9 @@
 package org.apache.tinkerpop.gremlin.ogm.extensions
 
 internal fun <K, V> MutableMap<K, V>.mapValuesInPlace(transform: (Map.Entry<K, V>) -> V) =
-    entries.forEach { it.setValue(transform(it)) }
+    entries.forEach { entry ->
+        entry.setValue(transform(entry))
+    }
 
 internal fun <K, V, T> Iterator<T>.toMultiMap(requireKeys: Iterable<K> = emptyList(), transform: (T) -> Pair<K, V>): Map<K, List<V>> {
     val remainingRequiredKeys = requireKeys.toMutableSet()

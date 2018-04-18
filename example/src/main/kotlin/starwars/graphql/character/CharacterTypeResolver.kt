@@ -1,7 +1,7 @@
 package starwars.graphql.character
 
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
-import org.apache.tinkerpop.gremlin.ogm.relationships.bound.out
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.out
 import starwars.models.Character
 import starwars.models.Character.Companion.friends
 import starwars.models.Episode

@@ -11,15 +11,17 @@ import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.InstantPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.UUIDPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.identity.*
+import org.apache.tinkerpop.gremlin.ogm.paths.Path
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundPathToMany
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundPathToOptional
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundPathToSingle
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.SingleBoundPath
+import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Edge
+import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepTraverser
 import org.apache.tinkerpop.gremlin.ogm.reflection.ObjectDescription
 import org.apache.tinkerpop.gremlin.ogm.reflection.PropertyDescription
 import org.apache.tinkerpop.gremlin.ogm.reflection.VertexObjectDescription
-import org.apache.tinkerpop.gremlin.ogm.relationships.Edge
-import org.apache.tinkerpop.gremlin.ogm.relationships.Relationship
-import org.apache.tinkerpop.gremlin.ogm.relationships.bound.MultiBoundPath
-import org.apache.tinkerpop.gremlin.ogm.relationships.bound.SingleBoundPath
-import org.apache.tinkerpop.gremlin.ogm.relationships.steps.Path
-import org.apache.tinkerpop.gremlin.ogm.relationships.steps.StepTraverser
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
 import org.apache.tinkerpop.gremlin.structure.Vertex
@@ -88,9 +90,15 @@ open class GraphMapper private constructor(
             return emptyList()
         }
         val objectsById = ids
-                .map { g.V(it) }
-                .reduce { first, second -> first.union(second) }
-                .map { vertex -> vertex.get().id() to vertex.get().vertexMapper<T>().inverseMap(vertex.get()) }
+                .map { id ->
+                    g.V(id)
+                }
+                .reduce { traversal1, traversal2 ->
+                    traversal1.union(traversal2)
+                }
+                .map { vertex ->
+                    vertex.get().id() to vertex.get().vertexMapper<T>().inverseMap(vertex.get())
+                }
                 .asSequence()
                 .associate { it }
         return ids.map { id ->
@@ -111,13 +119,19 @@ open class GraphMapper private constructor(
      * classes registered as a vertex.
      */
     fun <T : Any> loadAll(kClass: KClass<T>): Iterable<T> {
-        val labels = vertexObjectDescriptions.filterKeys { it.isSubclassOf(kClass) }.values.map { it.label }
+        val labels = vertexObjectDescriptions.filterKeys { vertexKClass ->
+            vertexKClass.isSubclassOf(kClass)
+        }.values.map { vertexObjectDescription ->
+            vertexObjectDescription.label
+        }
         if (labels.isEmpty()) {
             throw UnregisteredClass(kClass)
         }
         logger.debug("Will load all vertices with labels $labels")
-        val traversal = labels.map { g.V().hasLabel(it) }.reduce { first, second ->
-            first.union(second)
+        val traversal = labels.map { label ->
+            g.V().hasLabel(label)
+        }.reduce { traversal1, traversal2 ->
+            traversal1.union(traversal2)
         }
         return loadTraversal(traversal)
     }
@@ -127,7 +141,9 @@ open class GraphMapper private constructor(
      */
     fun <T : Any> loadTraversal(traversal: GraphTraversal<*, Vertex>): Iterable<T> {
         return Iterable {
-            traversal.map { vertex -> vertex.get().vertexMapper<T>().inverseMap(vertex.get()) }
+            traversal.map { vertex ->
+                vertex.get().vertexMapper<T>().inverseMap(vertex.get())
+            }
         }
     }
 
@@ -186,19 +202,19 @@ open class GraphMapper private constructor(
     /**
      * Traverses from multiple objects to the path's required destination vertex for each origin object.
      */
-    fun <FROM : Any, TO> traverse(boundStep: MultiBoundPath.ToSingle<FROM, TO>): Map<FROM, TO> =
+    fun <FROM : Any, TO> traverse(boundStep: BoundPathToSingle<FROM, TO>): Map<FROM, TO> =
             traverse(boundStep.froms, boundStep.path).entries.associate { it.key to it.value.single() }
 
     /**
      * Traverses from multiple objects to the path's optional destination vertex for each origin object.
      */
-    fun <FROM : Any, TO> traverse(boundStep: MultiBoundPath.ToOptional<FROM, TO>): Map<FROM, TO?> =
+    fun <FROM : Any, TO> traverse(boundStep: BoundPathToOptional<FROM, TO>): Map<FROM, TO?> =
             traverse(boundStep.froms, boundStep.path).entries.associate { it.key to it.value.singleOrNull() }
 
     /**
      * Traverses from multiple objects to the path's destination vertices for each origin object.
      */
-    fun <FROM : Any, TO> traverse(boundStep: MultiBoundPath.ToMany<FROM, TO>): Map<FROM, List<TO>> =
+    fun <FROM : Any, TO> traverse(boundStep: BoundPathToMany<FROM, TO>): Map<FROM, List<TO>> =
             traverse(boundStep.froms, boundStep.path)
 
     private fun <FROM : Any, TO> traverse(

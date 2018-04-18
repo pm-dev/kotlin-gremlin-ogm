@@ -5,5 +5,7 @@ import kotlin.reflect.KClass
 internal class PropertyMissingOnProperty(
         kClass: KClass<*>,
         key: String
-) : AnnotationException("@param:Property annotation with name $key must also be found on an " +
-        "@property:Property annotation. Class $kClass")
+) : AnnotationException(
+        description = "@param:Property annotation with name $key must also be found on an " +
+        "@property:Property annotation. Class $kClass"
+)

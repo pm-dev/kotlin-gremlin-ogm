@@ -5,8 +5,9 @@
 
 Gremlin is the graph traversal language for the Apache TinkerPop graph framework.
 
+##### Basic Usage:
 
-##### Define a Vertex
+Define a Vertex
 
     @Vertex(label = "Person")
     class Person(
@@ -19,25 +20,25 @@ Gremlin is the graph traversal language for the Apache TinkerPop graph framework
             @param:Property(key = "name")
             name: String)
     
-##### Define a Relationship
+Define a Relationship
 
        val friends = Relationship.symmetricManyToMany<Person>(name = "friends")
 
-##### Save a Vertex
+Save a Vertex
 
         val mighael = graphMapper.saveV(Person(name = "Michael Scott"))
         val dwight = graphMapper.saveV(Person(name = "Dwight Schrute"))
         
-##### Save an Edge
+Save an Edge
 
         graphMapper.saveE(michael out friends `in` dwight)
         
-##### Traverse an edge
+Traverse an edge
 
-        graphMapper.traverse(michael out friends) // retuns [ dwight ]
-        graphMapper.traverse(dwight out friends) // returns [ michael ]        
+        graphMapper.traverse(michael out friends) // retuns list: [ dwight ]
+        graphMapper.traverse(dwight out friends) // returns list: [ michael ]        
 
-More complex examples can be seen in [`tests`](https://github.com/pm-dev/kremlin/tree/master/kremlin/src/test/kotlin/util/example) or in the [starwars example project](https://github.com/pm-dev/kremlin/tree/master/example/src/main/kotlin/starwars), 
+More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kremlin/tree/master/example/src/main/kotlin/starwars), 
 which exposes a graph database through a GraphQL endpoint.
 
 
@@ -58,29 +59,28 @@ which exposes a graph database through a GraphQL endpoint.
         
 ##### Advantages:
 
-- The Gremlin `Graph` object is not required. This is essential for some Gremlin implementations such as 
-Amazon Neptune where the `Graph` object is unsupported.
-- No runtime code generation. Other OGMs use 3rd party libraries that generate new classes at runtime.
-- No external dependencies. Only Kotlin's standard library, the gremlin-driver, and slf4j are required. 
+- Take advantage of Kotlin's type-safety. Traversals return either a list, non-optional, or optional based on
+how you define your relationships.
+- Map and filter traversals using your Kotlin objects.
+- No runtime code generation. Other ogms use third-party libraries that generate new classes at runtime.
+- External dependencies are limited to: Kotlin's standard library, the gremlin-driver, and slf4j. 
 - Annotation-based so you can bring your current POJO domain objects.
 - Kotlin compiler plugins 'all-open' and 'no-arg' are not required.
 
-        
-##### Gremlin Implementations:
-
-- [JanusGraph](http://janusgraph.org/)
-    * [Apache Cassandra](http://cassandra.apache.org/)
-    * [Apache HBase](http://hbase.apache.org/)
-    * [Google Cloud Bigtable](https://cloud.google.com/bigtable/)
-    * [Oracle BerkeleyDB](http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index.html)
-- [Neo4j](http://tinkerpop.apache.org/docs/current/reference/#neo4j-gremlin)
-
 
 ##### Why use a graph database and ogm?
+
 - Graph databases are powerful for modeling data that is highly connected.
 - This OGM enables for strong typing of domain objects in the application layer while removing the need for a schema enforced by the db.
-    - This makes migrations much easier.
     - This allows for data to be backed by a NoSQL datastore. NoSQL datastores are horizontally scalable and can be partition tolerant.
+    - This makes migrations much easier.
+
+##### Limitations:
+
+- This library will not work if you're trying to connect to a Gremlin Server remotely. This library creates traversals
+that call back into the library, thus, your graph implementation must be running within the same JVM.
+    - For this reason, connecting to Amazon Neptune is not currently supported, as Amazon Neptune does not support
+    calling arbitrary java from within a traversal.
 
 
 ##### Design Principles:
@@ -164,7 +164,6 @@ Or if the collection is empty we use a special `UUID` token:
 ...to preserve the difference between an empty and a null list.
 
 
-
 ##### Legal:
 
 Licensed under the Apache Software License 2.0. 
@@ -192,4 +191,3 @@ specifying a value (or function producing a value) to use when null is loaded fr
 - [Coroutine](https://kotlinlang.org/docs/reference/coroutines.html) support:
 For `GraphMapper` functions that execute a traversal, it might be useful to make them a `suspend` function.
 Coroutines are still experimental in Kotlin so I'll likely hold off on this for a bit.
-

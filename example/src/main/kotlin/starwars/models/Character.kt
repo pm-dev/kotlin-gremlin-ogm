@@ -1,11 +1,7 @@
 package starwars.models
 
 import org.apache.tinkerpop.gremlin.ogm.annotations.Property
-import org.apache.tinkerpop.gremlin.ogm.relationships.Relationship
-import org.apache.tinkerpop.gremlin.ogm.relationships.bound.out
-import org.apache.tinkerpop.gremlin.ogm.relationships.steps.dedup
-import org.apache.tinkerpop.gremlin.ogm.relationships.steps.filter
-import org.apache.tinkerpop.gremlin.ogm.relationships.steps.to
+import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import java.time.Instant
 
 internal abstract class Character(

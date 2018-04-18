@@ -6,5 +6,7 @@ import kotlin.reflect.KParameter
 internal class NonNullableNonOptionalParameter(
         kClass: KClass<*>,
         parameter: KParameter
-) : AnnotationException("Non-nullable, non-optional, primary constructor parameter must be annotated " +
-        "with @Property or @ID. Parameter: ${parameter.name}. Class: $kClass")
+) : AnnotationException(
+        description = "Non-nullable, non-optional, primary constructor parameter must be annotated " +
+                "with @Property or @ID. Parameter: ${parameter.name}. Class: $kClass"
+)

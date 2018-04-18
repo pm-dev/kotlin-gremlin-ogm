@@ -1,7 +1,7 @@
 package starwars.traversals.character
 
-import org.apache.tinkerpop.gremlin.ogm.relationships.bound.from
-import org.apache.tinkerpop.gremlin.ogm.relationships.steps.*
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.*
 import starwars.models.Character
 import starwars.models.Character.Companion.friends
 

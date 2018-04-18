@@ -7,5 +7,7 @@ internal class DuplicateID(
         name1: String?,
         name2: String?,
         annotationType: AnnotationType
-) : AnnotationException("Only one $annotationType may be annotated with @ID. " +
-        "${annotationType.name.capitalize()}: $name1, $name2. Class: $kClass.")
+) : AnnotationException(
+        description = "Only one $annotationType may be annotated with @ID. " +
+                "${annotationType.name.capitalize()}: $name1, $name2. Class: $kClass."
+)

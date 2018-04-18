@@ -1,6 +1,6 @@
 package util.example
 
-import org.apache.tinkerpop.gremlin.ogm.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 
 internal val asymmetricManyToMany = Relationship.asymmetricManyToMany<VertexWithInt, VertexWithInt>(name = "asymmetric_many_to_many")
 internal val asymmetricOptionalToMany = Relationship.asymmetricOptionalToMany<VertexWithInt, VertexWithInt>(name = "asymmetric_optional_to_many")

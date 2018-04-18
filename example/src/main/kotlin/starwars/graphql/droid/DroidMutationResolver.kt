@@ -2,8 +2,8 @@ package starwars.graphql.droid
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
-import org.apache.tinkerpop.gremlin.ogm.relationships.`in`
-import org.apache.tinkerpop.gremlin.ogm.relationships.bound.out
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.`in`
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.out
 import org.springframework.stereotype.Component
 import starwars.models.*
 import java.time.Instant

@@ -7,17 +7,25 @@ import org.apache.tinkerpop.gremlin.structure.Vertex
 
 internal fun Vertex.getProperties(): Map<String, SerializedProperty> {
     val map = mutableMapOf<String, SerializedProperty>()
-    properties<Any>().forEach { property -> map.addProperty(property.key(), property.value()) }
-    map.mapValuesInPlace { it.value.listify() }
+    properties<Any>().forEach { property ->
+        map.addProperty(property.key(), property.value())
+    }
+    map.mapValuesInPlace { entry ->
+        entry.value.listify()
+    }
     return map
 }
 
 internal fun Vertex.setProperties(
         newProperties: Map<String, SerializedProperty?>
 ): Vertex {
-    properties<Any>().forEach { it.remove() }
+    properties<Any>().forEach {
+        it.remove()
+    }
     newProperties.forEach { key, value ->
-        if (value == emptyListToken) throw EmptyListTokenIsReserved(emptyListToken)
+        if (value == emptyListToken) {
+            throw EmptyListTokenIsReserved(emptyListToken)
+        }
         setProperty(key, value)
     }
     return this
@@ -59,7 +67,9 @@ private fun SerializedProperty.listify(): SerializedProperty =
             is Map<*, *> -> {
                 @Suppress("UNCHECKED_CAST")
                 this as MutableMap<String, SerializedProperty>
-                this.mapValuesInPlace { it.value.listify() }
+                this.mapValuesInPlace { entry ->
+                    entry.value.listify()
+                }
                 this.toList() ?: this
             }
             emptyListToken -> emptyList<Any>()
@@ -71,13 +81,18 @@ private fun SerializedProperty.listify(): SerializedProperty =
  * If any key is not a valid representation of an integer, return null.
  */
 private fun Map<String, SerializedProperty>.toList(): List<SerializedProperty>? {
-    val indexToValue = mutableListOf<Pair<Int, SerializedProperty>>()
+    data class IndexAndValue(val index: Int, val value: SerializedProperty)
+    val indexToValue = mutableListOf<IndexAndValue>()
     for (entry in entries) {
         val index = entry.key.toIntOrNull() ?: return null
-        indexToValue.add(index to entry.value)
+        indexToValue.add(IndexAndValue(index, entry.value))
     }
-    indexToValue.sortBy { it.first }
-    return indexToValue.map { it.second }
+    indexToValue.sortBy {
+        it.index
+    }
+    return indexToValue.map {
+        it.value
+    }
 }
 
 
@@ -116,9 +131,11 @@ private fun Vertex.setProperty(
         is Map<*, *> -> {
             @Suppress("UNCHECKED_CAST")
             value as Map<String, SerializedProperty?>
-            value
-                    .mapKeys { key + nestedPropertyDelimiter + it.key }
-                    .forEach { k, v -> setProperty(k, v) }
+            value.mapKeys { entry ->
+                key + nestedPropertyDelimiter + entry.key
+            }.forEach { k, v ->
+                setProperty(k, v)
+            }
         }
         null -> {}
         else -> property(key, value)

@@ -5,5 +5,7 @@ import kotlin.reflect.KClass
 
 internal class ReservedIDName(
         kClass: KClass<*>
-) : AnnotationException("@Property.name may not equal ${GraphMapper.idTag}. " +
-        "This name is reserved by the library. Class: $kClass")
+) : AnnotationException(
+        description = "@Property.name may not equal ${GraphMapper.idTag}. " +
+        "This name is reserved by the library. Class: $kClass"
+)

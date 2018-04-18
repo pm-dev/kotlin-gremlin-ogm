@@ -5,4 +5,6 @@ import kotlin.reflect.KClass
 internal class IDParameterMissing(
         kClass: KClass<*>,
         annotationType: AnnotationType
-) : AnnotationException("Must annotate a $annotationType. with @ID. Class: $kClass")
+) : AnnotationException(
+        description = "Must annotate a $annotationType. with @ID. Class: $kClass"
+)
