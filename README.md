@@ -15,11 +15,11 @@ Define a Vertex
     
             @param:ID
             @property:ID
-            id: Long? = null,
+            val id: Long? = null,
                
             @param:Property(key = "name")
             @param:Property(key = "name")
-            name: String)
+            val name: String)
     
 Define a Relationship
 
@@ -58,10 +58,10 @@ which exposes a graph database through a GraphQL endpoint.
         </dependency>
         
         
-#### Advantages:
+#### Features:
 
-- Take advantage of Kotlin's type-safety. Traversals return either a list, non-optional, or optional based on
-how you define your relationships.
+- Take full advantage of Kotlin's type-safety. Traversals return either a list, non-optional, or optional based on
+whether a relationship is defined as to-many, to-single, or to-optional, respectively.
 - Map and filter traversals using your Kotlin objects.
 - No runtime code generation. Other ogms use third-party libraries that generate new classes at runtime.
 - External dependencies are limited to: Kotlin's standard library, the gremlin-driver, and slf4j. 
@@ -111,7 +111,7 @@ or declare a [`@Mapper`](https://github.com/pm-dev/kremlin/blob/master/kremlin/s
 - [`Instant` -> `String`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/InstantPropertyMapper.kt)
 - [`UUID` -> `String`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/UUIDPropertyMapper.kt)
 
-To use other property types, register a property mapper with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L50) or declare
+To use other property types, register your custom property mapper with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L50) or declare
 a [`@Mapper`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
 
