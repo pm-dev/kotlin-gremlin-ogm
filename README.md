@@ -14,7 +14,7 @@ Define a Vertex
     class Person(
     
             @param:ID
-            @properetyID
+            @property:ID
             id: Long? = null,
                
             @param:Property(key = "name")
