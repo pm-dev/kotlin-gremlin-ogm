@@ -1,7 +1,7 @@
 buildscript {
 	ext {
-		kotlinVersion = '1.2.31'
-		// the password can be specified via command line: gradle publish -P repoPassword=
+		kotlinVersion = '1.2.41'
+		// the password can be specified via command line: gradle :kremlin:publish -P repoPassword=
 		repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
 	}
 	repositories {
@@ -17,7 +17,7 @@ apply plugin: 'idea'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-version = '0.9.0'
+version = '0.9.5'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions {
@@ -83,7 +83,7 @@ publishing {
 			customizePom(pom)
 			groupId 'com.github.pm-dev'
 			artifactId 'kremlin'
-			version '0.9.0'
+			version '0.9.5'
 
 			from components.java
 

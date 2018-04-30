@@ -11,10 +11,8 @@ internal class CharacterQueryResolver(
         private val gm: GraphMapper
 ) : GraphQLQueryResolver {
 
-    // TODO this would be more efficient if we filtered for the name before loading all characters
-    fun hero(): Character = gm.loadAll<Character>().single { it.name == Name("Luke", "Skywalker") }
+    fun hero(): Character = gm.getV<Character>().filter { it.get().name == Name("Luke", "Skywalker") }.next()
 
-    // TODO this would be more efficient if we filtered for the name before loading all characters
-    fun character(name: String): Character? = gm.loadAll<Character>().find { it.name.full == name }
+    fun character(name: String): Character? = gm.getV<Character>().filter { it.get().name.full == name }.tryNext().orElse(null)
 }
 

@@ -1,9 +1,7 @@
 package org.apache.tinkerpop.gremlin.ogm.reflection
 
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper.Companion.idTag
-import org.apache.tinkerpop.gremlin.ogm.annotations.ID
-import org.apache.tinkerpop.gremlin.ogm.annotations.Mapper
-import org.apache.tinkerpop.gremlin.ogm.annotations.Property
+import org.apache.tinkerpop.gremlin.ogm.annotations.*
 import org.apache.tinkerpop.gremlin.ogm.exceptions.*
 import org.apache.tinkerpop.gremlin.ogm.extensions.nestedPropertyDelimiter
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
@@ -11,18 +9,30 @@ import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 
+internal enum class ObjectDescriptionType {
+    Vertex,
+    Edge,
+    NestedObject
+}
+
 internal class BuiltObjectDescription<T : Any>(
         val objectDescription: ObjectDescription<T>,
-        val idDescription: PropertyDescription<T>?)
+        val idDescription: PropertyDescription<T>?,
+        val inVertexParameter: KParameter?,
+        val outVertexParameter: KParameter?)
 
 internal fun <T : Any> buildObjectDescription(
         kClass: KClass<T>,
-        includeIDDescription: Boolean = false
+        type: ObjectDescriptionType
 ): BuiltObjectDescription<T> {
+    val isElement = type != ObjectDescriptionType.NestedObject
+    val isEdge = type == ObjectDescriptionType.Edge
     val constructor: KFunction<T> = kClass.primaryConstructor ?: throw PrimaryConstructorMissing(kClass)
 
     // Parse parameters
     var idParameter: KParameter? = null
+    var inVertexParameter: KParameter? = null
+    var outVertexParameter: KParameter? = null
     val annotatedParameters = mutableListOf<Pair<String, Pair<KParameter, PropertyBiMapper<Any, SerializedProperty>?>>>()
     val nullParameters = mutableListOf<KParameter>()
     for (parameter in constructor.parameters) {
@@ -40,42 +50,78 @@ internal fun <T : Any> buildObjectDescription(
             val customMapper = mapperAnnotation?.kClass?.createInstance() as? PropertyBiMapper<Any, SerializedProperty>
             annotatedParameters.add(parameterAnnotation.key to (parameter to customMapper))
         }
-        val idAnnotation = parameter.findAnnotation<ID>()
+        val idAnnotation = if (isElement) parameter.findAnnotation<ID>() else null
         if (idAnnotation != null) {
             val idParameterCopy = idParameter
-            if (parameterAnnotation != null) throw IDAndProperty(kClass, parameter.name, AnnotationType.parameter)
+            if (parameterAnnotation != null) throw ConflictingAnnotations(kClass, parameter.name, AnnotationType.parameter)
             if (idParameterCopy != null) throw DuplicateID(kClass, parameter.name, idParameterCopy.name, AnnotationType.parameter)
             if (!parameter.type.isMarkedNullable) throw NonNullableID(kClass, parameter.name, AnnotationType.parameter)
-            if (parameter.findAnnotation<Mapper>() != null) throw IDMapperUnsupported(parameter)
-            @Suppress("UNCHECKED_CAST")
+            if (parameter.findAnnotation<Mapper>() != null) throw MapperUnsupported(parameter)
             idParameter = parameter
         }
-        if (parameterAnnotation == null && idAnnotation == null && !parameter.isOptional) {
+        val inVertexAnnotation = if (isEdge) parameter.findAnnotation<InVertex>() else null
+        if (inVertexAnnotation != null) {
+            val inVertexParameterCopy = inVertexParameter
+            if (parameterAnnotation != null || idAnnotation != null) throw ConflictingAnnotations(kClass, parameter.name, AnnotationType.parameter)
+            if (inVertexParameterCopy != null) throw DuplicateInVertex(kClass, parameter.name, inVertexParameterCopy.name, AnnotationType.parameter)
+            if (parameter.findAnnotation<Mapper>() != null) throw MapperUnsupported(parameter)
+            inVertexParameter = parameter
+        }
+        val outVertexAnnotation = if (isEdge) parameter.findAnnotation<OutVertex>() else null
+        if (outVertexAnnotation != null) {
+            val outVertexParameterCopy = outVertexParameter
+            if (parameterAnnotation != null || idAnnotation != null || inVertexAnnotation != null) throw ConflictingAnnotations(kClass, parameter.name, AnnotationType.parameter)
+            if (outVertexParameterCopy != null) throw DuplicateOutVertex(kClass, parameter.name, outVertexParameterCopy.name, AnnotationType.parameter)
+            if (parameter.findAnnotation<Mapper>() != null) throw MapperUnsupported(parameter)
+            outVertexParameter = parameter
+        }
+        if (parameterAnnotation == null &&
+                idAnnotation == null &&
+                inVertexAnnotation == null &&
+                outVertexAnnotation == null &&
+                !parameter.isOptional) {
             nullParameters.add(parameter)
             if (!parameter.type.isMarkedNullable) throw NonNullableNonOptionalParameter(kClass, parameter)
         }
     }
-    if (idParameter == null && includeIDDescription) throw IDParameterMissing(kClass, AnnotationType.parameter)
+    if (idParameter == null && isElement) throw IDParameterMissing(kClass, AnnotationType.parameter)
+    if (inVertexParameter == null && isEdge) throw InVertexParameterMissing(kClass, AnnotationType.parameter)
+    if (outVertexParameter == null && isEdge) throw OutVertexParameterMissing(kClass, AnnotationType.parameter)
 
     // Parse properties
     var idProperty: KProperty1<T, *>? = null
+    var inVertexProperty: KProperty1<T, *>? = null
+    var outVertexProperty: KProperty1<T, *>? = null
     val annotatedProperties = mutableListOf<Pair<String, KProperty1<T, *>>>()
     for (property in kClass.memberProperties) {
         val propertyAnnotation = property.findAnnotation<Property>()
         if (propertyAnnotation != null) {
             annotatedProperties.add(propertyAnnotation.key to property)
         }
-        val idAnnotation = property.findAnnotation<ID>()
+        val idAnnotation = if (isElement) property.findAnnotation<ID>() else null
         if (idAnnotation != null) {
             val idPropertyCopy = idProperty
-            if (propertyAnnotation != null) throw IDAndProperty(kClass, property.name, AnnotationType.property)
+            if (propertyAnnotation != null) throw ConflictingAnnotations(kClass, property.name, AnnotationType.property)
             if (idPropertyCopy != null) throw DuplicateID(kClass, property.name, idPropertyCopy.name, AnnotationType.property)
             if (!property.returnType.isMarkedNullable) throw NonNullableID(kClass, property.name, AnnotationType.property)
             idProperty = property
         }
+        val inVertexAnnotation = if (isEdge) property.findAnnotation<InVertex>() else null
+        if (inVertexAnnotation != null) {
+            val inVertexPropertyCopy = inVertexProperty
+            if (propertyAnnotation != null || idAnnotation != null) throw ConflictingAnnotations(kClass, property.name, AnnotationType.property)
+            if (inVertexPropertyCopy != null) throw DuplicateInVertex(kClass, property.name, inVertexPropertyCopy.name, AnnotationType.property)
+            inVertexProperty = inVertexPropertyCopy
+        }
+        val outVertexAnnotation = if (isEdge) property.findAnnotation<OutVertex>() else null
+        if (outVertexAnnotation != null) {
+            val outVertexPropertyCopy = outVertexProperty
+            if (propertyAnnotation != null || idAnnotation != null || inVertexAnnotation != null) throw ConflictingAnnotations(kClass, property.name, AnnotationType.property)
+            if (outVertexPropertyCopy != null) throw DuplicateInVertex(kClass, property.name, outVertexPropertyCopy.name, AnnotationType.property)
+            outVertexProperty = outVertexPropertyCopy
+        }
     }
-    if (idProperty == null && includeIDDescription) throw IDParameterMissing(kClass, AnnotationType.property)
-
+    if (idProperty == null && isElement) throw IDParameterMissing(kClass, AnnotationType.property)
 
     val parametersMap: Map<String, Pair<KParameter, PropertyBiMapper<Any, SerializedProperty>?>> = annotatedParameters.associate { it }
     val propertyMap: Map<String, KProperty1<T, *>> = annotatedProperties.associate { it }
@@ -93,11 +139,13 @@ internal fun <T : Any> buildObjectDescription(
         val propertyDescription = PropertyDescription(parameter.first, property, parameter.second)
         key to propertyDescription
     }
-    val idPropertyDescription = if (includeIDDescription) PropertyDescription(idParameter!!, idProperty!!, null) else null
+    val idPropertyDescription = if (isElement) PropertyDescription(idParameter!!, idProperty!!, null) else null
     val nullConstructorParameters: List<KParameter> = nullParameters.toList()
     return BuiltObjectDescription(
             ObjectDescription(propertyDescriptions, constructor, nullConstructorParameters),
-            idPropertyDescription)
+            idPropertyDescription,
+            inVertexParameter,
+            outVertexParameter)
 }
 
 private fun verifyClassifiersAreCompatible(lowerBound: KClassifier?, upperBound: KClassifier?) {

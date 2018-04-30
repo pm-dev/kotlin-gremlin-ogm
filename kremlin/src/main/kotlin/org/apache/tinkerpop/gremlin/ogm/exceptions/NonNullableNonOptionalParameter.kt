@@ -8,5 +8,6 @@ internal class NonNullableNonOptionalParameter(
         parameter: KParameter
 ) : AnnotationException(
         description = "Non-nullable, non-optional, primary constructor parameter must be annotated " +
-                "with @Property or @ID. Parameter: ${parameter.name}. Class: $kClass"
+                "with @Property or @ID (for elements) or @InVertex (for edges) or @OutVertex (for edges). " +
+                "Parameter: ${parameter.name}. Class: $kClass"
 )

@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 
-internal class VerticesTest {
+internal class ElementsTest {
 
     private lateinit var vertex: Vertex
     private lateinit var vertexProperties: List<Pair<String, SerializedProperty>>

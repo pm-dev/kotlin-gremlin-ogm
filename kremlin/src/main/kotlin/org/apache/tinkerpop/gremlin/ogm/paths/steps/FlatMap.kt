@@ -5,11 +5,11 @@ import org.apache.tinkerpop.gremlin.ogm.paths.Path
 /**
  * A step that maps the current object to zero or more new objects.
  */
-class FlatMap<FROM, TO>(private val map: (FROM) -> Iterable<TO>) : Step.ToMany<FROM, TO>({
+class FlatMap<OUT, IN>(private val map: (OUT) -> Iterable<IN>) : Step.ToMany<OUT, IN>({
     it.traversal.flatMap { map(it.get()).iterator() }
 })
 
-fun <FROM, TO, NEXT> Path.ToMany<FROM, TO>.flatMap(map: (TO) -> Iterable<NEXT>): Path.ToMany<FROM, NEXT> = to(FlatMap(map))
-fun <FROM, TO, NEXT> Path.ToOptional<FROM, TO>.flatMap(map: (TO) -> Iterable<NEXT>): Path.ToMany<FROM, NEXT> = to(FlatMap(map))
-fun <FROM, TO, NEXT> Path.ToSingle<FROM, TO>.flatMap(map: (TO) -> Iterable<NEXT>): Path.ToMany<FROM, NEXT> = to(FlatMap(map))
+fun <OUT, IN, NEXT> Path.ToMany<OUT, IN>.flatMap(map: (IN) -> Iterable<NEXT>): Path.ToMany<OUT, NEXT> = to(FlatMap(map))
+fun <OUT, IN, NEXT> Path.ToOptional<OUT, IN>.flatMap(map: (IN) -> Iterable<NEXT>): Path.ToMany<OUT, NEXT> = to(FlatMap(map))
+fun <OUT, IN, NEXT> Path.ToSingle<OUT, IN>.flatMap(map: (IN) -> Iterable<NEXT>): Path.ToMany<OUT, NEXT> = to(FlatMap(map))
 

@@ -10,5 +10,5 @@ internal class HumanQueryResolver(
         private val graph: GraphMapper
 ) : GraphQLQueryResolver {
 
-    fun human(name: String): Human? = graph.loadAll<Human>().find { it.name.full == name }
+    fun human(name: String): Human? = graph.getV<Human>().filter { it.get().name.full == name }.tryNext().orElse(null)
 }

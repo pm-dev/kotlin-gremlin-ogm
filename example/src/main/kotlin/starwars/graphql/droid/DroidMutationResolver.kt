@@ -20,13 +20,14 @@ internal class DroidMutationResolver(
             appearsIn: Set<Episode>): Droid {
         val nameParts = name.split(" ")
         val lastName = nameParts.subList(1, nameParts.size).joinToString(" ")
-        val friends = graph.load<Character>(friendIds).filterNotNull()
+        val friends = graph.fetchV<Character>(friendIds).filterNotNull()
         val droid = graph.saveV(Droid(
                 name = Name(first = nameParts.first(), last = if (lastName.isEmpty()) null else lastName),
                 appearsIn = appearsIn,
                 createdAt = Instant.now(),
                 primaryFunction = primaryFunction))
         graph.saveE(droid out Character.friends `in` friends)
+//        graph.g.tx().commit() // Uncomment to save the droid
         return droid
     }
 }

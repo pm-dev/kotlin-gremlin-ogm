@@ -5,39 +5,39 @@ import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 /**
  * A [BoundRelationship] encapsulates a Relationship, as well as the object(s) the relationship starts from
  */
-interface BoundRelationship<FROM : Any, TO : Any> : BoundPath<FROM, TO> {
+interface BoundRelationship<OUT : Any, IN : Any> : BoundPath<OUT, IN> {
 
-    override val path: Relationship<FROM, TO>
+    override val path: Relationship<OUT, IN>
 
     /**
      * A [BoundRelationship] where the relationship is a [Relationship.ToOne]
      */
-    interface ToOne<FROM : Any, TO : Any> : BoundRelationship<FROM, TO>, BoundPath.ToOne<FROM, TO> {
+    interface ToOne<OUT : Any, IN : Any> : BoundRelationship<OUT, IN>, BoundPath.ToOne<OUT, IN> {
 
-        override val path: Relationship.ToOne<FROM, TO>
+        override val path: Relationship.ToOne<OUT, IN>
     }
 
     /**
      * A [BoundRelationship] where the relationship is a [Relationship.ToMany]
      */
-    interface ToMany<FROM : Any, TO : Any> : BoundRelationship<FROM, TO>, BoundPath.ToMany<FROM, TO> {
+    interface ToMany<OUT : Any, IN : Any> : BoundRelationship<OUT, IN>, BoundPath.ToMany<OUT, IN> {
 
-        override val path: Relationship.ToMany<FROM, TO>
+        override val path: Relationship.ToMany<OUT, IN>
     }
 
     /**
      * A [BoundRelationship] where the relationship is a [Relationship.ToSingle]
      */
-    interface ToSingle<FROM : Any, TO : Any> : ToOne<FROM, TO>, BoundPath.ToSingle<FROM, TO> {
+    interface ToSingle<OUT : Any, IN : Any> : ToOne<OUT, IN>, BoundPath.ToSingle<OUT, IN> {
 
-        override val path: Relationship.ToSingle<FROM, TO>
+        override val path: Relationship.ToSingle<OUT, IN>
     }
 
     /**
      * A [BoundRelationship] where the relationship is a [Relationship.ToOptional]
      */
-    interface ToOptional<FROM : Any, TO : Any> : ToOne<FROM, TO>, BoundPath.ToOptional<FROM, TO> {
+    interface ToOptional<OUT : Any, IN : Any> : ToOne<OUT, IN>, BoundPath.ToOptional<OUT, IN> {
 
-        override val path: Relationship.ToOptional<FROM, TO>
+        override val path: Relationship.ToOptional<OUT, IN>
     }
 }

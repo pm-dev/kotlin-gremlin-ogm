@@ -28,7 +28,7 @@ internal class PropertyDescription<RECEIVER>(
 ) {
     /**
      * The concrete KClass type for this property if this property represents such a type. If this property description
-     * does not have a KClass, it must have a non-null mapper.
+     * does not have a KClass, it must have a non-null vertexMapper.
      */
     val kClass = property.returnType.classifier as? KClass<*>
 }

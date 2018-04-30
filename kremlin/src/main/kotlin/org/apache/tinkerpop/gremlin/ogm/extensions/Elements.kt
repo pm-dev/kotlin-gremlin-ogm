@@ -2,10 +2,10 @@ package org.apache.tinkerpop.gremlin.ogm.extensions
 
 import org.apache.tinkerpop.gremlin.ogm.exceptions.EmptyListTokenIsReserved
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
-import org.apache.tinkerpop.gremlin.structure.Vertex
+import org.apache.tinkerpop.gremlin.structure.Element
 
 
-internal fun Vertex.getProperties(): Map<String, SerializedProperty> {
+internal fun Element.getProperties(): Map<String, SerializedProperty> {
     val map = mutableMapOf<String, SerializedProperty>()
     properties<Any>().forEach { property ->
         map.addProperty(property.key(), property.value())
@@ -16,9 +16,9 @@ internal fun Vertex.getProperties(): Map<String, SerializedProperty> {
     return map
 }
 
-internal fun Vertex.setProperties(
+internal fun <T : Element> T.setProperties(
         newProperties: Map<String, SerializedProperty?>
-): Vertex {
+): T {
     properties<Any>().forEach {
         it.remove()
     }
@@ -114,7 +114,7 @@ private fun MutableMap<String, SerializedProperty>.addProperty(propertyKey: Stri
     }
 }
 
-private fun Vertex.setProperty(
+private fun Element.setProperty(
         key: String,
         value: SerializedProperty?
 ) {

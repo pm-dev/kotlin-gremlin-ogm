@@ -74,6 +74,9 @@ type Human implements Node, Character {
 
     # The friends of the human's friends
     secondDegreeFriends(limit: Int): [Character!]!
+
+    # Siblings of this human who have the same birthday
+    twinSiblings: [Human!]!
 }
 
 # A mechanical creature in the Star Wars universe

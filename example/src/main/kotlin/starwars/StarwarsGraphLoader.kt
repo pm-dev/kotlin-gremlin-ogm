@@ -65,7 +65,7 @@ internal open class StarwarsGraphLoader(
         graph.saveE(darthVader out Character.friends `in` listOf(wilhuffTarkin))
         graph.saveE(c3po out Character.friends `in` aretoo)
         graph.saveE(hanSolo out Character.friends `in` listOf(leiaOrgana, aretoo))
-
+        graph.saveE(Sibling(outV = lukeSkywalker, inV = leiaOrgana, twins = true))
         graph.g.tx().commit()
         println("Loaded Starwars Graph")
     }

@@ -7,4 +7,4 @@ import org.apache.tinkerpop.gremlin.ogm.paths.Path
  */
 class Dedup<TYPE> : Step.ToSingle<TYPE, TYPE>({ it.traversal.dedup() })
 
-fun <FROM, TO> Path.ToMany<FROM, TO>.dedup(): Path.ToMany<FROM, TO> = to(Dedup())
+fun <OUT, IN> Path.ToMany<OUT, IN>.dedup(): Path.ToMany<OUT, IN> = to(Dedup())

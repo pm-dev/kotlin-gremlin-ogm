@@ -2,12 +2,13 @@ package org.apache.tinkerpop.gremlin.ogm
 
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ConflictingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.MissingEdge
+import org.apache.tinkerpop.gremlin.ogm.exceptions.ObjectNotSaved
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.`in`
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Connection
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.out
+import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Connection
+import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.link
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.*
 import org.assertj.core.api.Assertions.assertThat
@@ -15,6 +16,7 @@ import org.assertj.core.internal.bytebuddy.utility.RandomString
 import org.junit.Before
 import org.junit.Test
 import util.example.*
+import util.example.IntToBoolEdge.Companion.fromIntToBool
 import java.util.*
 
 internal class GraphMapperTest {
@@ -28,117 +30,117 @@ internal class GraphMapperTest {
 
     @Test
     fun `test save and load VertexWithBoolean`() {
-        saveAndLoad(VertexWithBoolean.sample())
+        saveAndLoadVertex(VertexWithBoolean.sample())
     }
 
     @Test
     fun `test save and load VertexWithByte`() {
-        saveAndLoad(VertexWithByte.sample())
+        saveAndLoadVertex(VertexWithByte.sample())
     }
 
     @Test
     fun `test save and load VertexWithInt`() {
-        saveAndLoad(VertexWithInt.sample())
+        saveAndLoadVertex(VertexWithInt.sample())
     }
 
     @Test
     fun `test save and load VertexWithDouble`() {
-        saveAndLoad(VertexWithDouble.sample())
+        saveAndLoadVertex(VertexWithDouble.sample())
     }
 
     @Test
     fun `test save and load VertexWithFloat`() {
-        saveAndLoad(VertexWithFloat.sample())
+        saveAndLoadVertex(VertexWithFloat.sample())
     }
 
     @Test
     fun `test save and load VertexWithString`() {
-        saveAndLoad(VertexWithString.sample())
+        saveAndLoadVertex(VertexWithString.sample())
     }
 
     @Test
     fun `test save and load VertexWithInstant`() {
-        saveAndLoad(VertexWithInstant.sample())
+        saveAndLoadVertex(VertexWithInstant.sample())
     }
 
     @Test
     fun `test save and load VertexWithLong`() {
-        saveAndLoad(VertexWithLong.sample())
+        saveAndLoadVertex(VertexWithLong.sample())
     }
 
     @Test
     fun `test save and load VertexWithDoubleNested`() {
-        saveAndLoad(VertexWithDoubleNested.sample())
+        saveAndLoadVertex(VertexWithDoubleNested.sample())
     }
 
     @Test
     fun `test save and load VertexWithObjectList`() {
-        saveAndLoad(VertexWithObjectList.sample())
+        saveAndLoadVertex(VertexWithObjectList.sample())
     }
 
     @Test
     fun `test save and load VertexWithObjectMap`() {
-        saveAndLoad(VertexWithObjectMap.sample())
+        saveAndLoadVertex(VertexWithObjectMap.sample())
     }
 
     @Test
     fun `test save and load VertexWithPrimitiveSet`() {
-        saveAndLoad(VertexWithPrimitiveSet.sample())
+        saveAndLoadVertex(VertexWithPrimitiveSet.sample())
     }
 
     @Test
     fun `test save and load VertexWithPrimitiveSet empty set`() {
-        saveAndLoad(VertexWithPrimitiveSet(setOfStrings = setOf()))
+        saveAndLoadVertex(VertexWithPrimitiveSet(setOfStrings = setOf()))
     }
 
     @Test
     fun `test save and load VertexWithPrimitiveList`() {
-        saveAndLoad(VertexWithPrimitiveList.sample())
+        saveAndLoadVertex(VertexWithPrimitiveList.sample())
     }
 
     @Test
     fun `test save and load VertexWithPrimitiveList empty list`() {
-        saveAndLoad(VertexWithPrimitiveList(listOfInts = listOf()))
+        saveAndLoadVertex(VertexWithPrimitiveList(listOfInts = listOf()))
     }
 
     @Test
     fun `test save and load VertexWithPrimitiveMap`() {
-        saveAndLoad(VertexWithPrimitiveMap.sample())
+        saveAndLoadVertex(VertexWithPrimitiveMap.sample())
     }
 
     @Test
     fun `test save and load VertexWithPrimitiveMap empty map`() {
-        saveAndLoad(VertexWithPrimitiveMap(intMap = mapOf()))
+        saveAndLoadVertex(VertexWithPrimitiveMap(intMap = mapOf()))
     }
 
     @Test
     fun `test save and load VertexWithEnum`() {
-        saveAndLoad(VertexWithEnum.sample())
+        saveAndLoadVertex(VertexWithEnum.sample())
     }
 
     @Test
     fun `test save and load VertexWithNumber`() {
-        saveAndLoad(VertexWithNumber.sample())
+        saveAndLoadVertex(VertexWithNumber.sample())
     }
 
     @Test
     fun `test save and load VertexWithCustomMapper`() {
-        saveAndLoad(VertexWithCustomMapper.sample())
+        saveAndLoadVertex(VertexWithCustomMapper.sample())
     }
 
     @Test
     fun `test save and load VertexWithNullable`() {
-        saveAndLoad(VertexWithNullable.sample())
+        saveAndLoadVertex(VertexWithNullable.sample())
     }
 
     @Test
     fun `test save and load VertexWithNullable nonnull`() {
-        saveAndLoad(VertexWithNullable(nullableString = RandomString.make()))
+        saveAndLoadVertex(VertexWithNullable(nullableString = RandomString.make()))
     }
 
     @Test
     fun `test save and load VertexWithUUID`() {
-        saveAndLoad(VertexWithUUID.sample())
+        saveAndLoadVertex(VertexWithUUID.sample())
     }
 
     @Test
@@ -151,29 +153,60 @@ internal class GraphMapperTest {
         assertThat(saved.id).isNotNull()
         assertThat(saved.transientString).isNull()
 
-        val loaded = gm.load<VertexWithTransient>(saved.id!!)
+        val loaded = gm.fetchV<VertexWithTransient>(saved.id!!)
         assertThat(loaded).isNotNull
         assertThat(loaded!!.id).isEqualTo(saved.id)
         assertThat(loaded.transientString).isNull()
+    }
+
+    @Test(expected = ObjectNotSaved::class)
+    fun `test save and load IntToBoolEdge vertices not saved`() {
+        gm.saveE(IntToBoolEdge(
+                a = RandomString.make(),
+                outV = VertexWithInt.sample(),
+                inV = VertexWithBoolean.sample()))
+    }
+
+    @Test
+    fun `test save and load IntToBoolEdge`() {
+        val edge = IntToBoolEdge(
+                a = RandomString.make(),
+                outV = gm.saveV(VertexWithInt.sample()),
+                inV = gm.saveV(VertexWithBoolean.sample()))
+
+        assertThat(edge.id).isNull()
+
+        val saved = gm.saveE(edge)
+        assertThat(saved.id).isNotNull()
+        assertThat(saved.a).isEqualTo(edge.a)
+        assertThat(saved.inV).isEqualTo(edge.inV)
+        assertThat(saved.outV).isEqualTo(edge.outV)
+
+        val loaded = gm.fetchE<VertexWithInt, VertexWithBoolean, IntToBoolEdge>(saved.id!!)
+        assertThat(loaded).isNotNull
+        assertThat(loaded!!.id).isEqualTo(saved.id)
+        assertThat(loaded.a).isEqualTo(saved.a)
+        assertThat(loaded.inV).isEqualTo(saved.inV)
+        assertThat(loaded.outV).isEqualTo(saved.outV)
     }
 
     @Test
     fun `test load all`() {
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
-        val objs = gm.loadAll<VertexWithInt>()
+        val objs = gm.getV<VertexWithInt>()
 
         assertThat(objs.toList()).isEqualTo(listOf(a, b))
     }
 
-    private inline fun <reified T : Base<*>> saveAndLoad(vertex: T) {
+    private inline fun <reified T : Base<*>> saveAndLoadVertex(vertex: T) {
         assertThat(vertex.id).isNull()
 
         val saved = gm.saveV(vertex)
         assertThat(saved.id).isNotNull()
         assertThat(saved.a).isEqualTo(vertex.a)
 
-        val loaded = gm.load<T>(saved.id!!)
+        val loaded = gm.fetchV<T>(saved.id!!)
         assertThat(loaded).isNotNull
         assertThat(loaded!!.id).isEqualTo(saved.id)
         assertThat(loaded.a).isEqualTo(saved.a)
@@ -234,6 +267,7 @@ internal class GraphMapperTest {
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
 
+        gm.saveE(a out asymmetricOptionalToMany `in` b)
         gm.saveE(a out asymmetricOptionalToMany `in` b)
         gm.saveE(c out asymmetricOptionalToMany `in` b)
     }
@@ -705,26 +739,24 @@ internal class GraphMapperTest {
         traverse(from = b, path = symmetricManyToMany.inverse, expecting = listOf(a))
     }
 
-    private fun <FROM : Any, TO : Any> traverse(from: FROM, path: Path.ToSingle<FROM, TO>, expecting: TO) {
-        val traversalResult = gm.traverse(path.from(from))
+    private fun <OUT : Any, IN : Any> traverse(from: OUT, path: Path.ToSingle<OUT, IN>, expecting: IN) {
+        val traversalResult = gm.traverse(path from from)
         assertThat(traversalResult).isEqualTo(expecting)
     }
 
-    private fun <FROM : Any, TO : Any> traverse(from: FROM, path: Path.ToMany<FROM, TO>, expecting: List<TO>) {
-        val traversalResult = gm.traverse(path.from(from))
+    private fun <OUT : Any, IN : Any> traverse(from: OUT, path: Path.ToMany<OUT, IN>, expecting: List<IN>) {
+        val traversalResult = gm.traverse(path from from)
         assertThat(traversalResult).hasSize(expecting.size)
         assertThat(traversalResult).isEqualTo(expecting)
     }
 
-    private fun <FROM : Any, TO : Any> traverse(from: FROM, path: Path.ToOptional<FROM, TO>, expecting: TO?) {
-        val traversalResult = gm.traverse(path.from(from))
+    private fun <OUT : Any, IN : Any> traverse(from: OUT, path: Path.ToOptional<OUT, IN>, expecting: IN?) {
         if (expecting == null) {
-            assertThat(traversalResult).isNull()
+            assertThat(gm.traverse(path from from)).isNull()
         } else {
-            assertThat(traversalResult).isEqualTo(expecting)
+            assertThat(gm.traverse(path from from)).isEqualTo(expecting)
         }
     }
-
 
     @Test
     fun `test traverse ManyToMany to SingleToOptional connection (ManyToMany)`() {
@@ -1309,5 +1341,28 @@ internal class GraphMapperTest {
         traverse(from = a, path = connection, expecting = listOf(d, d))
         traverse(from = a, path = connection.dedup(), expecting = listOf(d))
         traverse(from = a, path = connection.map { it.a }.dedup(), expecting = listOf(d.a))
+    }
+
+    @Test
+    fun `test traverse step with outE`() {
+        val a = gm.saveV(VertexWithInt.sample())
+        val b = gm.saveV(VertexWithBoolean.sample())
+
+        val edge = gm.saveE(IntToBoolEdge(a = RandomString.make(), outV = a, inV = b))
+
+        val traversalResult = gm.traverse(a outE fromIntToBool)
+        assertThat(traversalResult).isEqualTo(edge)
+    }
+
+    @Test
+    fun `test traverse linked step with outE`() {
+        val a = gm.saveV(VertexWithInt.sample())
+        val b = gm.saveV(VertexWithInt.sample())
+        val c = gm.saveV(VertexWithBoolean.sample())
+
+        gm.saveE(a out asymmetricSingleToSingle `in` b)
+        val edge = gm.saveE(IntToBoolEdge(a = RandomString.make(), outV = b, inV = c))
+
+        traverse(from = a, path = asymmetricSingleToSingle outE fromIntToBool, expecting = edge)
     }
 }

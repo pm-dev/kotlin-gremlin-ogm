@@ -3,6 +3,7 @@ package util.example
 import org.apache.commons.configuration.BaseConfiguration
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph
+import util.example.IntToBoolEdge.Companion.fromIntToBool
 
 private fun exampleGraph(): TinkerGraph {
     val idManager = TinkerGraph.DefaultIdManager.LONG.name
@@ -37,6 +38,19 @@ internal fun exampleGraphMapper() = GraphMapper(
                 VertexWithNullable::class,
                 VertexWithInt::class,
                 VertexWithTransient::class
+        ),
+        relationships = mapOf(
+                asymmetricManyToMany to null,
+                asymmetricOptionalToMany to null,
+                asymmetricOptionalToOptional to null,
+                asymmetricOptionalToSingle to null,
+                asymmetricSingleToMany to null,
+                asymmetricSingleToOptional to null,
+                asymmetricSingleToSingle to null,
+                symmetricManyToMany to null,
+                symmetricOptionalToOptional to null,
+                symmetricSingleToSingle to null,
+                fromIntToBool to IntToBoolEdge::class
         ),
         nestedObjectClasses = setOf(
                 Nested::class,

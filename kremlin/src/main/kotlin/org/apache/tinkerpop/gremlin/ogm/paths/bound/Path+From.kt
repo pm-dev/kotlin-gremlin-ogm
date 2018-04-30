@@ -5,29 +5,29 @@ import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 
 
 /**
- * The 'from' function on a [Path] can be used to bind the path to 1 or more 'From' objects
+ * The 'from' function on a [Path] can be used to bind the path to 1 or more OUT objects
  */
 
-fun <FROM : Any, TO> Path.ToMany<FROM, TO>.from(from: FROM) = SingleBoundPathToMany(from, this)
-fun <FROM : Any, TO> Path.ToMany<FROM, TO>.from(froms: Iterable<FROM>) = BoundPathToMany(froms, this)
-fun <FROM : Any, TO> Path.ToMany<FROM, TO>.from(vararg froms: FROM) = BoundPathToMany(froms.toList(), this)
+infix fun <OUT : Any, IN> Path.ToMany<OUT, IN>.from(from: OUT) = SingleBoundPathToMany(from, this)
+infix fun <OUT : Any, IN> Path.ToMany<OUT, IN>.from(froms: Iterable<OUT>) = BoundPathToMany(froms, this)
+fun <OUT : Any, IN> Path.ToMany<OUT, IN>.from(vararg froms: OUT) = BoundPathToMany(froms.toList(), this)
 
-fun <FROM : Any, TO> Path.ToOptional<FROM, TO>.from(from: FROM) = SingleBoundPathToOptional(from, this)
-fun <FROM : Any, TO> Path.ToOptional<FROM, TO>.from(froms: Iterable<FROM>) = BoundPathToOptional(froms, this)
-fun <FROM : Any, TO> Path.ToOptional<FROM, TO>.from(vararg froms: FROM) = BoundPathToOptional(froms.toList(), this)
+infix fun <OUT : Any, IN> Path.ToOptional<OUT, IN>.from(from: OUT) = SingleBoundPathToOptional(from, this)
+infix fun <OUT : Any, IN> Path.ToOptional<OUT, IN>.from(froms: Iterable<OUT>) = BoundPathToOptional(froms, this)
+fun <OUT : Any, IN> Path.ToOptional<OUT, IN>.from(vararg froms: OUT) = BoundPathToOptional(froms.toList(), this)
 
-fun <FROM : Any, TO> Path.ToSingle<FROM, TO>.from(from: FROM) = SingleBoundPathToSingle(from, this)
-fun <FROM : Any, TO> Path.ToSingle<FROM, TO>.from(froms: Iterable<FROM>) = BoundPathToSingle(froms, this)
-fun <FROM : Any, TO> Path.ToSingle<FROM, TO>.from(vararg froms: FROM) = BoundPathToSingle(froms.toList(), this)
+infix fun <OUT : Any, IN> Path.ToSingle<OUT, IN>.from(from: OUT) = SingleBoundPathToSingle(from, this)
+infix fun <OUT : Any, IN> Path.ToSingle<OUT, IN>.from(froms: Iterable<OUT>) = BoundPathToSingle(froms, this)
+fun <OUT : Any, IN> Path.ToSingle<OUT, IN>.from(vararg froms: OUT) = BoundPathToSingle(froms.toList(), this)
 
-fun <FROM : Any, TO : Any> Relationship.ToMany<FROM, TO>.from(from: FROM) = SingleBoundRelationshipToMany(from, this)
-fun <FROM : Any, TO : Any> Relationship.ToMany<FROM, TO>.from(froms: Iterable<FROM>) = BoundRelationshipToMany(froms, this)
-fun <FROM : Any, TO : Any> Relationship.ToMany<FROM, TO>.from(vararg froms: FROM) = BoundRelationshipToMany(froms.toList(), this)
+infix fun <OUT : Any, IN : Any> Relationship.ToMany<OUT, IN>.from(from: OUT) = SingleBoundRelationshipToMany(from, this)
+infix fun <OUT : Any, IN : Any> Relationship.ToMany<OUT, IN>.from(froms: Iterable<OUT>) = BoundRelationshipToMany(froms, this)
+fun <OUT : Any, IN : Any> Relationship.ToMany<OUT, IN>.from(vararg froms: OUT) = BoundRelationshipToMany(froms.toList(), this)
 
-fun <FROM : Any, TO : Any> Relationship.ToOptional<FROM, TO>.from(from: FROM) = SingleBoundRelationshipToOptional(from, this)
-fun <FROM : Any, TO : Any> Relationship.ToOptional<FROM, TO>.from(froms: Iterable<FROM>) = BoundRelationshipToOptional(froms, this)
-fun <FROM : Any, TO : Any> Relationship.ToOptional<FROM, TO>.from(vararg froms: FROM) = BoundRelationshipToOptional(froms.toList(), this)
+infix fun <OUT : Any, IN : Any> Relationship.ToOptional<OUT, IN>.from(from: OUT) = SingleBoundRelationshipToOptional(from, this)
+infix fun <OUT : Any, IN : Any> Relationship.ToOptional<OUT, IN>.from(froms: Iterable<OUT>) = BoundRelationshipToOptional(froms, this)
+fun <OUT : Any, IN : Any> Relationship.ToOptional<OUT, IN>.from(vararg froms: OUT) = BoundRelationshipToOptional(froms.toList(), this)
 
-fun <FROM : Any, TO : Any> Relationship.ToSingle<FROM, TO>.from(from: FROM) = SingleBoundRelationshipToSingle(from, this)
-fun <FROM : Any, TO : Any> Relationship.ToSingle<FROM, TO>.from(froms: Iterable<FROM>) = BoundRelationshipToSingle(froms, this)
-fun <FROM : Any, TO : Any> Relationship.ToSingle<FROM, TO>.from(vararg froms: FROM) = BoundRelationshipToSingle(froms.toList(), this)
+infix fun <OUT : Any, IN : Any> Relationship.ToSingle<OUT, IN>.from(from: OUT) = SingleBoundRelationshipToSingle(from, this)
+infix fun <OUT : Any, IN : Any> Relationship.ToSingle<OUT, IN>.from(froms: Iterable<OUT>) = BoundRelationshipToSingle(froms, this)
+fun <OUT : Any, IN : Any> Relationship.ToSingle<OUT, IN>.from(vararg froms: OUT) = BoundRelationshipToSingle(froms.toList(), this)

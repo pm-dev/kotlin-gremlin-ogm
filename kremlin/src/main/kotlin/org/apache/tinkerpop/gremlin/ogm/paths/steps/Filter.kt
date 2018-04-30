@@ -10,7 +10,7 @@ class Filter<TYPE>(private val predicate: (TYPE) -> Boolean) : Step.ToOptional<T
     it.traversal.filter { predicate(it.get()) }
 })
 
-fun <FROM, TO> Path.ToMany<FROM, TO>.filter(predicate: (TO) -> Boolean): Path.ToMany<FROM, TO> = to(Filter(predicate))
-fun <FROM, TO> Path.ToOptional<FROM, TO>.filter(predicate: (TO) -> Boolean): Path.ToOptional<FROM, TO> = to(Filter(predicate))
-fun <FROM, TO> Path.ToSingle<FROM, TO>.filter(predicate: (TO) -> Boolean): Path.ToOptional<FROM, TO> = to(Filter(predicate))
+fun <OUT, IN> Path.ToMany<OUT, IN>.filter(predicate: (IN) -> Boolean): Path.ToMany<OUT, IN> = to(Filter(predicate))
+fun <OUT, IN> Path.ToOptional<OUT, IN>.filter(predicate: (IN) -> Boolean): Path.ToOptional<OUT, IN> = to(Filter(predicate))
+fun <OUT, IN> Path.ToSingle<OUT, IN>.filter(predicate: (IN) -> Boolean): Path.ToOptional<OUT, IN> = to(Filter(predicate))
 

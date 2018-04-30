@@ -33,6 +33,8 @@ internal open class ObjectDescription<T : Any> (
 ) {
         companion object {
                 fun <T: Any> describe(kClass: KClass<T>): ObjectDescription<T> =
-                        buildObjectDescription(kClass).objectDescription
+                        buildObjectDescription(
+                                kClass = kClass,
+                                type = ObjectDescriptionType.NestedObject).objectDescription
         }
 }

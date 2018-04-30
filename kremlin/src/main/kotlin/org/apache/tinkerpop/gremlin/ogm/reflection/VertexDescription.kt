@@ -9,33 +9,27 @@ import kotlin.reflect.full.findAnnotation
 /**
  * Contains the reflection information needed to map an object to/from a vertex.
  */
-internal class VertexObjectDescription<T : Any>(
-
-        /**
-         * The label of the vertex as stored in the graph
-         */
-        val label: String,
-
-        /**
-         * The property description for the id of the vertex
-         */
-        val id: PropertyDescription<T>,
-
+internal class VertexDescription<T : Any>(
+        label: String,
+        id: PropertyDescription<T>,
         properties: Map<String, PropertyDescription<T>>,
         constructor: KFunction<T>,
         nullConstructorParameters: Collection<KParameter>
-) : ObjectDescription<T>(
+) : ElementDescription<T>(
+        label,
+        id,
         properties,
         constructor,
         nullConstructorParameters
 ) {
-
     companion object {
-        fun <T : Any> describe(kClass: KClass<T>): VertexObjectDescription<T> {
+        fun <T : Any> describe(kClass: KClass<T>): VertexDescription<T> {
             val label = kClass.findAnnotation<Vertex>()?.label
                     ?: throw RuntimeException("Class must be annotated with Vertex to be mapped to gremlin: $kClass")
-            val built = buildObjectDescription(kClass = kClass, includeIDDescription = true)
-            return VertexObjectDescription(
+            val built = buildObjectDescription(
+                    kClass = kClass,
+                    type = ObjectDescriptionType.Vertex)
+            return VertexDescription(
                     label,
                     built.idDescription!!,
                     built.objectDescription.properties,

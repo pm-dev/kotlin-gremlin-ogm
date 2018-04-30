@@ -2,12 +2,10 @@ package starwars
 
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.janusgraph.core.JanusGraphFactory
-import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
-import starwars.models.Droid
-import starwars.models.Episode
-import starwars.models.Human
-import starwars.models.Name
+import starwars.models.*
+import starwars.models.Character.Companion.friends
+import starwars.models.Sibling.Companion.siblings
 
 @Component
 internal class StarwarsGraphMapper : GraphMapper(
@@ -15,6 +13,10 @@ internal class StarwarsGraphMapper : GraphMapper(
         vertexClasses = setOf(
                 Human::class,
                 Droid::class),
+        relationships = mapOf(
+                friends to null,
+                siblings to Sibling::class
+        ),
         nestedObjectClasses = setOf(
                 Name::class
         ),

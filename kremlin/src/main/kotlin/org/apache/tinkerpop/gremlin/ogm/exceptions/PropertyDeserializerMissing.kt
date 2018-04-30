@@ -7,6 +7,6 @@ internal class PropertyDeserializerMissing(
         kClass: KClass<*>
 ) : ClientException(
         description = "You need to tell the library how to deserialize property value: $obj from the graph. " +
-                "Where you create your GraphMapper instance, please register a PropertyBiMapper as a scalar mapper " +
+                "Where you create your GraphMapper instance, please register a PropertyBiMapper as a scalar vertexMapper " +
                 "for class ${kClass::class}."
 )

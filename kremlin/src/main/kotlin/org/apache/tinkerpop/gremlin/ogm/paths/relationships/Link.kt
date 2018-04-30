@@ -3,100 +3,100 @@ package org.apache.tinkerpop.gremlin.ogm.paths.relationships
 /**
  * Links two [Connection]s as one.
  */
-internal interface Link<FROM : Any, MIDDLE: Any, TO : Any>: Connection<FROM, TO> {
+internal interface Link<OUT : Any, MIDDLE: Any, IN : Any>: Connection<OUT, IN> {
 
     /**
      * The first half of the linked connection.
      */
-    val first: Connection<FROM, MIDDLE>
+    val first: Connection<OUT, MIDDLE>
 
     /**
      * The second half of the linked connection.
      */
-    val last: Connection<MIDDLE, TO>
+    val last: Connection<MIDDLE, IN>
 
-    override val inverse: Link<TO, MIDDLE, FROM>
+    override val inverse: Link<IN, MIDDLE, OUT>
 
     override fun relationships(): List<Relationship<*, *>> = first.relationships() + last.relationships()
 
-    class OptionalToOptional<FROM : Any, MIDDLE : Any, TO : Any>(
-            override val first: Connection.OneToOne<FROM, MIDDLE>,
-            override val last: Connection.OneToOne<MIDDLE, TO>
-    ) : Link<FROM, MIDDLE, TO>, Connection.OptionalToOptional<FROM, TO> {
+    class OptionalToOptional<OUT : Any, MIDDLE : Any, IN : Any>(
+            override val first: Connection.OneToOne<OUT, MIDDLE>,
+            override val last: Connection.OneToOne<MIDDLE, IN>
+    ) : Link<OUT, MIDDLE, IN>, Connection.OptionalToOptional<OUT, IN> {
 
-        override val inverse: OptionalToOptional<TO, MIDDLE, FROM>
+        override val inverse: OptionalToOptional<IN, MIDDLE, OUT>
             get() = OptionalToOptional(first = last.inverse, last = first.inverse)
     }
 
-    class OptionalToSingle<FROM : Any, MIDDLE: Any, TO : Any>(
-            override val first: Connection.OneToSingle<FROM, MIDDLE>,
-            override val last: Connection.OneToSingle<MIDDLE, TO>
-    ) : Link<FROM, MIDDLE, TO>, Connection.OptionalToSingle<FROM, TO> {
+    class OptionalToSingle<OUT : Any, MIDDLE: Any, IN : Any>(
+            override val first: Connection.OneToSingle<OUT, MIDDLE>,
+            override val last: Connection.OneToSingle<MIDDLE, IN>
+    ) : Link<OUT, MIDDLE, IN>, Connection.OptionalToSingle<OUT, IN> {
 
-        override val inverse: SingleToOptional<TO, MIDDLE, FROM>
+        override val inverse: SingleToOptional<IN, MIDDLE, OUT>
             get() = SingleToOptional(first = last.inverse, last = first.inverse)
     }
 
-    class SingleToOptional<FROM : Any, MIDDLE: Any, TO : Any>(
-            override val first: Connection.SingleToOne<FROM, MIDDLE>,
-            override val last: Connection.SingleToOne<MIDDLE, TO>
-    ) : Link<FROM, MIDDLE, TO>, Connection.SingleToOptional<FROM, TO> {
+    class SingleToOptional<OUT : Any, MIDDLE: Any, IN : Any>(
+            override val first: Connection.SingleToOne<OUT, MIDDLE>,
+            override val last: Connection.SingleToOne<MIDDLE, IN>
+    ) : Link<OUT, MIDDLE, IN>, Connection.SingleToOptional<OUT, IN> {
 
-        override val inverse: OptionalToSingle<TO, MIDDLE, FROM>
+        override val inverse: OptionalToSingle<IN, MIDDLE, OUT>
             get() = OptionalToSingle(first = last.inverse, last = first.inverse)
     }
 
-    class SingleToSingle<FROM : Any, MIDDLE: Any, TO : Any>(
-            override val first: Connection.SingleToSingle<FROM, MIDDLE>,
-            override val last: Connection.SingleToSingle<MIDDLE, TO>
-    ) : Link<FROM, MIDDLE, TO>, Connection.SingleToSingle<FROM, TO> {
+    class SingleToSingle<OUT : Any, MIDDLE: Any, IN : Any>(
+            override val first: Connection.SingleToSingle<OUT, MIDDLE>,
+            override val last: Connection.SingleToSingle<MIDDLE, IN>
+    ) : Link<OUT, MIDDLE, IN>, Connection.SingleToSingle<OUT, IN> {
 
-        override val inverse: SingleToSingle<TO, MIDDLE, FROM>
+        override val inverse: SingleToSingle<IN, MIDDLE, OUT>
             get() = SingleToSingle(first = last.inverse, last = first.inverse)
     }
 
-    class OptionalToMany<FROM : Any, MIDDLE: Any, TO : Any>(
-            override val first: Connection.FromOne<FROM, MIDDLE>,
-            override val last: Connection.FromOne<MIDDLE, TO>
-    ) : Link<FROM, MIDDLE, TO>, Connection.OptionalToMany<FROM, TO> {
+    class OptionalToMany<OUT : Any, MIDDLE: Any, IN : Any>(
+            override val first: Connection.FromOne<OUT, MIDDLE>,
+            override val last: Connection.FromOne<MIDDLE, IN>
+    ) : Link<OUT, MIDDLE, IN>, Connection.OptionalToMany<OUT, IN> {
 
-        override val inverse: ManyToOptional<TO, MIDDLE, FROM>
+        override val inverse: ManyToOptional<IN, MIDDLE, OUT>
             get() = ManyToOptional(first = last.inverse, last = first.inverse)
     }
 
-    class SingleToMany<FROM : Any, MIDDLE: Any, TO : Any>(
-            override val first: Connection.FromSingle<FROM, MIDDLE>,
-            override val last: Connection.FromSingle<MIDDLE, TO>
-    ) : Link<FROM, MIDDLE, TO>, Connection.SingleToMany<FROM, TO> {
+    class SingleToMany<OUT : Any, MIDDLE: Any, IN : Any>(
+            override val first: Connection.FromSingle<OUT, MIDDLE>,
+            override val last: Connection.FromSingle<MIDDLE, IN>
+    ) : Link<OUT, MIDDLE, IN>, Connection.SingleToMany<OUT, IN> {
 
-        override val inverse: ManyToSingle<TO, MIDDLE, FROM>
+        override val inverse: ManyToSingle<IN, MIDDLE, OUT>
             get() = ManyToSingle(first = last.inverse, last = first.inverse)
     }
 
-    class ManyToOptional<FROM : Any, MIDDLE: Any, TO : Any>(
-            override val first: Connection.ToOne<FROM, MIDDLE>,
-            override val last: Connection.ToOne<MIDDLE, TO>
-    ) : Link<FROM, MIDDLE, TO>, Connection.ManyToOptional<FROM, TO> {
+    class ManyToOptional<OUT : Any, MIDDLE: Any, IN : Any>(
+            override val first: Connection.ToOne<OUT, MIDDLE>,
+            override val last: Connection.ToOne<MIDDLE, IN>
+    ) : Link<OUT, MIDDLE, IN>, Connection.ManyToOptional<OUT, IN> {
 
-        override val inverse: OptionalToMany<TO, MIDDLE, FROM>
+        override val inverse: OptionalToMany<IN, MIDDLE, OUT>
             get() = OptionalToMany(first = last.inverse, last = first.inverse)
     }
 
-    class ManyToSingle<FROM : Any, MIDDLE: Any, TO : Any>(
-            override val first: Connection.ToSingle<FROM, MIDDLE>,
-            override val last: Connection.ToSingle<MIDDLE, TO>
-    ) : Link<FROM, MIDDLE, TO>, Connection.ManyToSingle<FROM, TO> {
+    class ManyToSingle<OUT : Any, MIDDLE: Any, IN : Any>(
+            override val first: Connection.ToSingle<OUT, MIDDLE>,
+            override val last: Connection.ToSingle<MIDDLE, IN>
+    ) : Link<OUT, MIDDLE, IN>, Connection.ManyToSingle<OUT, IN> {
 
-        override val inverse: SingleToMany<TO, MIDDLE, FROM>
+        override val inverse: SingleToMany<IN, MIDDLE, OUT>
             get() = SingleToMany(first = last.inverse, last = first.inverse)
     }
 
-    class ManyToMany<FROM : Any, MIDDLE: Any, TO : Any>(
-            override val first: Connection<FROM, MIDDLE>,
-            override val last: Connection<MIDDLE, TO>
-    ) : Link<FROM, MIDDLE, TO>, Connection.ManyToMany<FROM, TO> {
+    class ManyToMany<OUT : Any, MIDDLE: Any, IN : Any>(
+            override val first: Connection<OUT, MIDDLE>,
+            override val last: Connection<MIDDLE, IN>
+    ) : Link<OUT, MIDDLE, IN>, Connection.ManyToMany<OUT, IN> {
 
-        override val inverse: ManyToMany<TO, MIDDLE, FROM>
+        override val inverse: ManyToMany<IN, MIDDLE, OUT>
             get() = ManyToMany(first = last.inverse, last = first.inverse)
     }
 }

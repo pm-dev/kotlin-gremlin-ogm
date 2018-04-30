@@ -6,25 +6,25 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 /**
  * A [Step] defines a single manipulation to the underlying GraphTraversal.
  */
-interface Step<FROM, TO> : Path<FROM, TO> {
+interface Step<OUT, IN> : Path<OUT, IN> {
 
     override fun path() = listOf(this)
 
-    open class ToSingle<FROM, TO>(
-            private val step: (StepTraverser<FROM>) -> GraphTraversal<*, TO>
-    ) : Path.ToSingle<FROM, TO>, Step<FROM, TO> {
-        override fun invoke(from: StepTraverser<FROM>): GraphTraversal<*, TO> = step(from)
+    open class ToSingle<OUT, IN>(
+            private val step: (StepTraverser<OUT>) -> GraphTraversal<*, IN>
+    ) : Path.ToSingle<OUT, IN>, Step<OUT, IN> {
+        override fun invoke(from: StepTraverser<OUT>): GraphTraversal<*, IN> = step(from)
     }
 
-    open class ToOptional<FROM, TO>(
-            private val step: (StepTraverser<FROM>) -> GraphTraversal<*, TO>
-    ) : Path.ToOptional<FROM, TO>, Step<FROM, TO> {
-        override fun invoke(from: StepTraverser<FROM>): GraphTraversal<*, TO> = step(from)
+    open class ToOptional<OUT, IN>(
+            private val step: (StepTraverser<OUT>) -> GraphTraversal<*, IN>
+    ) : Path.ToOptional<OUT, IN>, Step<OUT, IN> {
+        override fun invoke(from: StepTraverser<OUT>): GraphTraversal<*, IN> = step(from)
     }
 
-    open class ToMany<FROM, TO>(
-            private val step: (StepTraverser<FROM>) -> GraphTraversal<*, TO>
-    ) : Path.ToMany<FROM, TO>, Step<FROM, TO> {
-        override fun invoke(from: StepTraverser<FROM>): GraphTraversal<*, TO> = step(from)
+    open class ToMany<OUT, IN>(
+            private val step: (StepTraverser<OUT>) -> GraphTraversal<*, IN>
+    ) : Path.ToMany<OUT, IN>, Step<OUT, IN> {
+        override fun invoke(from: StepTraverser<OUT>): GraphTraversal<*, IN> = step(from)
     }
 }

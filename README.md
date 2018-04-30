@@ -47,14 +47,14 @@ which exposes a graph database through a GraphQL endpoint.
 
 - Gradle
         
-        compile 'com.github.pm-dev:kremlin:0.9.0'
+        compile 'com.github.pm-dev:kremlin:0.9.5'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kremlin</artifactId>
-            <version>0.9.0</version>
+            <version>0.9.5</version>
         </dependency>
         
         
@@ -173,11 +173,6 @@ This code is in no way affiliated with, authorized, maintained, sponsored or end
 
 
 #### Future improvements to consider:
-
-- First-class edges:
-Gremlin supports edges that have their own properties, however, this library currently 
-does npt support mapping edges to/from objects. I hope to add this feature in an upcoming release, but in the 
-meantime, it's always possible to work around this by introducing another vertex. 
 
 - Deleting edges & vertices:
 Gremlin supports removing edges and vertices, however, I haven't built this yet because removing data

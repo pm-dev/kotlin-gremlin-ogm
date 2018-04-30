@@ -9,4 +9,4 @@ class SortStep<TYPE>(private val comparator: Comparator<TYPE>) : Step.ToSingle<T
     it.traversal.order().by(comparator)
 })
 
-fun <FROM, TO> Path.ToMany<FROM, TO>.sort(comparator: Comparator<TO>): Path.ToMany<FROM, TO> = to(SortStep(comparator))
+fun <OUT, IN> Path.ToMany<OUT, IN>.sort(comparator: Comparator<IN>): Path.ToMany<OUT, IN> = to(SortStep(comparator))

@@ -9,4 +9,4 @@ class SliceStep<TYPE>(private val range: LongRange) : Step.ToOptional<TYPE, TYPE
     it.traversal.range(range.start, range.endInclusive + 1)
 })
 
-fun <FROM, TO> Path.ToMany<FROM, TO>.slice(range: LongRange): Path.ToMany<FROM, TO> = to(SliceStep(range))
+fun <OUT, IN> Path.ToMany<OUT, IN>.slice(range: LongRange): Path.ToMany<OUT, IN> = to(SliceStep(range))

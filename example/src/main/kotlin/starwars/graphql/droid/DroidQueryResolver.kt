@@ -11,6 +11,5 @@ internal class DroidQueryResolver(
         private val graph: GraphMapper
 ): GraphQLQueryResolver {
 
-    fun droid(name: String): Droid? =
-            graph.loadAll<Droid>().find { it.name.full == name }
+    fun droid(name: String): Droid? = graph.getV<Droid>().filter { it.get().name.full == name }.tryNext().orElse(null)
 }

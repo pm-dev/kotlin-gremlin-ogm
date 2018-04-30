@@ -2,10 +2,8 @@
 
 package org.apache.tinkerpop.gremlin.ogm.reflection
 
-import org.apache.tinkerpop.gremlin.ogm.annotations.ID
-import org.apache.tinkerpop.gremlin.ogm.annotations.Mapper
-import org.apache.tinkerpop.gremlin.ogm.annotations.Property
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper.Companion.idTag
+import org.apache.tinkerpop.gremlin.ogm.annotations.*
 import org.apache.tinkerpop.gremlin.ogm.exceptions.*
 import org.apache.tinkerpop.gremlin.ogm.extensions.nestedPropertyDelimiter
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
@@ -23,62 +21,92 @@ internal class DescriptionBuilderTest {
     interface VertexInterface
     @Test(expected = PrimaryConstructorMissing::class)
     fun `test no primary constructor`() {
-        buildObjectDescription(VertexInterface::class)
+        buildObjectDescription(VertexInterface::class, type = ObjectDescriptionType.Vertex)
     }
 
-    @Test(expected = IDAndProperty::class)
+    @Test(expected = ConflictingAnnotations::class)
     fun `test combined id and property on param annotation`() {
         class Vertex(@param:ID @param:Property("a") val a: String?)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
-    @Test(expected = IDAndProperty::class)
+    @Test(expected = ConflictingAnnotations::class)
     fun `test combined id and property on property annotation`() {
         class Vertex(@param:ID @property:ID @property:Property("a") val a: String?)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = DuplicateID::class)
     fun `test duplicate id on param`() {
         class Vertex(@param:ID val id1: String?, @param:ID val id2: String?)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = DuplicateID::class)
     fun `test duplicate id on property`() {
         class Vertex(@param:ID @property:ID val id1: String?,
                      @param:ID @property:ID val id2: String?)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
+    }
+
+    @Test(expected = DuplicateInVertex::class)
+    fun `test duplicate in-vertex on param`() {
+        class Edge(@InVertex val v1: Any,
+                   @InVertex val v2: Any)
+        buildObjectDescription(Edge::class, type = ObjectDescriptionType.Edge)
+    }
+
+    @Test(expected = DuplicateOutVertex::class)
+    fun `test duplicate out-vertex on param`() {
+        class Edge(@OutVertex val v1: Any,
+                   @OutVertex val v2: Any)
+        buildObjectDescription(Edge::class, type = ObjectDescriptionType.Edge)
     }
 
     @Test(expected = NonNullableID::class)
     fun `test non-nullable id param`() {
         class Vertex(@param:ID @property:ID val id: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = NonNullableID::class)
     fun `test non-nullable id property`() {
         class Vertex(@param:ID @property:ID val id: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
+    }
+
+    @Test(expected = InVertexParameterMissing::class)
+    fun `test in-vertex param missing`() {
+        class Edge(
+                @param:ID @property:ID val id: String?,
+                @OutVertex val outV: Any)
+        buildObjectDescription(Edge::class, type = ObjectDescriptionType.Edge)
+    }
+
+    @Test(expected = OutVertexParameterMissing::class)
+    fun `test out-vertex param missing`() {
+        class Edge(
+                @param:ID @property:ID val id: String?,
+                @InVertex val inV: Any)
+        buildObjectDescription(Edge::class, type = ObjectDescriptionType.Edge)
     }
 
     @Test(expected = IDParameterMissing::class)
     fun `test id param missing`() {
         class Vertex(@property:ID val id: String?)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = IDParameterMissing::class)
     fun `test id property missing`() {
         class Vertex(@param:ID val id: String?)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
-    @Test(expected = IDMapperUnsupported::class)
+    @Test(expected = MapperUnsupported::class)
     fun `test id mapper unsupported`() {
         class Vertex(@param:ID @Mapper(Base64Mapper::class) val id: String?)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = DuplicatePropertyName::class)
@@ -87,7 +115,7 @@ internal class DescriptionBuilderTest {
                 @param:ID @property:ID val id: String?,
                 @param:Property("a") @property:Property("a") val a: String,
                 @param:Property("a") @property:Property("b") val b: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = DuplicatePropertyName::class)
@@ -96,7 +124,7 @@ internal class DescriptionBuilderTest {
                 @param:ID @property:ID val id: String?,
                 @param:Property("a") @property:Property("a") val a: String,
                 @param:Property("b") @property:Property("a") val b: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = EmptyPropertyName::class)
@@ -104,7 +132,7 @@ internal class DescriptionBuilderTest {
         class Vertex(
                 @param:ID @property:ID val id: String?,
                 @param:Property("") @property:Property("") val a: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = ReservedIDName::class)
@@ -112,15 +140,15 @@ internal class DescriptionBuilderTest {
         class Vertex(
                 @param:ID @property:ID val id: String?,
                 @param:Property(idTag) @property:Property(idTag) val a: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = ReservedNestedPropertyDelimiter::class)
     fun `test reserved nested property delimiter`() {
         class Vertex(
                 @param:ID @property:ID val id: String?,
-                @param:Property("a${nestedPropertyDelimiter}") @property:Property("a${nestedPropertyDelimiter}") val a: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+                @param:Property("a$nestedPropertyDelimiter") @property:Property("a$nestedPropertyDelimiter") val a: String)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = ReservedNumberKey::class)
@@ -128,7 +156,7 @@ internal class DescriptionBuilderTest {
         class Vertex(
                 @param:ID @property:ID val id: String?,
                 @param:Property("23") @property:Property("23") val a: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = PropertyMissingOnParameter::class)
@@ -136,7 +164,7 @@ internal class DescriptionBuilderTest {
         class Vertex(
                 @param:ID @property:ID val id: String?,
                 @property:Property("a") val a: String?)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = PropertyMissingOnProperty::class)
@@ -144,7 +172,7 @@ internal class DescriptionBuilderTest {
         class Vertex(
                 @param:ID @property:ID val id: String?,
                 @param:Property("a") val a: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = ClassInheritanceMismatch::class)
@@ -153,7 +181,7 @@ internal class DescriptionBuilderTest {
                 @param:ID @property:ID val id: String?,
                 @param:Property("a") @property:Property("a") val a: String,
                 @param:Property("b") @property:Property("b") @Mapper(LongToStringMapper::class) val b: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test(expected = NonNullableNonOptionalParameter::class)
@@ -161,7 +189,7 @@ internal class DescriptionBuilderTest {
         class Vertex(
                 @param:ID @property:ID val id: String?,
                 val a: String)
-        buildObjectDescription(Vertex::class, includeIDDescription = true)
+        buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
     @Test
@@ -170,7 +198,7 @@ internal class DescriptionBuilderTest {
                 @param:ID @property:ID val id: String?,
                 @param:Property("a") @property:Property("a") @Mapper(LongToStringMapper::class) val a: Long,
                 b: String?)
-        val description = buildObjectDescription(Vertex::class, includeIDDescription = true)
+        val description = buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
 
         assertThat(description.idDescription).isNotNull
         assertThat(description.idDescription!!.kClass).isEqualTo(String::class)
