@@ -1,10 +1,10 @@
-# Kremlin - The Object Graph Mapping Library for Kotlin and Gremlin
+# The Object Graph Mapping Library for Kotlin and Gremlin
 
-[![Build Status](https://travis-ci.org/pm-dev/kremlin.svg?branch=master)](https://travis-ci.org/pm-dev/kremlin)
-[![Latest Release](https://maven-badges.herokuapp.com/maven-central/com.github.pm-dev/kremlin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.pm-dev/kremlin/)
+[![Build Status](https://travis-ci.org/pm-dev/kotlin-gremlin-ogm.svg?branch=master)](https://travis-ci.org/pm-dev/kotlin-gremlin-ogm)
+[![Latest Release](https://maven-badges.herokuapp.com/maven-central/com.github.pm-dev/kotlin-gremlin-ogm/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.pm-dev/kotlin-gremlin-ogm/)
 
 Gremlin is the graph traversal language for the Apache TinkerPop graph framework and is
-supported by most graph database implementations.
+supported by most graph database implementations, including JanusGraph.
 
 #### Basic Usage:
 
@@ -39,7 +39,7 @@ Traverse an edge
         graphMapper.traverse(michael out friends) // retuns list: [ dwight ]
         graphMapper.traverse(dwight out friends) // returns list: [ michael ]        
 
-More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kremlin/tree/master/example/src/main/kotlin/starwars), 
+More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example/src/main/kotlin/starwars), 
 which exposes a graph database through a GraphQL endpoint.
 
 
@@ -47,14 +47,14 @@ which exposes a graph database through a GraphQL endpoint.
 
 - Gradle
         
-        compile 'com.github.pm-dev:kremlin:0.9.5'
+        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.9.6'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
-            <artifactId>kremlin</artifactId>
-            <version>0.9.5</version>
+            <artifactId>kotlin-gremlin-ogm</artifactId>
+            <version>0.9.6</version>
         </dependency>
         
         
@@ -102,28 +102,28 @@ that call back into the library, thus, your graph implementation must be running
 - `String`
 
 If your Gremlin implementation does not support one of these native types, make sure to register a 
-property mapper for it with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L50) 
-or declare a [`@Mapper`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
+property mapper for it with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L50) 
+or declare a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
 
 #### Built-in property mappers:
 
-- [`Instant` -> `String`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/InstantPropertyMapper.kt)
-- [`UUID` -> `String`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/UUIDPropertyMapper.kt)
+- [`Instant` -> `String`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/InstantPropertyMapper.kt)
+- [`UUID` -> `String`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/UUIDPropertyMapper.kt)
 
-To use other property types, register your custom property mapper with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L50) or declare
-a [`@Mapper`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
+To use other property types, register your custom property mapper with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L50) or declare
+a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
 
 #### Built-in traversal steps:
 
-- [`Dedup`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Dedup.kt)
-- [`Filter`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Filter.kt)
-- [`FilterMap`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/FilterMap.kt)
-- [`FlatMap`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/FlatMap.kt)
-- [`Map`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Map.kt)
-- [`Slice`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Slice.kt)
-- [`Sort`](https://github.com/pm-dev/kremlin/blob/master/kremlin/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Sort.kt)
+- [`Dedup`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Dedup.kt)
+- [`Filter`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Filter.kt)
+- [`FilterMap`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/FilterMap.kt)
+- [`FlatMap`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/FlatMap.kt)
+- [`Map`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Map.kt)
+- [`Slice`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Slice.kt)
+- [`Sort`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Sort.kt)
 
 Or build your own custom traversal-step. 
 
