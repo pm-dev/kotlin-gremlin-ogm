@@ -44,7 +44,7 @@ dependencies {
 	compile("org.jetbrains.kotlin:kotlin-reflect")
 
 	// Gremlin
-	compile("org.apache.tinkerpop:gremlin-driver:3.3.2")
+	compile("org.apache.tinkerpop:gremlin-driver:3.3.3")
 
 	// Logging
 	compile("org.slf4j:slf4j-api:1.7.25")
@@ -53,7 +53,7 @@ dependencies {
 	testCompile("org.assertj:assertj-core:3.9.1")
 	testCompile("junit:junit:4.12")
 	testCompile("com.google.guava:guava:24.1-jre")
-	testCompile("org.apache.tinkerpop:tinkergraph-gremlin:3.3.2")
+	testCompile("org.apache.tinkerpop:tinkergraph-gremlin:3.3.3")
 }
 
 task sourceJar(type: Jar) {
@@ -82,7 +82,7 @@ publishing {
 		mavenJava(MavenPublication) {
 			customizePom(pom)
 			groupId 'com.github.pm-dev'
-			artifactId 'kremlin'
+			artifactId 'kotlin-gremlin-ogm'
 			version '0.9.5'
 
 			from components.java
@@ -157,14 +157,14 @@ def customizePom(pom) {
 			licenses {
 				license {
 					name 'Apache License 2.0'
-					url 'https://github.com/pm-dev/kremlin/blob/master/LICENSE'
+					url 'https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/LICENSE'
 					distribution 'repo'
 				}
 			}
 			scm {
-				url 'https://github.com/pm-dev/kremlin'
-				connection 'scm:git:git://github.com/pm-dev/kremlin.git'
-				developerConnection 'scm:git:ssh://git@github.com:pm-dev/kremlin.git'
+				url 'https://github.com/pm-dev/kotlin-gremlin-ogm'
+				connection 'scm:git:git://github.com/pm-dev/kotlin-gremlin-ogm.git'
+				developerConnection 'scm:git:ssh://git@github.com:pm-dev/kotlin-gremlin-ogm.git'
 			}
 			developers {
 				developer {

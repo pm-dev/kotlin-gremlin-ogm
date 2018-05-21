@@ -162,7 +162,7 @@ open class GraphMapper(
         return labels.map { label ->
             g.V().hasLabel(label)
         }.reduce { traversal1, traversal2 ->
-            traversal1.union(traversal2)
+            g.V().union(traversal1, traversal2)
         }.map { vertex ->
             vertex.get().vertexMapper<V>().inverseMap(vertex.get())
         }

@@ -1,1 +1,1 @@
-include ':kremlin', ':example'
+include ':kotlin-gremlin-ogm', ':example'
