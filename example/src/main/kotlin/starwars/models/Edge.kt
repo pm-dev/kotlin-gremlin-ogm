@@ -5,18 +5,18 @@ import org.apache.tinkerpop.gremlin.ogm.paths.relationships.BaseEdge
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import org.janusgraph.graphdb.relations.RelationIdentifier
 
-internal abstract class Edge<OUT : Any, IN : Any>(
+internal abstract class Edge<FROM : Any, TO : Any>(
 
         @property:ID
         val id: RelationIdentifier?,
 
-        outV: OUT,
+        from: FROM,
 
-        inV: IN,
+        to: TO,
 
-        relationship: Relationship<OUT, IN>
+        relationship: Relationship<FROM, TO>
 
-) : BaseEdge<OUT, IN>(outV, inV, relationship) {
+) : BaseEdge<FROM, TO>(from, to, relationship) {
 
     override fun hashCode(): Int = id?.hashCode() ?: super.hashCode()
 

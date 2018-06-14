@@ -6,6 +6,7 @@
 Gremlin is the graph traversal language for the Apache TinkerPop graph framework and is
 supported by most graph database implementations, including JanusGraph.
 
+
 #### Basic Usage:
 
 Define a Vertex
@@ -32,12 +33,12 @@ Save a Vertex
         
 Save an Edge
 
-        graphMapper.saveE(michael out friends `in` dwight)
+        graphMapper.saveE(friends from michael to dwight)
         
 Traverse an edge
 
-        graphMapper.traverse(michael out friends) // retuns list: [ dwight ]
-        graphMapper.traverse(dwight out friends) // returns list: [ michael ]        
+        graphMapper.traverse(friends from michael) // retuns list: [ dwight ]
+        graphMapper.traverse(friends from dwight) // returns list: [ michael ]        
 
 More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example/src/main/kotlin/starwars), 
 which exposes a graph database through a GraphQL endpoint.

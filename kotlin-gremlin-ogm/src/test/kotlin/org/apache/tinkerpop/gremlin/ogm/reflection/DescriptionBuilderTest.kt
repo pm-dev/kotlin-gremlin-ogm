@@ -49,17 +49,17 @@ internal class DescriptionBuilderTest {
         buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
-    @Test(expected = DuplicateInVertex::class)
+    @Test(expected = DuplicateToVertex::class)
     fun `test duplicate in-vertex on param`() {
-        class Edge(@InVertex val v1: Any,
-                   @InVertex val v2: Any)
+        class Edge(@ToVertex val v1: Any,
+                   @ToVertex val v2: Any)
         buildObjectDescription(Edge::class, type = ObjectDescriptionType.Edge)
     }
 
-    @Test(expected = DuplicateOutVertex::class)
+    @Test(expected = DuplicateFromVertex::class)
     fun `test duplicate out-vertex on param`() {
-        class Edge(@OutVertex val v1: Any,
-                   @OutVertex val v2: Any)
+        class Edge(@FromVertex val v1: Any,
+                   @FromVertex val v2: Any)
         buildObjectDescription(Edge::class, type = ObjectDescriptionType.Edge)
     }
 
@@ -75,19 +75,19 @@ internal class DescriptionBuilderTest {
         buildObjectDescription(Vertex::class, type = ObjectDescriptionType.Vertex)
     }
 
-    @Test(expected = InVertexParameterMissing::class)
+    @Test(expected = ToVertexParameterMissing::class)
     fun `test in-vertex param missing`() {
         class Edge(
                 @param:ID @property:ID val id: String?,
-                @OutVertex val outV: Any)
+                @FromVertex val from: Any)
         buildObjectDescription(Edge::class, type = ObjectDescriptionType.Edge)
     }
 
-    @Test(expected = OutVertexParameterMissing::class)
+    @Test(expected = FromVertexParameterMissing::class)
     fun `test out-vertex param missing`() {
         class Edge(
                 @param:ID @property:ID val id: String?,
-                @InVertex val inV: Any)
+                @ToVertex val to: Any)
         buildObjectDescription(Edge::class, type = ObjectDescriptionType.Edge)
     }
 

@@ -11,4 +11,4 @@ import starwars.models.Sibling.Companion.siblings
 internal fun Human.toTwinSiblings() =
         EdgeStep.ToMany<Human, Human, Sibling>(siblings).filter {
             it.twins
-        }.map { it.inV } from this
+        }.map { it.to } from this

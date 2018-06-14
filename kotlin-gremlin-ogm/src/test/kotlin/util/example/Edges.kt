@@ -1,9 +1,9 @@
 package util.example
 
+import org.apache.tinkerpop.gremlin.ogm.annotations.ToVertex
 import org.apache.tinkerpop.gremlin.ogm.annotations.ID
-import org.apache.tinkerpop.gremlin.ogm.annotations.InVertex
-import org.apache.tinkerpop.gremlin.ogm.annotations.OutVertex
 import org.apache.tinkerpop.gremlin.ogm.annotations.Property
+import org.apache.tinkerpop.gremlin.ogm.annotations.FromVertex
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.BaseEdge
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 
@@ -17,13 +17,13 @@ internal class IntToBoolEdge(
         @property:Property("a")
         val a: String,
 
-        @OutVertex
-        outV: VertexWithInt,
+        @FromVertex
+        from: VertexWithInt,
 
-        @InVertex
-        inV: VertexWithBoolean
+        @ToVertex
+        to: VertexWithBoolean
 
-) : BaseEdge<VertexWithInt, VertexWithBoolean>(outV, inV, fromIntToBool) {
+) : BaseEdge<VertexWithInt, VertexWithBoolean>(from, to, fromIntToBool) {
 
     override fun hashCode(): Int = id?.hashCode() ?: super.hashCode()
 

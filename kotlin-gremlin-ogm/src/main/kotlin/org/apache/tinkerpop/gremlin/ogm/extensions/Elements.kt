@@ -42,7 +42,7 @@ internal const val nestedPropertyDelimiter = '.'
  * When we encounter an empty list, it's important to saveV a property value that represents an empty list,
  * rather than not saving anything, otherwise, when reading the value for that property later, it would appear that the
  * value is null, which is different from an empty list. This token is what we'll saveV to mark the property value
- * as an empty list. This value must never be changed after it's used in a graph.
+ * as an empty list. This value must never be changed after it's used to a graph.
  *
  * This is internal and not private for testing.
  */
@@ -77,7 +77,7 @@ private fun SerializedProperty.listify(): SerializedProperty =
         }
 
 /**
- * If every key in the map is an integer string, convert the map to a list, sorted by the integer value of the keys.
+ * If every key to the map is an integer string, convert the map to a list, sorted by the integer value of the keys.
  * If any key is not a valid representation of an integer, return null.
  */
 private fun Map<String, SerializedProperty>.toList(): List<SerializedProperty>? {

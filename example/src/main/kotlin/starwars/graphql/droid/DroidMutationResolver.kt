@@ -2,10 +2,13 @@ package starwars.graphql.droid
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.`in`
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.out
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
 import org.springframework.stereotype.Component
-import starwars.models.*
+import starwars.models.Character
+import starwars.models.Droid
+import starwars.models.Episode
+import starwars.models.Name
 import java.time.Instant
 
 @Component
@@ -26,7 +29,7 @@ internal class DroidMutationResolver(
                 appearsIn = appearsIn,
                 createdAt = Instant.now(),
                 primaryFunction = primaryFunction))
-        graph.saveE(droid out Character.friends `in` friends)
+        graph.saveE(Character.friends from droid to friends)
 //        graph.g.tx().commit() // Uncomment to save the droid
         return droid
     }

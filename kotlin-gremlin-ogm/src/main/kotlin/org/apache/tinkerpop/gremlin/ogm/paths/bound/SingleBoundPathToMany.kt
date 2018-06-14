@@ -3,10 +3,10 @@ package org.apache.tinkerpop.gremlin.ogm.paths.bound
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
 
 /**
- * A [SingleBoundPath] that results in 0 or more 'IN' objects for each 'OUT' object
+ * A [SingleBoundPath] that results to 0 or more 'TO' objects for each 'FROM' object
  * the path is traversed with.
  */
-class SingleBoundPathToMany<OUT : Any, IN>(
-        override val outV: OUT,
-        override val path: Path.ToMany<OUT, IN>
-) : SingleBoundPath.ToMany<OUT, IN>
+class SingleBoundPathToMany<FROM : Any, TO>(
+        override val from: FROM,
+        override val path: Path.ToMany<FROM, TO>
+) : SingleBoundPath.ToMany<FROM, TO>

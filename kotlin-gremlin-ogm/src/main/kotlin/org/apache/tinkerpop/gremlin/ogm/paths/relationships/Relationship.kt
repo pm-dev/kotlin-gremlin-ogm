@@ -4,7 +4,7 @@ package org.apache.tinkerpop.gremlin.ogm.paths.relationships
  * A [Relationship] defines a path between two vertices that does not travel through any other vertices.
  * Each [Relationship] must be registered with a GraphMapper.
  */
-interface Relationship<OUT : Any, IN : Any> : Connection<OUT, IN> {
+interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
 
     /**
      * Relationships may be asymmetric, meaning if vertex A relates to vertex B, that
@@ -24,7 +24,7 @@ interface Relationship<OUT : Any, IN : Any> : Connection<OUT, IN> {
     }
 
     /**
-     * The name of the [Relationship] that will be stored in the graph. [Relationship.name]s
+     * The name of the [Relationship] that will be stored to the graph. [Relationship.name]s
      * must be globally unique.
      */
     val name: String
@@ -36,7 +36,7 @@ interface Relationship<OUT : Any, IN : Any> : Connection<OUT, IN> {
 
     override fun relationships() = listOf(this)
 
-    override val inverse: Relationship<IN, OUT>
+    override val inverse: Relationship<TO, FROM>
 
     data class SymmetricSingleToSingle<TYPE : Any>(
             override val name: String
@@ -59,227 +59,227 @@ interface Relationship<OUT : Any, IN : Any> : Connection<OUT, IN> {
         override val inverse: SymmetricManyToMany<TYPE> get() = this
     }
 
-    data class AsymmetricOptionalToOptional<OUT : Any, IN : Any>(
+    data class AsymmetricOptionalToOptional<FROM : Any, TO : Any>(
             override val name: String,
             override val direction: Direction = Direction.FORWARD
-    ) : OptionalToOptional<OUT, IN> {
+    ) : OptionalToOptional<FROM, TO> {
 
-        override val inverse: AsymmetricOptionalToOptional<IN, OUT>
+        override val inverse: AsymmetricOptionalToOptional<TO, FROM>
             get() = AsymmetricOptionalToOptional(
                     name = name,
                     direction = direction.inverse)
     }
 
-    data class AsymmetricOptionalToSingle<OUT : Any, IN : Any>(
+    data class AsymmetricOptionalToSingle<FROM : Any, TO : Any>(
             override val name: String,
             override val direction: Direction = Direction.FORWARD
-    ) : OptionalToSingle<OUT, IN> {
+    ) : OptionalToSingle<FROM, TO> {
 
-        override val inverse: AsymmetricSingleToOptional<IN, OUT>
+        override val inverse: AsymmetricSingleToOptional<TO, FROM>
             get() = AsymmetricSingleToOptional(
                     name = name,
                     direction = direction.inverse)
     }
 
-    data class AsymmetricSingleToOptional<OUT : Any, IN : Any>(
+    data class AsymmetricSingleToOptional<FROM : Any, TO : Any>(
             override val name: String,
             override val direction: Direction = Direction.FORWARD
-    ) : SingleToOptional<OUT, IN> {
+    ) : SingleToOptional<FROM, TO> {
 
-        override val inverse: AsymmetricOptionalToSingle<IN, OUT>
+        override val inverse: AsymmetricOptionalToSingle<TO, FROM>
             get() = AsymmetricOptionalToSingle(
                     name = name,
                     direction = direction.inverse)
     }
 
-    data class AsymmetricSingleToSingle<OUT : Any, IN : Any>(
+    data class AsymmetricSingleToSingle<FROM : Any, TO : Any>(
             override val name: String,
             override val direction: Direction = Direction.FORWARD
-    ) : SingleToSingle<OUT, IN> {
+    ) : SingleToSingle<FROM, TO> {
 
-        override val inverse: AsymmetricSingleToSingle<IN, OUT>
+        override val inverse: AsymmetricSingleToSingle<TO, FROM>
             get() = AsymmetricSingleToSingle(
                     name = name,
                     direction = direction.inverse)
     }
 
-    data class AsymmetricSingleToMany<OUT : Any, IN : Any>(
+    data class AsymmetricSingleToMany<FROM : Any, TO : Any>(
             override val name: String
-    ) : SingleToMany<OUT, IN>, AsymmetricOneToMany<OUT, IN> {
+    ) : SingleToMany<FROM, TO>, AsymmetricOneToMany<FROM, TO> {
 
-        override val inverse: AsymmetricManyToSingle<IN, OUT>
+        override val inverse: AsymmetricManyToSingle<TO, FROM>
             get() = AsymmetricManyToSingle(
                     name = name)
     }
 
-    data class AsymmetricOptionalToMany<OUT : Any, IN : Any>(
+    data class AsymmetricOptionalToMany<FROM : Any, TO : Any>(
             override val name: String
-    ) :  OptionalToMany<OUT, IN>, AsymmetricOneToMany<OUT, IN> {
+    ) :  OptionalToMany<FROM, TO>, AsymmetricOneToMany<FROM, TO> {
 
-        override val inverse: AsymmetricManyToOptional<IN, OUT>
+        override val inverse: AsymmetricManyToOptional<TO, FROM>
             get() = AsymmetricManyToOptional(
                     name = name)
     }
 
     /**
      * We restrict creating ManyToOne relationships by clients to prevent creation of a
-     * ManyToOne relationship that is equivalent in meaning to an already defined OneToMany
+     * ManyToOne relationship that is equivalent to meaning to an already defined OneToMany
      * relationship, but using a different name. To get a ManyToOne relationship, define it
      * as its OneToMany equivalent then get its inverse.
      */
-    data class AsymmetricManyToOptional<OUT : Any, IN : Any> internal constructor(
+    data class AsymmetricManyToOptional<FROM : Any, TO : Any> internal constructor(
             override val name: String
-    ) : ManyToOptional<OUT, IN>, AsymmetricManyToOne<OUT, IN> {
+    ) : ManyToOptional<FROM, TO>, AsymmetricManyToOne<FROM, TO> {
 
-        override val inverse: AsymmetricOptionalToMany<IN, OUT>
+        override val inverse: AsymmetricOptionalToMany<TO, FROM>
             get() = AsymmetricOptionalToMany(
                     name = name)
     }
 
     /**
      * We restrict creating ManyToOne relationships by clients to prevent creation of a
-     * ManyToOne relationship that is equivalent in meaning to an already defined OneToMany
+     * ManyToOne relationship that is equivalent to meaning to an already defined OneToMany
      * relationship, but using a different name. To get a ManyToOne relationship, define it
      * as its OneToMany equivalent then get its inverse.
      */
-    data class AsymmetricManyToSingle<OUT : Any, IN : Any> internal constructor(
+    data class AsymmetricManyToSingle<FROM : Any, TO : Any> internal constructor(
             override val name: String
-    ) : ManyToSingle<OUT, IN>, AsymmetricManyToOne<OUT, IN> {
+    ) : ManyToSingle<FROM, TO>, AsymmetricManyToOne<FROM, TO> {
 
-        override val inverse: AsymmetricSingleToMany<IN, OUT>
+        override val inverse: AsymmetricSingleToMany<TO, FROM>
             get() = AsymmetricSingleToMany(
                     name = name)
     }
 
-    data class AsymmetricManyToMany<OUT : Any, IN : Any>(
+    data class AsymmetricManyToMany<FROM : Any, TO : Any>(
             override val name: String,
             override val direction: Direction = Direction.FORWARD
-    ) : ManyToMany<OUT, IN> {
+    ) : ManyToMany<FROM, TO> {
 
-        override val inverse: AsymmetricManyToMany<IN, OUT>
+        override val inverse: AsymmetricManyToMany<TO, FROM>
             get() = AsymmetricManyToMany(
                     name = name,
                     direction = direction.inverse)
     }
 
-    interface FromOne<OUT : Any, IN : Any> : Relationship<OUT, IN>, Connection.FromOne<OUT, IN> {
+    interface FromOne<FROM : Any, TO : Any> : Relationship<FROM, TO>, Connection.FromOne<FROM, TO> {
 
-        override val inverse: ToOne<IN, OUT>
+        override val inverse: ToOne<TO, FROM>
     }
 
-    interface FromOptional<OUT : Any, IN : Any> : FromOne<OUT, IN>, Connection.FromOptional<OUT, IN> {
+    interface FromOptional<FROM : Any, TO : Any> : FromOne<FROM, TO>, Connection.FromOptional<FROM, TO> {
 
-        override val inverse: ToOptional<IN, OUT>
+        override val inverse: ToOptional<TO, FROM>
     }
 
-    interface FromSingle<OUT : Any, IN : Any> : FromOne<OUT, IN>, Connection.FromSingle<OUT, IN> {
+    interface FromSingle<FROM : Any, TO : Any> : FromOne<FROM, TO>, Connection.FromSingle<FROM, TO> {
 
-        override val inverse: ToSingle<IN, OUT>
+        override val inverse: ToSingle<TO, FROM>
     }
 
-    interface FromMany<OUT : Any, IN : Any> : Relationship<OUT, IN>, Connection.FromMany<OUT, IN> {
+    interface FromMany<FROM : Any, TO : Any> : Relationship<FROM, TO>, Connection.FromMany<FROM, TO> {
 
-        override val inverse: ToMany<IN, OUT>
+        override val inverse: ToMany<TO, FROM>
     }
 
-    interface ToOne<OUT : Any, IN : Any> : Relationship<OUT, IN>, Connection.ToOne<OUT, IN> {
+    interface ToOne<FROM : Any, TO : Any> : Relationship<FROM, TO>, Connection.ToOne<FROM, TO> {
 
-        override val inverse: FromOne<IN, OUT>
+        override val inverse: FromOne<TO, FROM>
     }
 
-    interface ToOptional<OUT : Any, IN : Any> : ToOne<OUT, IN>, Connection.ToOptional<OUT, IN> {
+    interface ToOptional<FROM : Any, TO : Any> : ToOne<FROM, TO>, Connection.ToOptional<FROM, TO> {
 
-        override val inverse: FromOptional<IN, OUT>
+        override val inverse: FromOptional<TO, FROM>
     }
 
-    interface ToSingle<OUT : Any, IN : Any> : ToOne<OUT, IN>, Connection.ToSingle<OUT, IN> {
+    interface ToSingle<FROM : Any, TO : Any> : ToOne<FROM, TO>, Connection.ToSingle<FROM, TO> {
 
-        override val inverse: FromSingle<IN, OUT>
+        override val inverse: FromSingle<TO, FROM>
     }
 
-    interface ToMany<OUT : Any, IN : Any> : Relationship<OUT, IN>, Connection.ToMany<OUT, IN> {
+    interface ToMany<FROM : Any, TO : Any> : Relationship<FROM, TO>, Connection.ToMany<FROM, TO> {
 
-        override val inverse: FromMany<IN, OUT>
+        override val inverse: FromMany<TO, FROM>
     }
 
-    interface OneToOne<OUT : Any, IN : Any> : FromOne<OUT, IN>, ToOne<OUT, IN>, Connection.OneToOne<OUT, IN> {
+    interface OneToOne<FROM : Any, TO : Any> : FromOne<FROM, TO>, ToOne<FROM, TO>, Connection.OneToOne<FROM, TO> {
 
-        override val inverse: OneToOne<IN, OUT>
+        override val inverse: OneToOne<TO, FROM>
     }
 
-    interface OneToOptional<OUT : Any, IN : Any> : OneToOne<OUT, IN>, ToOptional<OUT, IN>, Connection.OneToOptional<OUT, IN> {
+    interface OneToOptional<FROM : Any, TO : Any> : OneToOne<FROM, TO>, ToOptional<FROM, TO>, Connection.OneToOptional<FROM, TO> {
 
-        override val inverse: OptionalToOne<IN, OUT>
+        override val inverse: OptionalToOne<TO, FROM>
     }
 
-    interface OneToSingle<OUT : Any, IN : Any> : OneToOne<OUT, IN>, ToSingle<OUT, IN>, Connection.OneToSingle<OUT, IN> {
+    interface OneToSingle<FROM : Any, TO : Any> : OneToOne<FROM, TO>, ToSingle<FROM, TO>, Connection.OneToSingle<FROM, TO> {
 
-        override val inverse: SingleToOne<IN, OUT>
+        override val inverse: SingleToOne<TO, FROM>
     }
 
-    interface OptionalToOne<OUT : Any, IN : Any> : FromOptional<OUT, IN>, OneToOne<OUT, IN>, Connection.OptionalToOne<OUT, IN> {
+    interface OptionalToOne<FROM : Any, TO : Any> : FromOptional<FROM, TO>, OneToOne<FROM, TO>, Connection.OptionalToOne<FROM, TO> {
 
-        override val inverse: OneToOptional<IN, OUT>
+        override val inverse: OneToOptional<TO, FROM>
     }
 
-    interface SingleToOne<OUT : Any, IN : Any> : FromSingle<OUT, IN>, OneToOne<OUT, IN>, Connection.SingleToOne<OUT, IN> {
+    interface SingleToOne<FROM : Any, TO : Any> : FromSingle<FROM, TO>, OneToOne<FROM, TO>, Connection.SingleToOne<FROM, TO> {
 
-        override val inverse: OneToSingle<IN, OUT>
+        override val inverse: OneToSingle<TO, FROM>
     }
 
-    interface OneToMany<OUT : Any, IN : Any> : FromOne<OUT, IN>, ToMany<OUT, IN>, Connection.OneToMany<OUT, IN> {
+    interface OneToMany<FROM : Any, TO : Any> : FromOne<FROM, TO>, ToMany<FROM, TO>, Connection.OneToMany<FROM, TO> {
 
-        override val inverse: ManyToOne<IN, OUT>
+        override val inverse: ManyToOne<TO, FROM>
     }
 
-    interface ManyToOne<OUT : Any, IN : Any> : FromMany<OUT, IN>, ToOne<OUT, IN>, Connection.ManyToOne<OUT, IN> {
+    interface ManyToOne<FROM : Any, TO : Any> : FromMany<FROM, TO>, ToOne<FROM, TO>, Connection.ManyToOne<FROM, TO> {
 
-        override val inverse: OneToMany<IN, OUT>
+        override val inverse: OneToMany<TO, FROM>
     }
 
-    interface OptionalToOptional<OUT : Any, IN : Any> : OptionalToOne<OUT, IN>, OneToOptional<OUT, IN>, Connection.OptionalToOptional<OUT, IN> {
+    interface OptionalToOptional<FROM : Any, TO : Any> : OptionalToOne<FROM, TO>, OneToOptional<FROM, TO>, Connection.OptionalToOptional<FROM, TO> {
 
-        override val inverse: OptionalToOptional<IN, OUT>
+        override val inverse: OptionalToOptional<TO, FROM>
     }
 
-    interface OptionalToSingle<OUT : Any, IN : Any> : OptionalToOne<OUT, IN>, OneToSingle<OUT, IN>, Connection.OptionalToSingle<OUT, IN> {
+    interface OptionalToSingle<FROM : Any, TO : Any> : OptionalToOne<FROM, TO>, OneToSingle<FROM, TO>, Connection.OptionalToSingle<FROM, TO> {
 
-        override val inverse: SingleToOptional<IN, OUT>
+        override val inverse: SingleToOptional<TO, FROM>
     }
 
-    interface SingleToOptional<OUT : Any, IN : Any> : SingleToOne<OUT, IN>, OneToOptional<OUT, IN>, Connection.SingleToOptional<OUT, IN> {
+    interface SingleToOptional<FROM : Any, TO : Any> : SingleToOne<FROM, TO>, OneToOptional<FROM, TO>, Connection.SingleToOptional<FROM, TO> {
 
-        override val inverse: OptionalToSingle<IN, OUT>
+        override val inverse: OptionalToSingle<TO, FROM>
     }
 
-    interface SingleToSingle<OUT : Any, IN : Any> : SingleToOne<OUT, IN>, OneToSingle<OUT, IN>, Connection.SingleToSingle<OUT, IN> {
+    interface SingleToSingle<FROM : Any, TO : Any> : SingleToOne<FROM, TO>, OneToSingle<FROM, TO>, Connection.SingleToSingle<FROM, TO> {
 
-        override val inverse: SingleToSingle<IN, OUT>
+        override val inverse: SingleToSingle<TO, FROM>
     }
 
-    interface OptionalToMany<OUT : Any, IN : Any> : FromOptional<OUT, IN>, OneToMany<OUT, IN>, Connection.OptionalToMany<OUT, IN> {
+    interface OptionalToMany<FROM : Any, TO : Any> : FromOptional<FROM, TO>, OneToMany<FROM, TO>, Connection.OptionalToMany<FROM, TO> {
 
-        override val inverse: ManyToOptional<IN, OUT>
+        override val inverse: ManyToOptional<TO, FROM>
     }
 
-    interface SingleToMany<OUT : Any, IN : Any> : FromSingle<OUT, IN>, OneToMany<OUT, IN>, Connection.SingleToMany<OUT, IN> {
+    interface SingleToMany<FROM : Any, TO : Any> : FromSingle<FROM, TO>, OneToMany<FROM, TO>, Connection.SingleToMany<FROM, TO> {
 
-        override val inverse: ManyToSingle<IN, OUT>
+        override val inverse: ManyToSingle<TO, FROM>
     }
 
-    interface ManyToOptional<OUT : Any, IN : Any> : ManyToOne<OUT, IN>, ToOptional<OUT, IN>, Connection.ManyToOptional<OUT, IN> {
+    interface ManyToOptional<FROM : Any, TO : Any> : ManyToOne<FROM, TO>, ToOptional<FROM, TO>, Connection.ManyToOptional<FROM, TO> {
 
-        override val inverse: OptionalToMany<IN, OUT>
+        override val inverse: OptionalToMany<TO, FROM>
     }
 
-    interface ManyToSingle<OUT : Any, IN : Any> : ManyToOne<OUT, IN>, ToSingle<OUT, IN>, Connection.ManyToSingle<OUT, IN> {
+    interface ManyToSingle<FROM : Any, TO : Any> : ManyToOne<FROM, TO>, ToSingle<FROM, TO>, Connection.ManyToSingle<FROM, TO> {
 
-        override val inverse: SingleToMany<IN, OUT>
+        override val inverse: SingleToMany<TO, FROM>
     }
 
-    interface ManyToMany<OUT : Any, IN : Any> : FromMany<OUT, IN>, ToMany<OUT, IN>, Connection.ManyToMany<OUT, IN> {
+    interface ManyToMany<FROM : Any, TO : Any> : FromMany<FROM, TO>, ToMany<FROM, TO>, Connection.ManyToMany<FROM, TO> {
 
-        override val inverse: ManyToMany<IN, OUT>
+        override val inverse: ManyToMany<TO, FROM>
     }
 
     interface Symmetric<TYPE : Any> : Relationship<TYPE, TYPE> {
@@ -287,12 +287,12 @@ interface Relationship<OUT : Any, IN : Any> : Connection<OUT, IN> {
         override val direction: Direction? get() = null
     }
 
-    interface AsymmetricManyToOne<OUT : Any, IN : Any> : ManyToOne<OUT, IN> {
+    interface AsymmetricManyToOne<FROM : Any, TO : Any> : ManyToOne<FROM, TO> {
 
         override val direction: Direction? get() = Direction.BACKWARD
     }
 
-    interface AsymmetricOneToMany<OUT : Any, IN : Any> : OneToMany<OUT, IN> {
+    interface AsymmetricOneToMany<FROM : Any, TO : Any> : OneToMany<FROM, TO> {
 
         override val direction: Direction? get() = Direction.FORWARD
     }
@@ -300,89 +300,89 @@ interface Relationship<OUT : Any, IN : Any> : Connection<OUT, IN> {
     companion object {
 
         /**
-         * Creates a [Relationship] that is uni-directional. When traversed from a 'OUT' object,
-         * there will be 0 or 1 'IN' objects. When the [inverse] is traversed from a 'IN' object,
-         * there will be 0 or 1 'OUT' objects.
+         * Creates a [Relationship] that is uni-directional. When traversed from a 'FROM' object,
+         * there will be 0 or 1 'TO' objects. When the [inverse] is traversed from a 'TO' object,
+         * there will be 0 or 1 'FROM' objects.
          */
-        inline fun <reified OUT : Any, reified IN : Any> asymmetricOptionalToOptional(
+        inline fun <reified FROM : Any, reified TO : Any> asymmetricOptionalToOptional(
                 name: String,
                 direction: Direction = Direction.FORWARD
-        ) = AsymmetricOptionalToOptional<OUT, IN>(
+        ) = AsymmetricOptionalToOptional<FROM, TO>(
                 name = name,
                 direction = direction)
 
         /**
-         * Creates a [Relationship] that is uni-directional. When traversed from a 'OUT' object,
-         * there will be exactly 1 'IN' objects. When the [inverse] is traversed from a 'IN' object,
-         * there will be 0 or 1 'OUT' objects.
+         * Creates a [Relationship] that is uni-directional. When traversed from a 'FROM' object,
+         * there will be exactly 1 'TO' objects. When the [inverse] is traversed from a 'TO' object,
+         * there will be 0 or 1 'FROM' objects.
          */
-        inline fun <reified OUT : Any, reified IN : Any> asymmetricOptionalToSingle(
+        inline fun <reified FROM : Any, reified TO : Any> asymmetricOptionalToSingle(
                 name: String,
                 direction: Direction = Direction.FORWARD
-        ) = AsymmetricOptionalToSingle<OUT, IN>(
+        ) = AsymmetricOptionalToSingle<FROM, TO>(
                 name = name,
                 direction = direction)
 
         /**
-         * Creates a [Relationship] that is uni-directional. When traversed from a 'OUT' object,
-         * there will be 0 or 1 'IN' objects. When the [inverse] is traversed from a 'IN' object,
-         * there will be exactly 1 'OUT' object.
+         * Creates a [Relationship] that is uni-directional. When traversed from a 'FROM' object,
+         * there will be 0 or 1 'TO' objects. When the [inverse] is traversed from a 'TO' object,
+         * there will be exactly 1 'FROM' object.
          */
-        inline fun <reified OUT : Any, reified IN : Any> asymmetricSingleToOptional(
+        inline fun <reified FROM : Any, reified TO : Any> asymmetricSingleToOptional(
                 name: String,
                 direction: Direction = Direction.FORWARD
-        ) = AsymmetricSingleToOptional<OUT, IN>(
+        ) = AsymmetricSingleToOptional<FROM, TO>(
                 name = name,
                 direction = direction)
 
         /**
-         * Creates a [Relationship] that is uni-directional. When traversed from a 'OUT' object,
-         * there will be exactly 1 'IN' object. When the [inverse] is traversed from a 'IN' object,
-         * there will be exactly 1 'OUT' object.
+         * Creates a [Relationship] that is uni-directional. When traversed from a 'FROM' object,
+         * there will be exactly 1 'TO' object. When the [inverse] is traversed from a 'TO' object,
+         * there will be exactly 1 'FROM' object.
          */
-        inline fun <reified OUT : Any, reified IN : Any> asymmetricSingleToSingle(
+        inline fun <reified FROM : Any, reified TO : Any> asymmetricSingleToSingle(
                 name: String,
                 direction: Direction = Direction.FORWARD
-        ) = AsymmetricSingleToSingle<OUT, IN>(
+        ) = AsymmetricSingleToSingle<FROM, TO>(
                 name = name,
                 direction = direction)
 
         /**
-         * Creates a [Relationship] that is uni-directional. When traversed from a 'OUT' object,
-         * there will be exactly 1 'IN' object. When the [inverse] is traversed from a 'IN' object,
-         * there will be exactly 1 'OUT' object.
+         * Creates a [Relationship] that is uni-directional. When traversed from a 'FROM' object,
+         * there will be exactly 1 'TO' object. When the [inverse] is traversed from a 'TO' object,
+         * there will be exactly 1 'FROM' object.
          */
-        inline fun <reified OUT : Any, reified IN : Any> asymmetricSingleToMany(
+        inline fun <reified FROM : Any, reified TO : Any> asymmetricSingleToMany(
                 name: String
-        ) = AsymmetricSingleToMany<OUT, IN>(
+        ) = AsymmetricSingleToMany<FROM, TO>(
                 name = name)
 
         /**
-         * Creates a [Relationship] that is uni-directional. When traversed from a 'OUT' object,
-         * there will be 0 or more 'IN' objects. When the [inverse] is traversed from a 'IN' object,
-         * there will be 0 or 1 'OUT' object.
+         * Creates a [Relationship] that is uni-directional. When traversed from a 'FROM' object,
+         * there will be 0 or more 'TO' objects. When the [inverse] is traversed from a 'TO' object,
+         * there will be 0 or 1 'FROM' object.
          */
-        inline fun <reified OUT : Any, reified IN : Any> asymmetricOptionalToMany(
+        inline fun <reified FROM : Any, reified TO : Any> asymmetricOptionalToMany(
                 name: String
-        ) = AsymmetricOptionalToMany<OUT, IN>(
+        ) = AsymmetricOptionalToMany<FROM, TO>(
                 name = name)
 
         /**
-         * Creates a [Relationship] that is uni-directional. When traversed from a 'OUT' object,
-         * there will be 0 or more 'IN' objects. When the [inverse] is traversed from a 'IN' object,
-         * there will be 0 or more 'OUT' objects.
+         * Creates a [Relationship] that is uni-directional. When traversed from a 'FROM' object,
+         * there will be 0 or more 'TO' objects. When the [inverse] is traversed from a 'TO' object,
+         * there will be 0 or more 'FROM' objects.
          */
-        inline fun <reified OUT : Any, reified IN : Any> asymmetricManyToMany(
+        inline fun <reified FROM : Any, reified TO : Any> asymmetricManyToMany(
                 name: String,
                 direction: Direction = Direction.FORWARD
-        ) = AsymmetricManyToMany<OUT, IN>(
+        ) = AsymmetricManyToMany<FROM, TO>(
                 name = name,
                 direction = direction)
 
         /**
-         * Creates a [Relationship] that is bi-directional. When traversed from a 'OUT' object,
-         * there will be 0 or 1 'IN' objects. When the [inverse] is traversed from a 'IN' object,
-         * there will be 0 or 1 'OUT' objects.
+         * Creates a [Relationship] that is bi-directional. When traversed from a 'FROM' object,
+         * there will be 0 or 1 'TO' objects. When the [inverse] is traversed from a 'TO' object,
+         * there will be 0 or 1 'FROM' objects.
          */
         inline fun <reified TYPE : Any> symmetricOptionalToOptional(
                 name: String
@@ -390,9 +390,9 @@ interface Relationship<OUT : Any, IN : Any> : Connection<OUT, IN> {
                 name = name)
 
         /**
-         * Creates a [Relationship] that is bi-directional. When traversed from a 'OUT' object,
-         * there will be exactly 1 'IN' object. When the [inverse] is traversed from a 'IN' object,
-         * there will be exactly 1 'OUT' object.
+         * Creates a [Relationship] that is bi-directional. When traversed from a 'FROM' object,
+         * there will be exactly 1 'TO' object. When the [inverse] is traversed from a 'TO' object,
+         * there will be exactly 1 'FROM' object.
          */
         inline fun <reified TYPE : Any> symmetricSingleToSingle(
                 name: String
@@ -400,9 +400,9 @@ interface Relationship<OUT : Any, IN : Any> : Connection<OUT, IN> {
                 name = name)
 
         /**
-         * Creates a [Relationship] that is bi-directional. When traversed from a 'OUT' object,
-         * there will be 0 or more 'IN' objects. When the [inverse] is traversed from a 'IN' object,
-         * there will be 0 or more 'OUT' objects.
+         * Creates a [Relationship] that is bi-directional. When traversed from a 'FROM' object,
+         * there will be 0 or more 'TO' objects. When the [inverse] is traversed from a 'TO' object,
+         * there will be 0 or more 'FROM' objects.
          */
         inline fun <reified TYPE : Any> symmetricManyToMany(
                 name: String

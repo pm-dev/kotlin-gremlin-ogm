@@ -1,12 +1,13 @@
 package starwars
 
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.`in`
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.out
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component
 import starwars.models.*
+import starwars.models.Character.Companion.friends
 import java.time.Instant
 import java.util.*
 
@@ -61,11 +62,11 @@ internal open class StarwarsGraphLoader(
                 primaryFunction = "Astromech",
                 createdAt = now))
 
-        graph.saveE(lukeSkywalker out Character.friends `in` listOf(hanSolo, leiaOrgana, c3po, aretoo))
-        graph.saveE(darthVader out Character.friends `in` listOf(wilhuffTarkin))
-        graph.saveE(c3po out Character.friends `in` aretoo)
-        graph.saveE(hanSolo out Character.friends `in` listOf(leiaOrgana, aretoo))
-        graph.saveE(Sibling(outV = lukeSkywalker, inV = leiaOrgana, twins = true))
+        graph.saveE(friends from lukeSkywalker to listOf(hanSolo, leiaOrgana, c3po, aretoo))
+        graph.saveE(friends from darthVader to listOf(wilhuffTarkin))
+        graph.saveE(friends from c3po to aretoo)
+        graph.saveE(friends from hanSolo to listOf(leiaOrgana, aretoo))
+        graph.saveE(Sibling(from = lukeSkywalker, to = leiaOrgana, twins = true))
         graph.g.tx().commit()
         println("Loaded Starwars Graph")
     }

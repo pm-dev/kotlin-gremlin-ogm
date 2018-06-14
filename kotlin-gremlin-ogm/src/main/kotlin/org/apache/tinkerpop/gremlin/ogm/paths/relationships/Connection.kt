@@ -13,12 +13,12 @@ import org.apache.tinkerpop.gremlin.structure.Vertex
  * A path through the graph starting and ending at a vertex, which spans one or more relationships.
  * A special property of Connections is that they can be reversed.
  */
-interface Connection<OUT : Any, IN : Any> : Path<OUT, IN> {
+interface Connection<FROM : Any, TO : Any> : Path<FROM, TO> {
 
     /**
-     * This Connection in reverse.
+     * This Connection to reverse.
      */
-    val inverse: Connection<IN, OUT>
+    val inverse: Connection<TO, FROM>
 
     /**
      * The individual [Relationship]s that create this connection
@@ -27,7 +27,7 @@ interface Connection<OUT : Any, IN : Any> : Path<OUT, IN> {
 
     override fun path() = listOf(this)
 
-    override fun invoke(from: StepTraverser<OUT>): GraphTraversal<*, IN> {
+    override fun invoke(from: StepTraverser<FROM>): GraphTraversal<*, TO> {
         val serialized = from.traversal.map { fromObject ->
             from.vertexMapper.forwardMap(fromObject.get())
         }
@@ -38,127 +38,127 @@ interface Connection<OUT : Any, IN : Any> : Path<OUT, IN> {
                 traversal.to(relationship)
             }
         }
-        return traversed.map { toVertex -> from.vertexMapper.inverseMap(toVertex.get()) as IN }
+        return traversed.map { toVertex -> from.vertexMapper.inverseMap(toVertex.get()) as TO }
     }
 
-    interface FromOne<OUT : Any, IN : Any> : Connection<OUT, IN> {
+    interface FromOne<FROM : Any, TO : Any> : Connection<FROM, TO> {
 
-        override val inverse: ToOne<IN, OUT>
+        override val inverse: ToOne<TO, FROM>
     }
 
-    interface FromOptional<OUT : Any, IN : Any> : FromOne<OUT, IN> {
+    interface FromOptional<FROM : Any, TO : Any> : FromOne<FROM, TO> {
 
-        override val inverse: ToOptional<IN, OUT>
+        override val inverse: ToOptional<TO, FROM>
     }
 
-    interface FromSingle<OUT : Any, IN : Any> : FromOne<OUT, IN> {
+    interface FromSingle<FROM : Any, TO : Any> : FromOne<FROM, TO> {
 
-        override val inverse: ToSingle<IN, OUT>
+        override val inverse: ToSingle<TO, FROM>
     }
 
-    interface FromMany<OUT : Any, IN : Any> : Connection<OUT, IN> {
+    interface FromMany<FROM : Any, TO : Any> : Connection<FROM, TO> {
 
-        override val inverse: ToMany<IN, OUT>
+        override val inverse: ToMany<TO, FROM>
     }
 
-    interface ToOne<OUT : Any, IN : Any> : Connection<OUT, IN>, Path.ToOne<OUT, IN> {
+    interface ToOne<FROM : Any, TO : Any> : Connection<FROM, TO>, Path.ToOne<FROM, TO> {
 
-        override val inverse: FromOne<IN, OUT>
+        override val inverse: FromOne<TO, FROM>
     }
 
-    interface ToOptional<OUT : Any, IN : Any> : ToOne<OUT, IN>, Path.ToOptional<OUT, IN> {
+    interface ToOptional<FROM : Any, TO : Any> : ToOne<FROM, TO>, Path.ToOptional<FROM, TO> {
 
-        override val inverse: FromOptional<IN, OUT>
+        override val inverse: FromOptional<TO, FROM>
     }
 
-    interface ToSingle<OUT : Any, IN : Any> : ToOne<OUT, IN>, Path.ToSingle<OUT, IN> {
+    interface ToSingle<FROM : Any, TO : Any> : ToOne<FROM, TO>, Path.ToSingle<FROM, TO> {
 
-        override val inverse: FromSingle<IN, OUT>
+        override val inverse: FromSingle<TO, FROM>
     }
 
-    interface ToMany<OUT : Any, IN : Any> : Connection<OUT, IN>, Path.ToMany<OUT, IN> {
+    interface ToMany<FROM : Any, TO : Any> : Connection<FROM, TO>, Path.ToMany<FROM, TO> {
 
-        override val inverse: FromMany<IN, OUT>
+        override val inverse: FromMany<TO, FROM>
     }
 
-    interface OneToOne<OUT : Any, IN : Any> : FromOne<OUT, IN>, ToOne<OUT, IN> {
+    interface OneToOne<FROM : Any, TO : Any> : FromOne<FROM, TO>, ToOne<FROM, TO> {
 
-        override val inverse: OneToOne<IN, OUT>
+        override val inverse: OneToOne<TO, FROM>
     }
 
-    interface OneToOptional<OUT : Any, IN : Any> : OneToOne<OUT, IN>, ToOptional<OUT, IN> {
+    interface OneToOptional<FROM : Any, TO : Any> : OneToOne<FROM, TO>, ToOptional<FROM, TO> {
 
-        override val inverse: OptionalToOne<IN, OUT>
+        override val inverse: OptionalToOne<TO, FROM>
     }
 
-    interface OneToSingle<OUT : Any, IN : Any> : OneToOne<OUT, IN>, ToSingle<OUT, IN> {
+    interface OneToSingle<FROM : Any, TO : Any> : OneToOne<FROM, TO>, ToSingle<FROM, TO> {
 
-        override val inverse: SingleToOne<IN, OUT>
+        override val inverse: SingleToOne<TO, FROM>
     }
 
-    interface OptionalToOne<OUT : Any, IN : Any> : FromOptional<OUT, IN>, OneToOne<OUT, IN> {
+    interface OptionalToOne<FROM : Any, TO : Any> : FromOptional<FROM, TO>, OneToOne<FROM, TO> {
 
-        override val inverse: OneToOptional<IN, OUT>
+        override val inverse: OneToOptional<TO, FROM>
     }
 
-    interface SingleToOne<OUT : Any, IN : Any> : FromSingle<OUT, IN>, OneToOne<OUT, IN> {
+    interface SingleToOne<FROM : Any, TO : Any> : FromSingle<FROM, TO>, OneToOne<FROM, TO> {
 
-        override val inverse: OneToSingle<IN, OUT>
+        override val inverse: OneToSingle<TO, FROM>
     }
 
-    interface OneToMany<OUT : Any, IN : Any> : FromOne<OUT, IN>, ToMany<OUT, IN> {
+    interface OneToMany<FROM : Any, TO : Any> : FromOne<FROM, TO>, ToMany<FROM, TO> {
 
-        override val inverse: ManyToOne<IN, OUT>
+        override val inverse: ManyToOne<TO, FROM>
     }
 
-    interface ManyToOne<OUT : Any, IN : Any> : FromMany<OUT, IN>, ToOne<OUT, IN> {
+    interface ManyToOne<FROM : Any, TO : Any> : FromMany<FROM, TO>, ToOne<FROM, TO> {
 
-        override val inverse: OneToMany<IN, OUT>
+        override val inverse: OneToMany<TO, FROM>
     }
 
-    interface OptionalToOptional<OUT : Any, IN : Any> : OptionalToOne<OUT, IN>, OneToOptional<OUT, IN> {
+    interface OptionalToOptional<FROM : Any, TO : Any> : OptionalToOne<FROM, TO>, OneToOptional<FROM, TO> {
 
-        override val inverse: OptionalToOptional<IN, OUT>
+        override val inverse: OptionalToOptional<TO, FROM>
     }
 
-    interface OptionalToSingle<OUT : Any, IN : Any> : OptionalToOne<OUT, IN>, OneToSingle<OUT, IN> {
+    interface OptionalToSingle<FROM : Any, TO : Any> : OptionalToOne<FROM, TO>, OneToSingle<FROM, TO> {
 
-        override val inverse: SingleToOptional<IN, OUT>
+        override val inverse: SingleToOptional<TO, FROM>
     }
 
-    interface SingleToOptional<OUT : Any, IN : Any> : SingleToOne<OUT, IN>, OneToOptional<OUT, IN> {
+    interface SingleToOptional<FROM : Any, TO : Any> : SingleToOne<FROM, TO>, OneToOptional<FROM, TO> {
 
-        override val inverse: OptionalToSingle<IN, OUT>
+        override val inverse: OptionalToSingle<TO, FROM>
     }
 
-    interface SingleToSingle<OUT : Any, IN : Any> : SingleToOne<OUT, IN>, OneToSingle<OUT, IN> {
+    interface SingleToSingle<FROM : Any, TO : Any> : SingleToOne<FROM, TO>, OneToSingle<FROM, TO> {
 
-        override val inverse: SingleToSingle<IN, OUT>
+        override val inverse: SingleToSingle<TO, FROM>
     }
 
-    interface OptionalToMany<OUT : Any, IN : Any> : FromOptional<OUT, IN>, OneToMany<OUT, IN> {
+    interface OptionalToMany<FROM : Any, TO : Any> : FromOptional<FROM, TO>, OneToMany<FROM, TO> {
 
-        override val inverse: ManyToOptional<IN, OUT>
+        override val inverse: ManyToOptional<TO, FROM>
     }
 
-    interface SingleToMany<OUT : Any, IN : Any> : FromSingle<OUT, IN>, OneToMany<OUT, IN> {
+    interface SingleToMany<FROM : Any, TO : Any> : FromSingle<FROM, TO>, OneToMany<FROM, TO> {
 
-        override val inverse: ManyToSingle<IN, OUT>
+        override val inverse: ManyToSingle<TO, FROM>
     }
 
-    interface ManyToOptional<OUT : Any, IN : Any> : ManyToOne<OUT, IN>, ToOptional<OUT, IN> {
+    interface ManyToOptional<FROM : Any, TO : Any> : ManyToOne<FROM, TO>, ToOptional<FROM, TO> {
 
-        override val inverse: OptionalToMany<IN, OUT>
+        override val inverse: OptionalToMany<TO, FROM>
     }
 
-    interface ManyToSingle<OUT : Any, IN : Any> : ManyToOne<OUT, IN>, ToSingle<OUT, IN> {
+    interface ManyToSingle<FROM : Any, TO : Any> : ManyToOne<FROM, TO>, ToSingle<FROM, TO> {
 
-        override val inverse: SingleToMany<IN, OUT>
+        override val inverse: SingleToMany<TO, FROM>
     }
 
-    interface ManyToMany<OUT : Any, IN : Any> : FromMany<OUT, IN>, ToMany<OUT, IN> {
+    interface ManyToMany<FROM : Any, TO : Any> : FromMany<FROM, TO>, ToMany<FROM, TO> {
 
-        override val inverse: ManyToMany<IN, OUT>
+        override val inverse: ManyToMany<TO, FROM>
     }
 
     companion object {

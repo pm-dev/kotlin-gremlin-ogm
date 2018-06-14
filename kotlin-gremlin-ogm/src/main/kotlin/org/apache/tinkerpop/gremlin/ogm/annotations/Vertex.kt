@@ -13,7 +13,7 @@ import java.lang.annotation.Inherited
 annotation class Vertex(
 
         /**
-         * The label of the vertex as stored in the graph. We require clients to specify an explicit
+         * The label of the vertex as stored to the graph. We require clients to specify an explicit
          * label (instead of using the class name) to guard against refactoring situations
          * where the class name is changed and this annotation is not updated to keep the original label.
          */

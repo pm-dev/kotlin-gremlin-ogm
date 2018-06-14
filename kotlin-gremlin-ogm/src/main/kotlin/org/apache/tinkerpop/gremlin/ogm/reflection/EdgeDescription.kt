@@ -13,14 +13,14 @@ import kotlin.reflect.KParameter
 internal class EdgeDescription<T: Any>(
 
         /**
-         * The parameter for the 'in' vertex of the edge.
+         * The parameter for the 'to' vertex of the edge.
          */
-        val inVertex: KParameter,
+        val toVertex: KParameter,
 
         /**
-         * The property description for the 'out' vertex of the edge.
+         * The property description for the 'from' vertex of the edge.
          */
-        val outVertex: KParameter,
+        val fromVertex: KParameter,
 
         label: String,
         id: PropertyDescription<T>,
@@ -38,8 +38,8 @@ internal class EdgeDescription<T: Any>(
         fun <E : BaseEdge<*, *>> describe(relationship: Relationship<*, *>, kClass: KClass<E>): EdgeDescription<E> {
             val built = buildObjectDescription(kClass = kClass, type = ObjectDescriptionType.Edge)
             return EdgeDescription(
-                    built.inVertexParameter!!,
-                    built.outVertexParameter!!,
+                    built.toVertexParameter!!,
+                    built.fromVertexParameter!!,
                     relationship.name,
                     built.idDescription!!,
                     built.objectDescription.properties,

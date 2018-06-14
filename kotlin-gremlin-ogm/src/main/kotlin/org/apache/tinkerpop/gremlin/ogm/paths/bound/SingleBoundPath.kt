@@ -3,30 +3,30 @@ package org.apache.tinkerpop.gremlin.ogm.paths.bound
 /**
  * A [SingleBoundPath] is a [BoundPath] that is bound to only 1 'from' object.
  */
-interface SingleBoundPath<OUT : Any, IN> : BoundPath<OUT, IN> {
+interface SingleBoundPath<FROM : Any, TO> : BoundPath<FROM, TO> {
 
     /**
      * The object to start the [Path]'s traversal with
      */
-    val outV: OUT
+    val from: FROM
 
-    override val outVs: Iterable<OUT> get() = listOf(outV)
-
-    /**
-     * A [SingleBoundPath] that results in 0 or more 'IN' objects for each 'OUT' object
-     * the path is traversed with.
-     */
-    interface ToMany<OUT : Any, IN> : SingleBoundPath<OUT, IN>, BoundPath.ToMany<OUT, IN>
+    override val froms: Iterable<FROM> get() = listOf(from)
 
     /**
-     * A [SingleBoundPath] that results in exactly 1 'IN' objects for each 'OUT' object
+     * A [SingleBoundPath] that results to 0 or more 'TO' objects for each 'FROM' object
      * the path is traversed with.
      */
-    interface ToSingle<OUT : Any, IN> : SingleBoundPath<OUT, IN>, BoundPath.ToSingle<OUT, IN>
+    interface ToMany<FROM : Any, TO> : SingleBoundPath<FROM, TO>, BoundPath.ToMany<FROM, TO>
 
     /**
-     * A [SingleBoundPath] that results in 0 or 1 'IN' objects for each 'OUT' object
+     * A [SingleBoundPath] that results to exactly 1 'TO' objects for each 'FROM' object
      * the path is traversed with.
      */
-    interface ToOptional<OUT : Any, IN> : SingleBoundPath<OUT, IN>, BoundPath.ToOptional<OUT, IN>
+    interface ToSingle<FROM : Any, TO> : SingleBoundPath<FROM, TO>, BoundPath.ToSingle<FROM, TO>
+
+    /**
+     * A [SingleBoundPath] that results to 0 or 1 'TO' objects for each 'FROM' object
+     * the path is traversed with.
+     */
+    interface ToOptional<FROM : Any, TO> : SingleBoundPath<FROM, TO>, BoundPath.ToOptional<FROM, TO>
 }

@@ -3,9 +3,9 @@ package org.apache.tinkerpop.gremlin.ogm.paths.bound
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 
 /**
- * A [BoundPath] that is bound to 1 'OUT' object and whose path is a [Relationship.ToSingle]
+ * A [BoundPath] that is bound to 1 'FROM' object and whose path is a [Relationship.ToSingle]
  */
-class SingleBoundRelationshipToSingle<OUT : Any, IN : Any>(
-        override val outV: OUT,
-        override val path: Relationship.ToSingle<OUT, IN>
-) : SingleBoundPath.ToSingle<OUT, IN>, BoundRelationship.ToSingle<OUT, IN>
+class SingleBoundRelationshipToSingle<FROM : Any, TO : Any>(
+        override val from: FROM,
+        override val path: Relationship.ToSingle<FROM, TO>
+) : SingleBoundPath.ToSingle<FROM, TO>, BoundRelationship.ToSingle<FROM, TO>

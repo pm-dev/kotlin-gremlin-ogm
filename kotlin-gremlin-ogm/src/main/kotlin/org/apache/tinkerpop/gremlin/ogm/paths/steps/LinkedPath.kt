@@ -3,38 +3,38 @@ package org.apache.tinkerpop.gremlin.ogm.paths.steps
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 
-internal interface LinkedPath<OUT, MIDDLE, IN> : Path<OUT, IN> {
+internal interface LinkedPath<FROM, MIDDLE, TO> : Path<FROM, TO> {
 
-    val first: Path<OUT, MIDDLE>
+    val first: Path<FROM, MIDDLE>
 
-    val second: Path<MIDDLE, IN>
+    val second: Path<MIDDLE, TO>
 
     override fun path() = first.path() + second.path()
 
-    override fun invoke(from: StepTraverser<OUT>): GraphTraversal<*, IN> =
+    override fun invoke(from: StepTraverser<FROM>): GraphTraversal<*, TO> =
             second(StepTraverser(first(from), from.vertexMapper, from.edgeMapper))
 
-    class ToSingle<OUT, MIDDLE, IN>(
-            override val first: Path.ToSingle<OUT, MIDDLE>,
-            override val second: Path.ToSingle<MIDDLE, IN>
-    ) : LinkedPath<OUT, MIDDLE, IN>, Path.ToSingle<OUT, IN>
+    class ToSingle<FROM, MIDDLE, TO>(
+            override val first: Path.ToSingle<FROM, MIDDLE>,
+            override val second: Path.ToSingle<MIDDLE, TO>
+    ) : LinkedPath<FROM, MIDDLE, TO>, Path.ToSingle<FROM, TO>
 
-    class ToOptional<OUT, MIDDLE, IN>(
-            override val first: Path.ToOne<OUT, MIDDLE>,
-            override val second: Path.ToOne<MIDDLE, IN>
-    ) : LinkedPath<OUT, MIDDLE, IN>, Path.ToOptional<OUT, IN>
+    class ToOptional<FROM, MIDDLE, TO>(
+            override val first: Path.ToOne<FROM, MIDDLE>,
+            override val second: Path.ToOne<MIDDLE, TO>
+    ) : LinkedPath<FROM, MIDDLE, TO>, Path.ToOptional<FROM, TO>
 
-    class ToMany<OUT, MIDDLE, IN>(
-            override val first: Path<OUT, MIDDLE>,
-            override val second: Path<MIDDLE, IN>
-    ) : LinkedPath<OUT, MIDDLE, IN>, Path.ToMany<OUT, IN>
+    class ToMany<FROM, MIDDLE, TO>(
+            override val first: Path<FROM, MIDDLE>,
+            override val second: Path<MIDDLE, TO>
+    ) : LinkedPath<FROM, MIDDLE, TO>, Path.ToMany<FROM, TO>
 }
 
-fun <OUT, IN, NEXT> Path.ToMany<OUT, IN>.to(next: Path<IN, NEXT>): Path.ToMany<OUT, NEXT> = LinkedPath.ToMany(first = this, second = next)
+fun <FROM, TO, NEXT> Path.ToMany<FROM, TO>.to(next: Path<TO, NEXT>): Path.ToMany<FROM, NEXT> = LinkedPath.ToMany(first = this, second = next)
 
-fun <OUT, IN, NEXT> Path.ToOptional<OUT, IN>.to(next: Path.ToOne<IN, NEXT>): Path.ToOptional<OUT, NEXT> = LinkedPath.ToOptional(first = this, second = next)
-fun <OUT, IN, NEXT> Path.ToOptional<OUT, IN>.to(next: Path.ToMany<IN, NEXT>): Path.ToMany<OUT, NEXT> = LinkedPath.ToMany(first = this, second = next)
+fun <FROM, TO, NEXT> Path.ToOptional<FROM, TO>.to(next: Path.ToOne<TO, NEXT>): Path.ToOptional<FROM, NEXT> = LinkedPath.ToOptional(first = this, second = next)
+fun <FROM, TO, NEXT> Path.ToOptional<FROM, TO>.to(next: Path.ToMany<TO, NEXT>): Path.ToMany<FROM, NEXT> = LinkedPath.ToMany(first = this, second = next)
 
-fun <OUT, IN, NEXT> Path.ToSingle<OUT, IN>.to(next: Path.ToSingle<IN, NEXT>): Path.ToSingle<OUT, NEXT> = LinkedPath.ToSingle(first = this, second = next)
-fun <OUT, IN, NEXT> Path.ToSingle<OUT, IN>.to(next: Path.ToOptional<IN, NEXT>): Path.ToOptional<OUT, NEXT> = LinkedPath.ToOptional(first = this, second = next)
-fun <OUT, IN, NEXT> Path.ToSingle<OUT, IN>.to(next: Path.ToMany<IN, NEXT>): Path.ToMany<OUT, NEXT> = LinkedPath.ToMany(first = this, second = next)
+fun <FROM, TO, NEXT> Path.ToSingle<FROM, TO>.to(next: Path.ToSingle<TO, NEXT>): Path.ToSingle<FROM, NEXT> = LinkedPath.ToSingle(first = this, second = next)
+fun <FROM, TO, NEXT> Path.ToSingle<FROM, TO>.to(next: Path.ToOptional<TO, NEXT>): Path.ToOptional<FROM, NEXT> = LinkedPath.ToOptional(first = this, second = next)
+fun <FROM, TO, NEXT> Path.ToSingle<FROM, TO>.to(next: Path.ToMany<TO, NEXT>): Path.ToMany<FROM, NEXT> = LinkedPath.ToMany(first = this, second = next)

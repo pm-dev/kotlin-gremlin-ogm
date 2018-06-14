@@ -5,33 +5,33 @@ import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepTraverser
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 
 /**
- * A path represents a [GraphTraversal] transformation from 'OUT' objects to 'IN' objects
+ * A path represents a [GraphTraversal] transformation from 'FROM' objects to 'TO' objects
  */
-interface Path<OUT, IN> : Mapper<StepTraverser<OUT>, GraphTraversal<*, IN>> {
+interface Path<FROM, TO> : Mapper<StepTraverser<FROM>, GraphTraversal<*, TO>> {
 
     /**
      * The list of sub-paths that comprise this path. It is possible for this path to
-     * be the only path in the list.
+     * be the only path to the list.
      */
     fun path(): List<Path<*, *>>
 
     /**
      * A path that is either a [ToOptional] or [ToSingle]
      */
-    interface ToOne<OUT, IN> : Path<OUT, IN>
+    interface ToOne<FROM, TO> : Path<FROM, TO>
 
     /**
      * A path that does not change the number of objects that would result from the current traversal
      */
-    interface ToSingle<OUT, IN> : ToOne<OUT, IN>
+    interface ToSingle<FROM, TO> : ToOne<FROM, TO>
 
     /**
      * A path that may reduce the number of objects that would result from the current traversal
      */
-    interface ToOptional<OUT, IN> : ToOne<OUT, IN>
+    interface ToOptional<FROM, TO> : ToOne<FROM, TO>
 
     /**
      * A path that may increase the number of objects that would result from the
      */
-    interface ToMany<OUT, IN> : Path<OUT, IN>
+    interface ToMany<FROM, TO> : Path<FROM, TO>
 }

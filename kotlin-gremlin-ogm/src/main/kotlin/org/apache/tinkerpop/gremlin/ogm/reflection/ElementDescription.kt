@@ -11,7 +11,7 @@ import kotlin.reflect.KParameter
 internal abstract class ElementDescription<T : Any>(
 
         /**
-         * The label of the element as stored in the graph
+         * The label of the element as stored to the graph
          */
         val label: String,
 

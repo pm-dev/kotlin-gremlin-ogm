@@ -3,50 +3,50 @@ package org.apache.tinkerpop.gremlin.ogm.paths.bound
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
 
 /**
- * A [BoundPath] encapsulates a [Path] plus the [OUT] objects to start the path's traversal with
+ * A [BoundPath] encapsulates a [Path] plus the [FROM] objects to start the path's traversal with
  */
-interface BoundPath<OUT : Any, IN> {
+interface BoundPath<FROM : Any, TO> {
 
     /**
      * The objects to start traversing [path] with.
      */
-    val outVs: Iterable<OUT>
+    val froms: Iterable<FROM>
 
     /**
      * A path through the graph to traverse through using the [from] objects
      */
-    val path: Path<OUT, IN>
+    val path: Path<FROM, TO>
 
     /**
-     * A [BoundPath] that results in a optional or non-optional (aka single) object
+     * A [BoundPath] that results to a optional or non-optional (aka single) object
      * for each [from] object that the path is traversed with.
      */
-    interface ToOne<OUT : Any, IN> : BoundPath<OUT, IN>
+    interface ToOne<FROM : Any, TO> : BoundPath<FROM, TO>
 
     /**
-     * A [BoundPath] that results in 0 or more objects for each [from] object that
+     * A [BoundPath] that results to 0 or more objects for each [from] object that
      * the traversed path starts with.
      */
-    interface ToMany<OUT : Any, IN> : BoundPath<OUT, IN> {
+    interface ToMany<FROM : Any, TO> : BoundPath<FROM, TO> {
 
-        override val path: Path.ToMany<OUT, IN>
+        override val path: Path.ToMany<FROM, TO>
     }
 
     /**
-     * A [BoundPath] that results in a non-optional object
+     * A [BoundPath] that results to a non-optional object
      * for each [from] object that the path is traversed with.
      */
-    interface ToSingle<OUT : Any, IN> : ToOne<OUT, IN> {
+    interface ToSingle<FROM : Any, TO> : ToOne<FROM, TO> {
 
-        override val path: Path.ToSingle<OUT, IN>
+        override val path: Path.ToSingle<FROM, TO>
     }
 
     /**
-     * A [BoundPath] that results in an optional object
+     * A [BoundPath] that results to an optional object
      * for each [from] object that the path is traversed with.
      */
-    interface ToOptional<OUT : Any, IN> : ToOne<OUT, IN> {
+    interface ToOptional<FROM : Any, TO> : ToOne<FROM, TO> {
 
-        override val path: Path.ToOptional<OUT, IN>
+        override val path: Path.ToOptional<FROM, TO>
     }
 }

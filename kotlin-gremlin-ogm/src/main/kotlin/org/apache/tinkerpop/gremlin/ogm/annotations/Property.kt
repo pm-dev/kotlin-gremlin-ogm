@@ -16,7 +16,7 @@ import java.lang.annotation.Inherited
 annotation class Property(
 
         /**
-         * The key of the property as stored in the graph. We require clients to specify an explicit
+         * The key of the property as stored to the graph. We require clients to specify an explicit
          * key (instead of using the property name) to guard against refactoring situations
          * where the property name is changed and this annotation is not updated to keep the original key.
          */

@@ -7,6 +7,6 @@ internal class ConflictingAnnotations(
         name: String?,
         annotationType: AnnotationType
 ) : AnnotationException(
-        description = "${annotationType.name.capitalize()} can be annotated with only one of @ID, @Property, @InVertex, OutVertex. " +
+        description = "${annotationType.name.capitalize()} can be annotated with only one of @ID, @Property, @ToVertex, FromVertex. " +
         "${annotationType.name.capitalize()}: $name. Class: $kClass"
 )

@@ -9,12 +9,12 @@ import org.apache.tinkerpop.gremlin.structure.Vertex
 /**
  * This object is passed to the 'invoke' function of objects implementing the [Path] interface.
  */
-class StepTraverser<OUT>(
+class StepTraverser<FROM>(
 
         /**
          * The traversal that an implementor of [Path] should use to advance the traversal.
          */
-        val traversal: GraphTraversal<*, OUT>,
+        val traversal: GraphTraversal<*, FROM>,
 
         /**
          * A generic object which can map objects to/from their vertex form. If the vertexMapper is forward mapped with

@@ -5,10 +5,10 @@ import org.apache.tinkerpop.gremlin.ogm.paths.Path
 /**
  * A step that maps the current object to zero or more new objects.
  */
-class Map<OUT, IN>(private val map: (OUT) -> IN) : Step.ToSingle<OUT, IN>({
+class Map<FROM, TO>(private val map: (FROM) -> TO) : Step.ToSingle<FROM, TO>({
     it.traversal.map { map(it.get()) }
 })
 
-fun <OUT, IN, NEXT> Path.ToMany<OUT, IN>.map(map: (IN) -> NEXT): Path.ToMany<OUT, NEXT> = to(Map(map))
-fun <OUT, IN, NEXT> Path.ToOptional<OUT, IN>.map(map: (IN) -> NEXT): Path.ToOptional<OUT, NEXT> = to(Map(map))
-fun <OUT, IN, NEXT> Path.ToSingle<OUT, IN>.map(map: (IN) -> NEXT): Path.ToSingle<OUT, NEXT> = to(Map(map))
+fun <FROM, TO, NEXT> Path.ToMany<FROM, TO>.map(map: (TO) -> NEXT): Path.ToMany<FROM, NEXT> = to(Map(map))
+fun <FROM, TO, NEXT> Path.ToOptional<FROM, TO>.map(map: (TO) -> NEXT): Path.ToOptional<FROM, NEXT> = to(Map(map))
+fun <FROM, TO, NEXT> Path.ToSingle<FROM, TO>.map(map: (TO) -> NEXT): Path.ToSingle<FROM, NEXT> = to(Map(map))

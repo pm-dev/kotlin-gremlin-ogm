@@ -1,54 +1,55 @@
 package org.apache.tinkerpop.gremlin.ogm.paths.bound
 
+
 /**
  * The 'add' function on a [BoundPath] allows callers to append an additional object to start
  * the [Path]'s traversal from.
  */
 
-fun <OUT : Any, IN> BoundPathToMany<OUT, IN>.add(outV: OUT) = BoundPathToMany(outVs.plus(outV), path)
-fun <OUT : Any, IN> BoundPathToMany<OUT, IN>.add(vararg outV: OUT) = BoundPathToMany(outVs.plus(outV), path)
-fun <OUT : Any, IN> BoundPathToMany<OUT, IN>.add(outV: Iterable<OUT>) = BoundPathToMany(outVs.plus(outV), path)
+fun <FROM : Any, TO> BoundPathToMany<FROM, TO>.add(from: FROM) = BoundPathToMany(froms.plus(from), path)
+fun <FROM : Any, TO> BoundPathToMany<FROM, TO>.add(vararg from: FROM) = BoundPathToMany(froms.plus(from), path)
+fun <FROM : Any, TO> BoundPathToMany<FROM, TO>.add(from: Iterable<FROM>) = BoundPathToMany(froms.plus(from), path)
 
-fun <OUT : Any, IN> BoundPathToOptional<OUT, IN>.add(outV: OUT) = BoundPathToOptional(outVs.plus(outV), path)
-fun <OUT : Any, IN> BoundPathToOptional<OUT, IN>.add(vararg outV: OUT) = BoundPathToOptional(outVs.plus(outV), path)
-fun <OUT : Any, IN> BoundPathToOptional<OUT, IN>.add(outV: Iterable<OUT>) = BoundPathToOptional(outVs.plus(outV), path)
+fun <FROM : Any, TO> BoundPathToOptional<FROM, TO>.add(from: FROM) = BoundPathToOptional(froms.plus(from), path)
+fun <FROM : Any, TO> BoundPathToOptional<FROM, TO>.add(vararg from: FROM) = BoundPathToOptional(froms.plus(from), path)
+fun <FROM : Any, TO> BoundPathToOptional<FROM, TO>.add(from: Iterable<FROM>) = BoundPathToOptional(froms.plus(from), path)
 
-fun <OUT : Any, IN> BoundPathToSingle<OUT, IN>.add(outV: OUT) = BoundPathToSingle(outVs.plus(outV), path)
-fun <OUT : Any, IN> BoundPathToSingle<OUT, IN>.add(vararg outV: OUT) = BoundPathToSingle(outVs.plus(outV), path)
-fun <OUT : Any, IN> BoundPathToSingle<OUT, IN>.add(outV: Iterable<OUT>) = BoundPathToSingle(outVs.plus(outV), path)
+fun <FROM : Any, TO> BoundPathToSingle<FROM, TO>.add(from: FROM) = BoundPathToSingle(froms.plus(from), path)
+fun <FROM : Any, TO> BoundPathToSingle<FROM, TO>.add(vararg from: FROM) = BoundPathToSingle(froms.plus(from), path)
+fun <FROM : Any, TO> BoundPathToSingle<FROM, TO>.add(from: Iterable<FROM>) = BoundPathToSingle(froms.plus(from), path)
 
-fun <OUT : Any, IN : Any> BoundRelationshipToMany<OUT, IN>.add(outV: OUT) = BoundRelationshipToMany(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> BoundRelationshipToMany<OUT, IN>.add(vararg outV: OUT) = BoundRelationshipToMany(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> BoundRelationshipToMany<OUT, IN>.add(outV: Iterable<OUT>) = BoundRelationshipToMany(outVs.plus(outV), path)
+fun <FROM : Any, TO : Any> BoundRelationshipToMany<FROM, TO>.add(from: FROM) = BoundRelationshipToMany(froms.plus(from), path)
+fun <FROM : Any, TO : Any> BoundRelationshipToMany<FROM, TO>.add(vararg from: FROM) = BoundRelationshipToMany(froms.plus(from), path)
+fun <FROM : Any, TO : Any> BoundRelationshipToMany<FROM, TO>.add(from: Iterable<FROM>) = BoundRelationshipToMany(froms.plus(from), path)
 
-fun <OUT : Any, IN : Any> BoundRelationshipToOptional<OUT, IN>.add(outV: OUT) = BoundRelationshipToOptional(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> BoundRelationshipToOptional<OUT, IN>.add(vararg outV: OUT) = BoundRelationshipToOptional(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> BoundRelationshipToOptional<OUT, IN>.add(outV: Iterable<OUT>) = BoundRelationshipToOptional(outVs.plus(outV), path)
+fun <FROM : Any, TO : Any> BoundRelationshipToOptional<FROM, TO>.add(from: FROM) = BoundRelationshipToOptional(froms.plus(from), path)
+fun <FROM : Any, TO : Any> BoundRelationshipToOptional<FROM, TO>.add(vararg from: FROM) = BoundRelationshipToOptional(froms.plus(from), path)
+fun <FROM : Any, TO : Any> BoundRelationshipToOptional<FROM, TO>.add(from: Iterable<FROM>) = BoundRelationshipToOptional(froms.plus(from), path)
 
-fun <OUT : Any, IN : Any> BoundRelationshipToSingle<OUT, IN>.add(outV: OUT) = BoundRelationshipToSingle(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> BoundRelationshipToSingle<OUT, IN>.add(vararg outV: OUT) = BoundRelationshipToSingle(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> BoundRelationshipToSingle<OUT, IN>.add(outV: Iterable<OUT>) = BoundRelationshipToSingle(outVs.plus(outV), path)
+fun <FROM : Any, TO : Any> BoundRelationshipToSingle<FROM, TO>.add(from: FROM) = BoundRelationshipToSingle(froms.plus(from), path)
+fun <FROM : Any, TO : Any> BoundRelationshipToSingle<FROM, TO>.add(vararg from: FROM) = BoundRelationshipToSingle(froms.plus(from), path)
+fun <FROM : Any, TO : Any> BoundRelationshipToSingle<FROM, TO>.add(from: Iterable<FROM>) = BoundRelationshipToSingle(froms.plus(from), path)
 
-fun <OUT : Any, IN> SingleBoundPathToMany<OUT, IN>.add(outV: OUT) = BoundPathToMany(outVs.plus(outV), path)
-fun <OUT : Any, IN> SingleBoundPathToMany<OUT, IN>.add(vararg outV: OUT) = BoundPathToMany(outVs.plus(outV), path)
-fun <OUT : Any, IN> SingleBoundPathToMany<OUT, IN>.add(outV: Iterable<OUT>) = BoundPathToMany(outVs.plus(outV), path)
+fun <FROM : Any, TO> SingleBoundPathToMany<FROM, TO>.add(from: FROM) = BoundPathToMany(froms.plus(from), path)
+fun <FROM : Any, TO> SingleBoundPathToMany<FROM, TO>.add(vararg from: FROM) = BoundPathToMany(froms.plus(from), path)
+fun <FROM : Any, TO> SingleBoundPathToMany<FROM, TO>.add(from: Iterable<FROM>) = BoundPathToMany(froms.plus(from), path)
 
-fun <OUT : Any, IN> SingleBoundPathToOptional<OUT, IN>.add(outV: OUT) = BoundPathToOptional(outVs.plus(outV), path)
-fun <OUT : Any, IN> SingleBoundPathToOptional<OUT, IN>.add(vararg outV: OUT) = BoundPathToOptional(outVs.plus(outV), path)
-fun <OUT : Any, IN> SingleBoundPathToOptional<OUT, IN>.add(outV: Iterable<OUT>) = BoundPathToOptional(outVs.plus(outV), path)
+fun <FROM : Any, TO> SingleBoundPathToOptional<FROM, TO>.add(from: FROM) = BoundPathToOptional(froms.plus(from), path)
+fun <FROM : Any, TO> SingleBoundPathToOptional<FROM, TO>.add(vararg from: FROM) = BoundPathToOptional(froms.plus(from), path)
+fun <FROM : Any, TO> SingleBoundPathToOptional<FROM, TO>.add(from: Iterable<FROM>) = BoundPathToOptional(froms.plus(from), path)
 
-fun <OUT : Any, IN> SingleBoundPathToSingle<OUT, IN>.add(outV: OUT) = BoundPathToSingle(outVs.plus(outV), path)
-fun <OUT : Any, IN> SingleBoundPathToSingle<OUT, IN>.add(vararg outV: OUT) = BoundPathToSingle(outVs.plus(outV), path)
-fun <OUT : Any, IN> SingleBoundPathToSingle<OUT, IN>.add(outV: Iterable<OUT>) = BoundPathToSingle(outVs.plus(outV), path)
+fun <FROM : Any, TO> SingleBoundPathToSingle<FROM, TO>.add(from: FROM) = BoundPathToSingle(froms.plus(from), path)
+fun <FROM : Any, TO> SingleBoundPathToSingle<FROM, TO>.add(vararg from: FROM) = BoundPathToSingle(froms.plus(from), path)
+fun <FROM : Any, TO> SingleBoundPathToSingle<FROM, TO>.add(from: Iterable<FROM>) = BoundPathToSingle(froms.plus(from), path)
 
-fun <OUT : Any, IN : Any> SingleBoundRelationshipToMany<OUT, IN>.add(outV: OUT) = BoundRelationshipToMany(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> SingleBoundRelationshipToMany<OUT, IN>.add(vararg outV: OUT) = BoundRelationshipToMany(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> SingleBoundRelationshipToMany<OUT, IN>.add(outV: Iterable<OUT>) = BoundRelationshipToMany(outVs.plus(outV), path)
+fun <FROM : Any, TO : Any> SingleBoundRelationshipToMany<FROM, TO>.add(from: FROM) = BoundRelationshipToMany(froms.plus(from), path)
+fun <FROM : Any, TO : Any> SingleBoundRelationshipToMany<FROM, TO>.add(vararg from: FROM) = BoundRelationshipToMany(froms.plus(from), path)
+fun <FROM : Any, TO : Any> SingleBoundRelationshipToMany<FROM, TO>.add(from: Iterable<FROM>) = BoundRelationshipToMany(froms.plus(from), path)
 
-fun <OUT : Any, IN : Any> SingleBoundRelationshipToOptional<OUT, IN>.add(outV: OUT) = BoundRelationshipToOptional(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> SingleBoundRelationshipToOptional<OUT, IN>.add(vararg outV: OUT) = BoundRelationshipToOptional(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> SingleBoundRelationshipToOptional<OUT, IN>.add(outV: Iterable<OUT>) = BoundRelationshipToOptional(outVs.plus(outV), path)
+fun <FROM : Any, TO : Any> SingleBoundRelationshipToOptional<FROM, TO>.add(from: FROM) = BoundRelationshipToOptional(froms.plus(from), path)
+fun <FROM : Any, TO : Any> SingleBoundRelationshipToOptional<FROM, TO>.add(vararg from: FROM) = BoundRelationshipToOptional(froms.plus(from), path)
+fun <FROM : Any, TO : Any> SingleBoundRelationshipToOptional<FROM, TO>.add(from: Iterable<FROM>) = BoundRelationshipToOptional(froms.plus(from), path)
 
-fun <OUT : Any, IN : Any> SingleBoundRelationshipToSingle<OUT, IN>.add(outV: OUT) = BoundRelationshipToSingle(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> SingleBoundRelationshipToSingle<OUT, IN>.add(vararg outV: OUT) = BoundRelationshipToSingle(outVs.plus(outV), path)
-fun <OUT : Any, IN : Any> SingleBoundRelationshipToSingle<OUT, IN>.add(outV: Iterable<OUT>) = BoundRelationshipToSingle(outVs.plus(outV), path)
+fun <FROM : Any, TO : Any> SingleBoundRelationshipToSingle<FROM, TO>.add(from: FROM) = BoundRelationshipToSingle(froms.plus(from), path)
+fun <FROM : Any, TO : Any> SingleBoundRelationshipToSingle<FROM, TO>.add(vararg from: FROM) = BoundRelationshipToSingle(froms.plus(from), path)
+fun <FROM : Any, TO : Any> SingleBoundRelationshipToSingle<FROM, TO>.add(from: Iterable<FROM>) = BoundRelationshipToSingle(froms.plus(from), path)
