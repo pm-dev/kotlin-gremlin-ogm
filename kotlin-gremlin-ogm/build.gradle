@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		kotlinVersion = '1.2.41'
+		kotlinVersion = '1.2.50'
 		// the password can be specified via command line: gradle :kotlin-gremlin-ogm:publish -P repoPassword=
 		repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
 	}
@@ -10,7 +10,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
-		classpath("com.github.ben-manes:gradle-versions-plugin:0.17.0")
+		classpath("com.github.ben-manes:gradle-versions-plugin:0.18.0")
 	}
 }
 
@@ -55,7 +55,7 @@ dependencies {
 	// Test
 	testCompile("org.assertj:assertj-core:3.10.0")
 	testCompile("junit:junit:4.12")
-	testCompile("com.google.guava:guava:25.0-jre")
+	testCompile("com.google.guava:guava:25.1-jre")
 	testCompile("org.apache.tinkerpop:tinkergraph-gremlin:3.3.3")
 }
 

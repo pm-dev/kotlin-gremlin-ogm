@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.41'
+        kotlinVersion = '1.2.50'
         springBootVersion = '2.0.1.RELEASE'
     }
     repositories {
@@ -55,7 +55,7 @@ dependencies {
     compile('com.graphql-java:graphql-java-tools:4.3.0')
 
     // Guava
-    compile("com.google.guava:guava:24.1-jre")
+    compile("com.google.guava:guava:25.1-jre")
 
     // JanusGraph
     compile("org.janusgraph:janusgraph-core:0.2.0")
