@@ -25,7 +25,7 @@ internal class VertexDescription<T : Any>(
     companion object {
         fun <T : Any> describe(kClass: KClass<T>): VertexDescription<T> {
             val label = kClass.findAnnotation<Vertex>()?.label
-                    ?: throw RuntimeException("Class must be annotated with Vertex to be mapped to gremlin: $kClass")
+                    ?: throw RuntimeException("Class must be annotated with @Vertex to be mapped to gremlin: $kClass")
             val built = buildObjectDescription(
                     kClass = kClass,
                     type = ObjectDescriptionType.Vertex)

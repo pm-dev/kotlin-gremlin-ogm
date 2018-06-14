@@ -675,13 +675,7 @@ open class GraphMapper(
                 val toVertex = from[toVertexParameter.first]
                 constructorParameters[toVertexParameter.second] = toVertex
             }
-            var s: T? = null
-            try {
-                s = objectDescription.constructor.callBy(constructorParameters)
-            } catch (e: Exception) {
-                println("e")
-            }
-            return s!!
+            return objectDescription.constructor.callBy(constructorParameters)
         }
     }
 
