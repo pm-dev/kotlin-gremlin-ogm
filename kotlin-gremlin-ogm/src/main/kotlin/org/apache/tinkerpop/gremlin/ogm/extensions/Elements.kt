@@ -31,7 +31,6 @@ internal fun <T : Element> T.setProperties(
     return this
 }
 
-
 /**
  * This is internal and not private so we can check for invalid @Property.name values containing '.', which is invalid.
  */

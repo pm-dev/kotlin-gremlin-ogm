@@ -14,12 +14,10 @@ Define a Vertex
     @Vertex(label = "Person")
     class Person(
     
-            @param:ID
-            @property:ID
+            @ID
             val id: Long? = null,
                
-            @param:Property(key = "name")
-            @param:Property(key = "name")
+            @Property(key = "name")
             val name: String)
     
 Define a Relationship

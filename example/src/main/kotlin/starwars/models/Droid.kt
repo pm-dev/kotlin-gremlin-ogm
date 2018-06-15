@@ -20,8 +20,7 @@ internal class Droid(
         @Property(key = "appearsIn")
         appearsIn: Set<Episode>,
 
-        @param:Property(key = "primaryFunction")
-        @property:Property(key = "primaryFunction")
+        @Property(key = "primaryFunction")
         val primaryFunction: String
 ) : Character(
         id = id,

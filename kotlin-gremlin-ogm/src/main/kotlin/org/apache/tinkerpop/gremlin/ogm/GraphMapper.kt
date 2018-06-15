@@ -50,13 +50,13 @@ open class GraphMapper(
 ) {
 
     private val vertexDescriptions: Map<KClass<*>, VertexDescription<*>> =
-            vertexClasses.associate { it to VertexDescription.describe(it) }
+            vertexClasses.associate { it to VertexDescription(it) }
 
     private val edgeDescriptions: Map<Relationship<*, *>, EdgeDescription<out BaseEdge<*, *>>?> =
-            relationships.mapValues { entry -> entry.value?.let { EdgeDescription.describe(entry.key, it) } }
+            relationships.mapValues { entry -> entry.value?.let { EdgeDescription(entry.key.name, it) } }
 
     private val nestedObjectDescriptions: Map<KClass<*>, ObjectDescription<*>> =
-            nestedObjectClasses.associate { it to ObjectDescription.describe(it) }
+            nestedObjectClasses.associate { it to ObjectDescription(it) }
 
     private val vertexDescriptionsByLabel: Map<String, VertexDescription<*>> =
             vertexDescriptions.mapKeys { it.value.label }

@@ -1,14 +1,14 @@
 package org.apache.tinkerpop.gremlin.ogm.exceptions
 
 import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
 
 internal class NonNullableID(
         kClass: KClass<*>,
-        name: String?,
-        annotationType: AnnotationType
+        param: KParameter
 ) : AnnotationException(
-        description = "${annotationType.name.capitalize()} annotated with @ID must be nullable for when the " +
+        "Param '${param.name}' annotated with @ID must be nullable for when the " +
                 "object has not yet been persisted. " +
-                "Clients may choose to have another $annotationType used for identification that is non-null. " +
-                "${annotationType.name.capitalize()}: $name. Class $kClass"
+                "Clients may choose to have another param used for identification that is non-null. " +
+                "Class $kClass"
 )

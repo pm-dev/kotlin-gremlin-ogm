@@ -10,7 +10,7 @@ import org.janusgraph.graphdb.relations.RelationIdentifier
 internal class Sibling(
 
         @ID
-        id: RelationIdentifier? = null,
+        private val id: RelationIdentifier? = null,
 
         @FromVertex
         from: Human,
@@ -18,8 +18,7 @@ internal class Sibling(
         @ToVertex
         to: Human,
 
-        @param:Property("twins")
-        @property:Property("twins")
+        @Property("twins")
         val twins: Boolean
 
 ) : Edge<Human, Human>(id, from, to, siblings) {

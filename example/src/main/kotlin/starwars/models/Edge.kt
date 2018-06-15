@@ -1,14 +1,12 @@
 package starwars.models
 
-import org.apache.tinkerpop.gremlin.ogm.annotations.ID
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.BaseEdge
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import org.janusgraph.graphdb.relations.RelationIdentifier
 
 internal abstract class Edge<FROM : Any, TO : Any>(
 
-        @property:ID
-        val id: RelationIdentifier?,
+        private val id: RelationIdentifier?,
 
         from: FROM,
 

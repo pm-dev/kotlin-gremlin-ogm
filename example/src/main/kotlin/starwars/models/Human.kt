@@ -21,8 +21,7 @@ internal class Human(
         @Property(key = "appearsIn")
         appearsIn: Set<Episode>,
 
-        @param:Property(key = "homePlanet")
-        @property:Property(key = "homePlanet")
+        @Property(key = "homePlanet")
         val homePlanet: String?
 ) : Character(
         id = id,
