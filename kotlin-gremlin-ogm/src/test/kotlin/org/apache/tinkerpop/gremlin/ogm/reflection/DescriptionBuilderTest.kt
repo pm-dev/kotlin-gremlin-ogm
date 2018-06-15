@@ -11,6 +11,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Ignore
 import org.junit.Test
 import util.example.Base64Mapper
+import util.example.asymmetricManyToMany
 
 internal class DescriptionBuilderTest {
 
@@ -41,13 +42,13 @@ internal class DescriptionBuilderTest {
     @Test(expected = DuplicateToVertex::class)
     fun `test duplicate to-vertex on param`() {
         class Edge(@ID val id: String?, @FromVertex val from: Any, @ToVertex val to1: Any, @ToVertex val to2: Any)
-        EdgeDescription("", Edge::class)
+        EdgeDescription(asymmetricManyToMany, Edge::class)
     }
 
     @Test(expected = DuplicateFromVertex::class)
     fun `test duplicate from-vertex on param`() {
         class Edge(@ID val id: String?, @FromVertex val from1: Any, @FromVertex val from2: Any, @ToVertex val to: Any)
-        EdgeDescription("", Edge::class)
+        EdgeDescription(asymmetricManyToMany, Edge::class)
     }
 
     @Test(expected = NonNullableID::class)
@@ -59,13 +60,13 @@ internal class DescriptionBuilderTest {
     @Test(expected = ToVertexParameterMissing::class)
     fun `test to-vertex param missing`() {
         class Edge(@ID val id: String?, @FromVertex val from: Any)
-        EdgeDescription("", Edge::class)
+        EdgeDescription(asymmetricManyToMany, Edge::class)
     }
 
     @Test(expected = FromVertexParameterMissing::class)
     fun `test out-vertex param missing`() {
         class Edge(@ID val id: String?, @ToVertex val to: Any)
-        EdgeDescription("", Edge::class)
+        EdgeDescription(asymmetricManyToMany, Edge::class)
     }
 
     @Test(expected = IDParameterRequired::class)
@@ -83,13 +84,19 @@ internal class DescriptionBuilderTest {
     @Test(expected = MapperUnsupported::class)
     fun `test to-vertex mapper unsupported`() {
         class Edge(@ID val id: String?, @ToVertex @Mapper(Base64Mapper::class) val to: Any, @FromVertex val from: Any)
-        EdgeDescription("", Edge::class)
+        EdgeDescription(asymmetricManyToMany, Edge::class)
     }
 
     @Test(expected = MapperUnsupported::class)
     fun `test from-vertex mapper unsupported`() {
         class Edge(@ID val id: String?, @ToVertex val to: Any, @FromVertex @Mapper(Base64Mapper::class) val from: Any)
-        EdgeDescription("", Edge::class)
+        EdgeDescription(asymmetricManyToMany, Edge::class)
+    }
+
+    @Test(expected = NullableVertexParam::class)
+    fun `test null from-vertex param unsupported`() {
+        class Edge(@ID val id: String?, @ToVertex val to: Any?, @FromVertex val from: Any)
+        EdgeDescription(asymmetricManyToMany, Edge::class)
     }
 
     @Test(expected = DuplicatePropertyName::class)

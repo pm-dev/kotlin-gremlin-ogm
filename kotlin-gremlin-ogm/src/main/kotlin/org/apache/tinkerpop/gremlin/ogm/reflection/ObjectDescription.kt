@@ -6,6 +6,7 @@ import org.apache.tinkerpop.gremlin.ogm.exceptions.*
 import org.apache.tinkerpop.gremlin.ogm.extensions.filterNullValues
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
+import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 
@@ -25,7 +26,7 @@ internal sealed class ObjectDescription<T : Any>(klass: KClass<T>) {
          * The properties of T that can be mapped to properties of a vertex.
          * The keys of the map are used as keys for the vertex properties.
          */
-        val properties: Map<String, PropertyDescription<T>> = klass.properties()
+        val properties: Map<String, PropertyDescription<T, *>> = klass.properties()
 
         /**
          * The parameters for the primary constructor that should be called with null as their value.
@@ -53,7 +54,7 @@ internal sealed class ElementDescription<T : Any>(
         /**
          * The property description for the id of the element
          */
-        val id: PropertyDescription<T> = klass.idPropertyDescription(constructor)
+        val id: PropertyDescription<T, *> = klass.idPropertyDescription(constructor)
 }
 
 /**
@@ -64,17 +65,23 @@ internal class VertexDescription<T : Any>(klass: KClass<T>) : ElementDescription
 /**
  * Contains the reflection information needed to map an object to/from an edge.
  */
-internal class EdgeDescription<T: Any>(label: String, klass: KClass<T>) : ElementDescription<T>(label, klass) {
+internal class EdgeDescription<FROM : Any, TO : Any, T: Any>(
+
+        val relationship: Relationship<FROM, TO>,
+
+        klass: KClass<T>
+
+) : ElementDescription<T>(relationship.name, klass) {
 
         /**
          * The parameter for the 'to' vertex of the edge.
          */
-        val toVertex: KParameter = klass.toVertexParameter(constructor)
+        val toVertex: PropertyDescription<T, TO> = klass.toVertexPropertyDescription(constructor)
 
         /**
          * The property description for the 'from' vertex of the edge.
          */
-        val fromVertex: KParameter = klass.fromVertexParameter(constructor)
+        val fromVertex: PropertyDescription<T, FROM> = klass.fromVertexPropertyDescription(constructor)
 }
 
 /**
@@ -85,7 +92,11 @@ internal class NestedObjectDescription<T : Any>(klass: KClass<T>) : ObjectDescri
 private fun <T : Any> KClass<T>.label(): String =
         findAnnotation<Vertex>()?.label ?: throw VertexAnnotationMissing(this)
 
-private fun <T : Any> KClass<T>.toVertexParameter(constructor: KFunction<T>): KParameter {
+private fun <TO : Any, T : Any> KClass<T>.toVertexPropertyDescription(constructor: KFunction<T>): PropertyDescription<T, TO> {
+        val memberProperties = memberProperties
+        val memberPropertiesByName = memberProperties.associateBy { property -> property.name }
+        val annotatedToVertexProperties = memberProperties.filter { property -> property.findAnnotation<ToVertex>() != null }
+        if (annotatedToVertexProperties.size > 1) throw DuplicateVertexProperty(this)
         val annotatedToVertexParams = constructor.parameters.filter { param -> param.findAnnotation<ToVertex>() != null }
         if (annotatedToVertexParams.size > 1) throw DuplicateToVertex(this)
         if (annotatedToVertexParams.isEmpty()) throw ToVertexParameterMissing(this)
@@ -94,10 +105,19 @@ private fun <T : Any> KClass<T>.toVertexParameter(constructor: KFunction<T>): KP
         if (annotatedToVertexParam.findAnnotation<Property>() != null) throw ConflictingAnnotations(this, annotatedToVertexParam)
         if (annotatedToVertexParam.findAnnotation<FromVertex>() != null) throw ConflictingAnnotations(this, annotatedToVertexParam)
         if (annotatedToVertexParam.findAnnotation<ID>() != null) throw ConflictingAnnotations(this, annotatedToVertexParam)
-        return annotatedToVertexParam
+        if (annotatedToVertexParam.type.isMarkedNullable) throw NullableVertexParam(this, annotatedToVertexParam)
+        val toVertexProperty = annotatedToVertexProperties.singleOrNull()
+                ?: memberPropertiesByName[annotatedToVertexParam.name]
+                ?: throw VertexPropertyRequired(this)
+        @Suppress("UNCHECKED_CAST")
+        return PropertyDescription(annotatedToVertexParam, toVertexProperty as KProperty1<T, TO>, null)
 }
 
-private fun <T : Any> KClass<T>.fromVertexParameter(constructor: KFunction<T>): KParameter {
+private fun <FROM : Any, T : Any> KClass<T>.fromVertexPropertyDescription(constructor: KFunction<T>): PropertyDescription<T, FROM> {
+        val memberProperties = memberProperties
+        val memberPropertiesByName = memberProperties.associateBy { property -> property.name }
+        val annotatedFromVertexProperties = memberProperties.filter { property -> property.findAnnotation<FromVertex>() != null }
+        if (annotatedFromVertexProperties.size > 1) throw DuplicateVertexProperty(this)
         val annotatedFromVertexParams = constructor.parameters.filter { param -> param.findAnnotation<FromVertex>() != null }
         if (annotatedFromVertexParams.size > 1) throw DuplicateFromVertex(this)
         if (annotatedFromVertexParams.size != 1) throw FromVertexParameterMissing(this)
@@ -106,10 +126,15 @@ private fun <T : Any> KClass<T>.fromVertexParameter(constructor: KFunction<T>): 
         if (annotatedFromVertexParam.findAnnotation<Property>() != null) throw ConflictingAnnotations(this, annotatedFromVertexParam)
         if (annotatedFromVertexParam.findAnnotation<ToVertex>() != null) throw ConflictingAnnotations(this, annotatedFromVertexParam)
         if (annotatedFromVertexParam.findAnnotation<ID>() != null) throw ConflictingAnnotations(this, annotatedFromVertexParam)
-        return annotatedFromVertexParam
+        if (annotatedFromVertexParam.type.isMarkedNullable) throw NullableVertexParam(this, annotatedFromVertexParam)
+        val fromVertexProperty = annotatedFromVertexProperties.singleOrNull()
+                ?: memberPropertiesByName[annotatedFromVertexParam.name]
+                ?: throw VertexPropertyRequired(this)
+        @Suppress("UNCHECKED_CAST")
+        return PropertyDescription(annotatedFromVertexParam, fromVertexProperty as KProperty1<T, FROM>, null)
 }
 
-private fun <T : Any> KClass<T>.idPropertyDescription(constructor: KFunction<T>): PropertyDescription<T> {
+private fun <T : Any> KClass<T>.idPropertyDescription(constructor: KFunction<T>): PropertyDescription<T, *> {
         val memberProperties = memberProperties
         val memberPropertiesByName = memberProperties.associateBy { property -> property.name }
         val annotatedIDProperties = memberProperties.filter { property -> property.findAnnotation<ID>() != null }
@@ -125,7 +150,7 @@ private fun <T : Any> KClass<T>.idPropertyDescription(constructor: KFunction<T>)
         if (annotatedIDParam.findAnnotation<ToVertex>() != null) throw ConflictingAnnotations(this, annotatedIDParam)
         if (annotatedIDParam.findAnnotation<FromVertex>() != null) throw ConflictingAnnotations(this, annotatedIDParam)
         if (!annotatedIDParam.type.isMarkedNullable) throw NonNullableID(this, annotatedIDParam)
-        return PropertyDescription(annotatedIDParam, idProperty, annotatedIDParam.findMapper())
+        return PropertyDescription(annotatedIDParam, idProperty, null)
 }
 
 internal fun KParameter.findMapper(): PropertyBiMapper<Any, SerializedProperty>? {
@@ -139,7 +164,7 @@ internal fun KParameter.findMapper(): PropertyBiMapper<Any, SerializedProperty>?
         return mapperAnnotation.kClass.createInstance() as? PropertyBiMapper<Any, SerializedProperty>
 }
 
-private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T>> {
+private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T, *>> {
         val memberProperties = memberProperties
         val annotatedMemberProperties = memberProperties
                 .associate { property -> property to property.findAnnotation<Property>() }

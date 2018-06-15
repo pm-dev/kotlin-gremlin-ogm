@@ -3,7 +3,7 @@ package org.apache.tinkerpop.gremlin.ogm.exceptions
 import org.apache.tinkerpop.gremlin.ogm.reflection.PropertyDescription
 
 internal class IncompatibleMap(
-        propertyDescription: PropertyDescription<*>
+        propertyDescription: PropertyDescription<*, *>
 ) : ClientException(
         description = "Unsupported map of type ${propertyDescription.kClass}. " +
                 "This library knows how to serialize/deserialize the map based on the map's type " +

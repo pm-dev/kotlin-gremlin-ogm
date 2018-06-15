@@ -3,7 +3,7 @@ package org.apache.tinkerpop.gremlin.ogm.exceptions
 import org.apache.tinkerpop.gremlin.ogm.reflection.PropertyDescription
 
 internal class IncompatibleIterable(
-        propertyDescription: PropertyDescription<*>
+        propertyDescription: PropertyDescription<*, *>
 ) : ClientException(
         description = "Unsupported iterable of type ${propertyDescription.property}. " +
                 "This library knows how to serialize/deserialize the iterable based on the iterable's type " +

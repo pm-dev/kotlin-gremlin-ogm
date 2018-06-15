@@ -19,10 +19,7 @@ import org.apache.tinkerpop.gremlin.ogm.paths.bound.SingleBoundPath
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.BaseEdge
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepTraverser
-import org.apache.tinkerpop.gremlin.ogm.reflection.EdgeDescription
-import org.apache.tinkerpop.gremlin.ogm.reflection.ObjectDescription
-import org.apache.tinkerpop.gremlin.ogm.reflection.PropertyDescription
-import org.apache.tinkerpop.gremlin.ogm.reflection.VertexDescription
+import org.apache.tinkerpop.gremlin.ogm.reflection.*
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
 import org.apache.tinkerpop.gremlin.structure.Edge
@@ -52,11 +49,11 @@ open class GraphMapper(
     private val vertexDescriptions: Map<KClass<*>, VertexDescription<*>> =
             vertexClasses.associate { it to VertexDescription(it) }
 
-    private val edgeDescriptions: Map<Relationship<*, *>, EdgeDescription<out BaseEdge<*, *>>?> =
-            relationships.mapValues { entry -> entry.value?.let { EdgeDescription(entry.key.name, it) } }
+    private val edgeDescriptions: Map<Relationship<*, *>, EdgeDescription<*, *, *>?> =
+            relationships.mapValues { entry -> entry.value?.let { EdgeDescription(entry.key, it) } }
 
-    private val nestedObjectDescriptions: Map<KClass<*>, ObjectDescription<*>> =
-            nestedObjectClasses.associate { it to ObjectDescription(it) }
+    private val nestedObjectDescriptions: Map<KClass<*>, NestedObjectDescription<*>> =
+            nestedObjectClasses.associate { it to NestedObjectDescription(it) }
 
     private val vertexDescriptionsByLabel: Map<String, VertexDescription<*>> =
             vertexDescriptions.mapKeys { it.value.label }
@@ -365,7 +362,7 @@ open class GraphMapper(
     @Suppress("UNCHECKED_CAST")
     private fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> Edge.edgeMapper(): EdgeMapper<FROM, TO, E> {
         val relationship = relationshipNameToRelationship[label()]
-        val edgeDescription = edgeDescriptions[relationship] as EdgeDescription<E>?
+        val edgeDescription = edgeDescriptions[relationship] as EdgeDescription<FROM, TO, E>?
         val fromVertexDescription = vertexDescriptionsByLabel[outVertex().label()] as VertexDescription<FROM>? ?: throw UnregisteredLabel(outVertex())
         val toVertexDescription = vertexDescriptionsByLabel[inVertex().label()] as VertexDescription<TO>? ?: throw UnregisteredLabel(inVertex())
         return EdgeMapper(g, edgeDescription, fromVertexDescription, toVertexDescription)
@@ -373,7 +370,7 @@ open class GraphMapper(
 
     @Suppress("UNCHECKED_CAST")
     private fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> E.edgeMapper(): EdgeMapper<FROM, TO, E> {
-        val edgeDescription = edgeDescriptions[relationship] as EdgeDescription<E>?
+        val edgeDescription = edgeDescriptions[relationship] as EdgeDescription<FROM, TO, E>?
         val fromVertexDescription = vertexDescriptions[from::class] as VertexDescription<FROM>? ?: throw UnregisteredClass(from)
         val toVertexDescription = vertexDescriptions[to::class] as VertexDescription<TO>? ?: throw UnregisteredClass(to)
         return EdgeMapper(g, edgeDescription, fromVertexDescription, toVertexDescription)
@@ -411,7 +408,7 @@ open class GraphMapper(
 
         constructor(
                 g: GraphTraversalSource,
-                edgeDescription: EdgeDescription<E>?,
+                edgeDescription: EdgeDescription<FROM, TO, E>?,
                 fromVertexDescription: VertexDescription<FROM>,
                 toVertexDescription: VertexDescription<TO>
         ) : this(
@@ -432,7 +429,7 @@ open class GraphMapper(
 
         constructor(
                 g: GraphTraversalSource,
-                edgeDescription: EdgeDescription<E>?,
+                edgeDescription: EdgeDescription<FROM, TO, E>?,
                 fromVertexDescription: VertexDescription<FROM>,
                 toVertexDescription: VertexDescription<TO>
         ) : this(
@@ -510,7 +507,7 @@ open class GraphMapper(
     ) : Mapper<Edge, E> {
 
         constructor(
-                edgeDescription: EdgeDescription<E>?,
+                edgeDescription: EdgeDescription<FROM, TO, E>?,
                 fromVertexDescription: VertexDescription<FROM>,
                 toVertexDescription: VertexDescription<TO>
         ) : this(
@@ -518,8 +515,8 @@ open class GraphMapper(
                     ObjectDeserializer(
                             edgeDescription,
                             idTag to edgeDescription.id,
-                            toVertexTag to edgeDescription.toVertex,
-                            fromVertexTag to edgeDescription.fromVertex)
+                            toVertexTag to edgeDescription.toVertex.parameter,
+                            fromVertexTag to edgeDescription.fromVertex.parameter)
                 },
                 VertexDeserializer(fromVertexDescription),
                 VertexDeserializer(toVertexDescription))
@@ -627,7 +624,7 @@ open class GraphMapper(
 
     private inner class ObjectDeserializer<out T : Any>(
             private val objectDescription: ObjectDescription<T>,
-            private val idProperty: Pair<String, PropertyDescription<T>>? = null,
+            private val idProperty: Pair<String, PropertyDescription<T, *>>? = null,
             private val fromVertexParameter: Pair<String, KParameter>? = null,
             private val toVertexParameter: Pair<String, KParameter>? = null
     ) : Mapper<Map<String, SerializedProperty?>, T> {
@@ -664,7 +661,7 @@ open class GraphMapper(
             private val propertyDeserializer: PropertyDeserializer<T>
     ) : BiMapper<Any?, SerializedProperty?> {
 
-        constructor(propertyDescription: PropertyDescription<T>)
+        constructor(propertyDescription: PropertyDescription<T, *>)
                 : this(PropertySerializer(propertyDescription), PropertyDeserializer(propertyDescription))
 
         override fun forwardMap(from: Any?): SerializedProperty? = propertySerializer(from)
@@ -672,7 +669,7 @@ open class GraphMapper(
     }
 
     private inner class PropertySerializer<T>(
-            private val propertyDescription: PropertyDescription<T>
+            private val propertyDescription: PropertyDescription<T, *>
     ) : Mapper<Any?, SerializedProperty?> {
 
         override fun invoke(from: Any?): SerializedProperty? {
@@ -721,7 +718,7 @@ open class GraphMapper(
     }
 
     private inner class PropertyDeserializer<T>(
-            private val propertyDescription: PropertyDescription<T>
+            private val propertyDescription: PropertyDescription<T, *>
     ) : Mapper<SerializedProperty?, Any?> {
 
         override fun invoke(from: SerializedProperty?): Any? {
