@@ -9,7 +9,7 @@ import kotlin.reflect.KProperty1
 /**
  * Describes a property on an object representing a vertex to a graph.
  */
-internal class PropertyDescription<RECEIVER>(
+internal data class PropertyDescription<RECEIVER>(
 
         /**
          * The primary constructor parameter on RECEIVER that sets this property.

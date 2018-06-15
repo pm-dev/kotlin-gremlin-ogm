@@ -4,13 +4,6 @@ import org.apache.tinkerpop.gremlin.ogm.annotations.Property
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 
-internal class PropertyMissingOnProperty(
-        kClass: KClass<*>,
-        key: String
-) : AnnotationException(
-        description = "@param:Property annotation with name $key must also be found on an " +
-        "@property:Property annotation. Class $kClass"
-)
 
 internal class ParameterPropertyNotFound(
         kClass: KClass<*>,
