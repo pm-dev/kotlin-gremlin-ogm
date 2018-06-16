@@ -1,29 +1,25 @@
 package util.example
 
-import org.apache.tinkerpop.gremlin.ogm.annotations.ToVertex
-import org.apache.tinkerpop.gremlin.ogm.annotations.ID
-import org.apache.tinkerpop.gremlin.ogm.annotations.Property
-import org.apache.tinkerpop.gremlin.ogm.annotations.FromVertex
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.BaseEdge
+import org.apache.tinkerpop.gremlin.ogm.annotations.*
+import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 
+@Element(label = "fromIntToBool")
 internal class IntToBoolEdge(
 
-        @param:ID
-        @property:ID
+        @ID
         val id: Long? = null,
 
-        @param:Property("a")
-        @property:Property("a")
+        @Property("a")
         val a: String,
 
         @FromVertex
-        from: VertexWithInt,
+        override val from: VertexWithInt,
 
         @ToVertex
-        to: VertexWithBoolean
+        override val to: VertexWithBoolean
 
-) : BaseEdge<VertexWithInt, VertexWithBoolean>(from, to, fromIntToBool) {
+) : Edge<VertexWithInt, VertexWithBoolean> {
 
     override fun hashCode(): Int = id?.hashCode() ?: super.hashCode()
 

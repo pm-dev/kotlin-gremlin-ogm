@@ -1,5 +1,6 @@
 package starwars.traversals.human
 
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.SingleBoundPathToMany
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.EdgeStep
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.filter
@@ -8,7 +9,7 @@ import starwars.models.Human
 import starwars.models.Sibling
 import starwars.models.Sibling.Companion.siblings
 
-internal fun Human.toTwinSiblings() =
-        EdgeStep.ToMany<Human, Human, Sibling>(siblings).filter {
-            it.twins
-        }.map { it.to } from this
+internal fun Human.toTwinSiblings(): SingleBoundPathToMany<Human, Human> =
+        EdgeStep.ToMany<Human, Human, Sibling>(siblings)
+                .filter { it.twins }
+                .map { it.to } from this

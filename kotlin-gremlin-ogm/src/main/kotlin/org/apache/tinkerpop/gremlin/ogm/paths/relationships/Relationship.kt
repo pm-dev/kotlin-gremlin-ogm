@@ -1,10 +1,12 @@
 package org.apache.tinkerpop.gremlin.ogm.paths.relationships
 
+import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
+
 /**
  * A [Relationship] defines a path between two vertices that does not travel through any other vertices.
  * Each [Relationship] must be registered with a GraphMapper.
  */
-interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
+interface Relationship<FROM : Vertex, TO : Vertex> : Connection<FROM, TO> {
 
     /**
      * Relationships may be asymmetric, meaning if vertex A relates to vertex B, that
@@ -38,28 +40,28 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
 
     override val inverse: Relationship<TO, FROM>
 
-    data class SymmetricSingleToSingle<TYPE : Any>(
+    data class SymmetricSingleToSingle<TYPE : Vertex>(
             override val name: String
     ) : SingleToSingle<TYPE, TYPE>, Symmetric<TYPE> {
 
         override val inverse: SymmetricSingleToSingle<TYPE> get() = this
     }
 
-    data class SymmetricOptionalToOptional<TYPE : Any>(
+    data class SymmetricOptionalToOptional<TYPE : Vertex>(
             override val name: String
     ) : OptionalToOptional<TYPE, TYPE>, Symmetric<TYPE> {
 
         override val inverse: SymmetricOptionalToOptional<TYPE> get() = this
     }
 
-    data class SymmetricManyToMany<TYPE : Any>(
+    data class SymmetricManyToMany<TYPE : Vertex>(
             override val name: String
     ) : ManyToMany<TYPE, TYPE>, Symmetric<TYPE> {
 
         override val inverse: SymmetricManyToMany<TYPE> get() = this
     }
 
-    data class AsymmetricOptionalToOptional<FROM : Any, TO : Any>(
+    data class AsymmetricOptionalToOptional<FROM : Vertex, TO : Vertex>(
             override val name: String,
             override val direction: Direction = Direction.FORWARD
     ) : OptionalToOptional<FROM, TO> {
@@ -70,7 +72,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
                     direction = direction.inverse)
     }
 
-    data class AsymmetricOptionalToSingle<FROM : Any, TO : Any>(
+    data class AsymmetricOptionalToSingle<FROM : Vertex, TO : Vertex>(
             override val name: String,
             override val direction: Direction = Direction.FORWARD
     ) : OptionalToSingle<FROM, TO> {
@@ -81,7 +83,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
                     direction = direction.inverse)
     }
 
-    data class AsymmetricSingleToOptional<FROM : Any, TO : Any>(
+    data class AsymmetricSingleToOptional<FROM : Vertex, TO : Vertex>(
             override val name: String,
             override val direction: Direction = Direction.FORWARD
     ) : SingleToOptional<FROM, TO> {
@@ -92,7 +94,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
                     direction = direction.inverse)
     }
 
-    data class AsymmetricSingleToSingle<FROM : Any, TO : Any>(
+    data class AsymmetricSingleToSingle<FROM : Vertex, TO : Vertex>(
             override val name: String,
             override val direction: Direction = Direction.FORWARD
     ) : SingleToSingle<FROM, TO> {
@@ -103,7 +105,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
                     direction = direction.inverse)
     }
 
-    data class AsymmetricSingleToMany<FROM : Any, TO : Any>(
+    data class AsymmetricSingleToMany<FROM : Vertex, TO : Vertex>(
             override val name: String
     ) : SingleToMany<FROM, TO>, AsymmetricOneToMany<FROM, TO> {
 
@@ -112,7 +114,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
                     name = name)
     }
 
-    data class AsymmetricOptionalToMany<FROM : Any, TO : Any>(
+    data class AsymmetricOptionalToMany<FROM : Vertex, TO : Vertex>(
             override val name: String
     ) :  OptionalToMany<FROM, TO>, AsymmetricOneToMany<FROM, TO> {
 
@@ -127,7 +129,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
      * relationship, but using a different name. To get a ManyToOne relationship, define it
      * as its OneToMany equivalent then get its inverse.
      */
-    data class AsymmetricManyToOptional<FROM : Any, TO : Any> internal constructor(
+    data class AsymmetricManyToOptional<FROM : Vertex, TO : Vertex> internal constructor(
             override val name: String
     ) : ManyToOptional<FROM, TO>, AsymmetricManyToOne<FROM, TO> {
 
@@ -142,7 +144,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
      * relationship, but using a different name. To get a ManyToOne relationship, define it
      * as its OneToMany equivalent then get its inverse.
      */
-    data class AsymmetricManyToSingle<FROM : Any, TO : Any> internal constructor(
+    data class AsymmetricManyToSingle<FROM : Vertex, TO : Vertex> internal constructor(
             override val name: String
     ) : ManyToSingle<FROM, TO>, AsymmetricManyToOne<FROM, TO> {
 
@@ -151,7 +153,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
                     name = name)
     }
 
-    data class AsymmetricManyToMany<FROM : Any, TO : Any>(
+    data class AsymmetricManyToMany<FROM : Vertex, TO : Vertex>(
             override val name: String,
             override val direction: Direction = Direction.FORWARD
     ) : ManyToMany<FROM, TO> {
@@ -162,137 +164,137 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
                     direction = direction.inverse)
     }
 
-    interface FromOne<FROM : Any, TO : Any> : Relationship<FROM, TO>, Connection.FromOne<FROM, TO> {
+    interface FromOne<FROM : Vertex, TO : Vertex> : Relationship<FROM, TO>, Connection.FromOne<FROM, TO> {
 
         override val inverse: ToOne<TO, FROM>
     }
 
-    interface FromOptional<FROM : Any, TO : Any> : FromOne<FROM, TO>, Connection.FromOptional<FROM, TO> {
+    interface FromOptional<FROM : Vertex, TO : Vertex> : FromOne<FROM, TO>, Connection.FromOptional<FROM, TO> {
 
         override val inverse: ToOptional<TO, FROM>
     }
 
-    interface FromSingle<FROM : Any, TO : Any> : FromOne<FROM, TO>, Connection.FromSingle<FROM, TO> {
+    interface FromSingle<FROM : Vertex, TO : Vertex> : FromOne<FROM, TO>, Connection.FromSingle<FROM, TO> {
 
         override val inverse: ToSingle<TO, FROM>
     }
 
-    interface FromMany<FROM : Any, TO : Any> : Relationship<FROM, TO>, Connection.FromMany<FROM, TO> {
+    interface FromMany<FROM : Vertex, TO : Vertex> : Relationship<FROM, TO>, Connection.FromMany<FROM, TO> {
 
         override val inverse: ToMany<TO, FROM>
     }
 
-    interface ToOne<FROM : Any, TO : Any> : Relationship<FROM, TO>, Connection.ToOne<FROM, TO> {
+    interface ToOne<FROM : Vertex, TO : Vertex> : Relationship<FROM, TO>, Connection.ToOne<FROM, TO> {
 
         override val inverse: FromOne<TO, FROM>
     }
 
-    interface ToOptional<FROM : Any, TO : Any> : ToOne<FROM, TO>, Connection.ToOptional<FROM, TO> {
+    interface ToOptional<FROM : Vertex, TO : Vertex> : ToOne<FROM, TO>, Connection.ToOptional<FROM, TO> {
 
         override val inverse: FromOptional<TO, FROM>
     }
 
-    interface ToSingle<FROM : Any, TO : Any> : ToOne<FROM, TO>, Connection.ToSingle<FROM, TO> {
+    interface ToSingle<FROM : Vertex, TO : Vertex> : ToOne<FROM, TO>, Connection.ToSingle<FROM, TO> {
 
         override val inverse: FromSingle<TO, FROM>
     }
 
-    interface ToMany<FROM : Any, TO : Any> : Relationship<FROM, TO>, Connection.ToMany<FROM, TO> {
+    interface ToMany<FROM : Vertex, TO : Vertex> : Relationship<FROM, TO>, Connection.ToMany<FROM, TO> {
 
         override val inverse: FromMany<TO, FROM>
     }
 
-    interface OneToOne<FROM : Any, TO : Any> : FromOne<FROM, TO>, ToOne<FROM, TO>, Connection.OneToOne<FROM, TO> {
+    interface OneToOne<FROM : Vertex, TO : Vertex> : FromOne<FROM, TO>, ToOne<FROM, TO>, Connection.OneToOne<FROM, TO> {
 
         override val inverse: OneToOne<TO, FROM>
     }
 
-    interface OneToOptional<FROM : Any, TO : Any> : OneToOne<FROM, TO>, ToOptional<FROM, TO>, Connection.OneToOptional<FROM, TO> {
+    interface OneToOptional<FROM : Vertex, TO : Vertex> : OneToOne<FROM, TO>, ToOptional<FROM, TO>, Connection.OneToOptional<FROM, TO> {
 
         override val inverse: OptionalToOne<TO, FROM>
     }
 
-    interface OneToSingle<FROM : Any, TO : Any> : OneToOne<FROM, TO>, ToSingle<FROM, TO>, Connection.OneToSingle<FROM, TO> {
+    interface OneToSingle<FROM : Vertex, TO : Vertex> : OneToOne<FROM, TO>, ToSingle<FROM, TO>, Connection.OneToSingle<FROM, TO> {
 
         override val inverse: SingleToOne<TO, FROM>
     }
 
-    interface OptionalToOne<FROM : Any, TO : Any> : FromOptional<FROM, TO>, OneToOne<FROM, TO>, Connection.OptionalToOne<FROM, TO> {
+    interface OptionalToOne<FROM : Vertex, TO : Vertex> : FromOptional<FROM, TO>, OneToOne<FROM, TO>, Connection.OptionalToOne<FROM, TO> {
 
         override val inverse: OneToOptional<TO, FROM>
     }
 
-    interface SingleToOne<FROM : Any, TO : Any> : FromSingle<FROM, TO>, OneToOne<FROM, TO>, Connection.SingleToOne<FROM, TO> {
+    interface SingleToOne<FROM : Vertex, TO : Vertex> : FromSingle<FROM, TO>, OneToOne<FROM, TO>, Connection.SingleToOne<FROM, TO> {
 
         override val inverse: OneToSingle<TO, FROM>
     }
 
-    interface OneToMany<FROM : Any, TO : Any> : FromOne<FROM, TO>, ToMany<FROM, TO>, Connection.OneToMany<FROM, TO> {
+    interface OneToMany<FROM : Vertex, TO : Vertex> : FromOne<FROM, TO>, ToMany<FROM, TO>, Connection.OneToMany<FROM, TO> {
 
         override val inverse: ManyToOne<TO, FROM>
     }
 
-    interface ManyToOne<FROM : Any, TO : Any> : FromMany<FROM, TO>, ToOne<FROM, TO>, Connection.ManyToOne<FROM, TO> {
+    interface ManyToOne<FROM : Vertex, TO : Vertex> : FromMany<FROM, TO>, ToOne<FROM, TO>, Connection.ManyToOne<FROM, TO> {
 
         override val inverse: OneToMany<TO, FROM>
     }
 
-    interface OptionalToOptional<FROM : Any, TO : Any> : OptionalToOne<FROM, TO>, OneToOptional<FROM, TO>, Connection.OptionalToOptional<FROM, TO> {
+    interface OptionalToOptional<FROM : Vertex, TO : Vertex> : OptionalToOne<FROM, TO>, OneToOptional<FROM, TO>, Connection.OptionalToOptional<FROM, TO> {
 
         override val inverse: OptionalToOptional<TO, FROM>
     }
 
-    interface OptionalToSingle<FROM : Any, TO : Any> : OptionalToOne<FROM, TO>, OneToSingle<FROM, TO>, Connection.OptionalToSingle<FROM, TO> {
+    interface OptionalToSingle<FROM : Vertex, TO : Vertex> : OptionalToOne<FROM, TO>, OneToSingle<FROM, TO>, Connection.OptionalToSingle<FROM, TO> {
 
         override val inverse: SingleToOptional<TO, FROM>
     }
 
-    interface SingleToOptional<FROM : Any, TO : Any> : SingleToOne<FROM, TO>, OneToOptional<FROM, TO>, Connection.SingleToOptional<FROM, TO> {
+    interface SingleToOptional<FROM : Vertex, TO : Vertex> : SingleToOne<FROM, TO>, OneToOptional<FROM, TO>, Connection.SingleToOptional<FROM, TO> {
 
         override val inverse: OptionalToSingle<TO, FROM>
     }
 
-    interface SingleToSingle<FROM : Any, TO : Any> : SingleToOne<FROM, TO>, OneToSingle<FROM, TO>, Connection.SingleToSingle<FROM, TO> {
+    interface SingleToSingle<FROM : Vertex, TO : Vertex> : SingleToOne<FROM, TO>, OneToSingle<FROM, TO>, Connection.SingleToSingle<FROM, TO> {
 
         override val inverse: SingleToSingle<TO, FROM>
     }
 
-    interface OptionalToMany<FROM : Any, TO : Any> : FromOptional<FROM, TO>, OneToMany<FROM, TO>, Connection.OptionalToMany<FROM, TO> {
+    interface OptionalToMany<FROM : Vertex, TO : Vertex> : FromOptional<FROM, TO>, OneToMany<FROM, TO>, Connection.OptionalToMany<FROM, TO> {
 
         override val inverse: ManyToOptional<TO, FROM>
     }
 
-    interface SingleToMany<FROM : Any, TO : Any> : FromSingle<FROM, TO>, OneToMany<FROM, TO>, Connection.SingleToMany<FROM, TO> {
+    interface SingleToMany<FROM : Vertex, TO : Vertex> : FromSingle<FROM, TO>, OneToMany<FROM, TO>, Connection.SingleToMany<FROM, TO> {
 
         override val inverse: ManyToSingle<TO, FROM>
     }
 
-    interface ManyToOptional<FROM : Any, TO : Any> : ManyToOne<FROM, TO>, ToOptional<FROM, TO>, Connection.ManyToOptional<FROM, TO> {
+    interface ManyToOptional<FROM : Vertex, TO : Vertex> : ManyToOne<FROM, TO>, ToOptional<FROM, TO>, Connection.ManyToOptional<FROM, TO> {
 
         override val inverse: OptionalToMany<TO, FROM>
     }
 
-    interface ManyToSingle<FROM : Any, TO : Any> : ManyToOne<FROM, TO>, ToSingle<FROM, TO>, Connection.ManyToSingle<FROM, TO> {
+    interface ManyToSingle<FROM : Vertex, TO : Vertex> : ManyToOne<FROM, TO>, ToSingle<FROM, TO>, Connection.ManyToSingle<FROM, TO> {
 
         override val inverse: SingleToMany<TO, FROM>
     }
 
-    interface ManyToMany<FROM : Any, TO : Any> : FromMany<FROM, TO>, ToMany<FROM, TO>, Connection.ManyToMany<FROM, TO> {
+    interface ManyToMany<FROM : Vertex, TO : Vertex> : FromMany<FROM, TO>, ToMany<FROM, TO>, Connection.ManyToMany<FROM, TO> {
 
         override val inverse: ManyToMany<TO, FROM>
     }
 
-    interface Symmetric<TYPE : Any> : Relationship<TYPE, TYPE> {
+    interface Symmetric<TYPE : Vertex> : Relationship<TYPE, TYPE> {
 
         override val direction: Direction? get() = null
     }
 
-    interface AsymmetricManyToOne<FROM : Any, TO : Any> : ManyToOne<FROM, TO> {
+    interface AsymmetricManyToOne<FROM : Vertex, TO : Vertex> : ManyToOne<FROM, TO> {
 
         override val direction: Direction? get() = Direction.BACKWARD
     }
 
-    interface AsymmetricOneToMany<FROM : Any, TO : Any> : OneToMany<FROM, TO> {
+    interface AsymmetricOneToMany<FROM : Vertex, TO : Vertex> : OneToMany<FROM, TO> {
 
         override val direction: Direction? get() = Direction.FORWARD
     }
@@ -304,7 +306,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
          * there will be 0 or 1 'TO' objects. When the [inverse] is traversed from a 'TO' object,
          * there will be 0 or 1 'FROM' objects.
          */
-        inline fun <reified FROM : Any, reified TO : Any> asymmetricOptionalToOptional(
+        inline fun <reified FROM : Vertex, reified TO : Vertex> asymmetricOptionalToOptional(
                 name: String,
                 direction: Direction = Direction.FORWARD
         ) = AsymmetricOptionalToOptional<FROM, TO>(
@@ -316,7 +318,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
          * there will be exactly 1 'TO' objects. When the [inverse] is traversed from a 'TO' object,
          * there will be 0 or 1 'FROM' objects.
          */
-        inline fun <reified FROM : Any, reified TO : Any> asymmetricOptionalToSingle(
+        inline fun <reified FROM : Vertex, reified TO : Vertex> asymmetricOptionalToSingle(
                 name: String,
                 direction: Direction = Direction.FORWARD
         ) = AsymmetricOptionalToSingle<FROM, TO>(
@@ -328,7 +330,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
          * there will be 0 or 1 'TO' objects. When the [inverse] is traversed from a 'TO' object,
          * there will be exactly 1 'FROM' object.
          */
-        inline fun <reified FROM : Any, reified TO : Any> asymmetricSingleToOptional(
+        inline fun <reified FROM : Vertex, reified TO : Vertex> asymmetricSingleToOptional(
                 name: String,
                 direction: Direction = Direction.FORWARD
         ) = AsymmetricSingleToOptional<FROM, TO>(
@@ -340,7 +342,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
          * there will be exactly 1 'TO' object. When the [inverse] is traversed from a 'TO' object,
          * there will be exactly 1 'FROM' object.
          */
-        inline fun <reified FROM : Any, reified TO : Any> asymmetricSingleToSingle(
+        inline fun <reified FROM : Vertex, reified TO : Vertex> asymmetricSingleToSingle(
                 name: String,
                 direction: Direction = Direction.FORWARD
         ) = AsymmetricSingleToSingle<FROM, TO>(
@@ -352,7 +354,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
          * there will be exactly 1 'TO' object. When the [inverse] is traversed from a 'TO' object,
          * there will be exactly 1 'FROM' object.
          */
-        inline fun <reified FROM : Any, reified TO : Any> asymmetricSingleToMany(
+        inline fun <reified FROM : Vertex, reified TO : Vertex> asymmetricSingleToMany(
                 name: String
         ) = AsymmetricSingleToMany<FROM, TO>(
                 name = name)
@@ -362,7 +364,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
          * there will be 0 or more 'TO' objects. When the [inverse] is traversed from a 'TO' object,
          * there will be 0 or 1 'FROM' object.
          */
-        inline fun <reified FROM : Any, reified TO : Any> asymmetricOptionalToMany(
+        inline fun <reified FROM : Vertex, reified TO : Vertex> asymmetricOptionalToMany(
                 name: String
         ) = AsymmetricOptionalToMany<FROM, TO>(
                 name = name)
@@ -372,7 +374,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
          * there will be 0 or more 'TO' objects. When the [inverse] is traversed from a 'TO' object,
          * there will be 0 or more 'FROM' objects.
          */
-        inline fun <reified FROM : Any, reified TO : Any> asymmetricManyToMany(
+        inline fun <reified FROM : Vertex, reified TO : Vertex> asymmetricManyToMany(
                 name: String,
                 direction: Direction = Direction.FORWARD
         ) = AsymmetricManyToMany<FROM, TO>(
@@ -384,7 +386,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
          * there will be 0 or 1 'TO' objects. When the [inverse] is traversed from a 'TO' object,
          * there will be 0 or 1 'FROM' objects.
          */
-        inline fun <reified TYPE : Any> symmetricOptionalToOptional(
+        inline fun <reified TYPE : Vertex> symmetricOptionalToOptional(
                 name: String
         ) = SymmetricOptionalToOptional<TYPE>(
                 name = name)
@@ -394,7 +396,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
          * there will be exactly 1 'TO' object. When the [inverse] is traversed from a 'TO' object,
          * there will be exactly 1 'FROM' object.
          */
-        inline fun <reified TYPE : Any> symmetricSingleToSingle(
+        inline fun <reified TYPE : Vertex> symmetricSingleToSingle(
                 name: String
         ) = SymmetricSingleToSingle<TYPE>(
                 name = name)
@@ -404,7 +406,7 @@ interface Relationship<FROM : Any, TO : Any> : Connection<FROM, TO> {
          * there will be 0 or more 'TO' objects. When the [inverse] is traversed from a 'TO' object,
          * there will be 0 or more 'FROM' objects.
          */
-        inline fun <reified TYPE : Any> symmetricManyToMany(
+        inline fun <reified TYPE : Vertex> symmetricManyToMany(
                 name: String
         ) = SymmetricManyToMany<TYPE>(
                 name = name)

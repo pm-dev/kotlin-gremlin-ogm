@@ -4,13 +4,13 @@ import java.lang.annotation.Inherited
 
 
 /**
- * Marks a class as capable of being mapped to a vertex of the graph.
- * Clients should register classes marked with @Vertex with a GraphMapper.
+ * Marks a class as capable of being mapped to an element of the graph.
+ * Clients should register classes marked with @Element with a GraphMapper.
  */
 @Retention(value = AnnotationRetention.RUNTIME)
 @Target(allowedTargets = [(AnnotationTarget.CLASS)])
 @Inherited
-annotation class Vertex(
+annotation class Element(
 
         /**
          * The label of the vertex as stored to the graph. We require clients to specify an explicit

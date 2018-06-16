@@ -8,7 +8,7 @@ internal abstract class Character(
         createdAt: Instant,
         val name: Name,
         val appearsIn: Set<Episode>
-) : Node(
+) : BaseVertex(
         id = id,
         createdAt = createdAt
 ) {

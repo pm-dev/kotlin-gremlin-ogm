@@ -11,7 +11,7 @@ supported by most graph database implementations, including JanusGraph.
 
 Define a Vertex
 
-    @Vertex(label = "Person")
+    @Element(label = "Person")
     class Person(
     
             @ID
@@ -46,14 +46,14 @@ which exposes a graph database through a GraphQL endpoint.
 
 - Gradle
         
-        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.9.6'
+        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.10.0'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kotlin-gremlin-ogm</artifactId>
-            <version>0.9.6</version>
+            <version>0.10.0</version>
         </dependency>
         
         
@@ -129,7 +129,7 @@ Or build your own custom traversal-step.
 #### How the mapping works:
 
 - A description of your graph, based annotations, is processed and cached when your `GraphMapper` is instantiated.
-- Using this description of the graph, we can create 'vertex mappers' that knows how to serialize/deserialize objects marked with `@Vertex` to/from
+- Using this description of the graph, we can create 'vertex mappers' that knows how to serialize/deserialize objects marked with `@Element` to/from
 the graph.
 - Nested objects are not natively supported by Gremlin. When mapping a nested object to properties of a vertex, 
 the property key uses periods ('.') to denote a nested object. For example:

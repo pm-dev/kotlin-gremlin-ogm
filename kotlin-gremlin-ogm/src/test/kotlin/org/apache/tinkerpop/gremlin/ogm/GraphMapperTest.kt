@@ -1,5 +1,6 @@
 package org.apache.tinkerpop.gremlin.ogm
 
+import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ConflictingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.MissingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ObjectNotSaved
@@ -738,18 +739,18 @@ internal class GraphMapperTest {
         traverse(from = b, path = symmetricManyToMany.inverse, expecting = listOf(a))
     }
 
-    private fun <FROM : Any, TO : Any> traverse(from: FROM, path: Path.ToSingle<FROM, TO>, expecting: TO) {
+    private fun <FROM : Vertex, TO : Any> traverse(from: FROM, path: Path.ToSingle<FROM, TO>, expecting: TO) {
         val traversalResult = gm.traverse(path from from)
         assertThat(traversalResult).isEqualTo(expecting)
     }
 
-    private fun <FROM : Any, TO : Any> traverse(from: FROM, path: Path.ToMany<FROM, TO>, expecting: List<TO>) {
+    private fun <FROM : Vertex, TO : Any> traverse(from: FROM, path: Path.ToMany<FROM, TO>, expecting: List<TO>) {
         val traversalResult = gm.traverse(path from from)
         assertThat(traversalResult).hasSize(expecting.size)
         assertThat(traversalResult).isEqualTo(expecting)
     }
 
-    private fun <FROM : Any, TO : Any> traverse(from: FROM, path: Path.ToOptional<FROM, TO>, expecting: TO?) {
+    private fun <FROM : Vertex, TO : Any> traverse(from: FROM, path: Path.ToOptional<FROM, TO>, expecting: TO?) {
         if (expecting == null) {
             assertThat(gm.traverse(path from from)).isNull()
         } else {
@@ -1361,7 +1362,6 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricSingleToSingle from a to b)
         val edge = gm.saveE(IntToBoolEdge(a = RandomString.make(), from = b, to = c))
-
         traverse(from = a, path = asymmetricSingleToSingle outE fromIntToBool, expecting = edge)
     }
 }

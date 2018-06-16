@@ -4,7 +4,7 @@ import java.lang.annotation.Inherited
 
 /**
  * Registers a parameter or property as a value that should be mapped to/from a property of a vertex.
- * The class must be annotation with @Vertex and registered as a vertex with a GraphMapper.
+ * The class must be annotation with @Element and registered as a vertex with a GraphMapper.
  * Without this annotation, a property will be transient (not persisted to the graph) and must be nullable.
  *
  * **For each property annotated with @Property, there must also be a primary constructor parameter annotated

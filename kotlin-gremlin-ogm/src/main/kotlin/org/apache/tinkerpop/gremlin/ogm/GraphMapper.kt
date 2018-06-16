@@ -1,6 +1,10 @@
 package org.apache.tinkerpop.gremlin.ogm
 
+import org.apache.tinkerpop.gremlin.ogm.elements.BasicEdge
+import org.apache.tinkerpop.gremlin.ogm.elements.Edge
+import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.*
+import org.apache.tinkerpop.gremlin.ogm.extensions.filterNullValues
 import org.apache.tinkerpop.gremlin.ogm.extensions.getProperties
 import org.apache.tinkerpop.gremlin.ogm.extensions.setProperties
 import org.apache.tinkerpop.gremlin.ogm.extensions.toMultiMap
@@ -16,14 +20,11 @@ import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundPathToMany
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundPathToOptional
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundPathToSingle
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.SingleBoundPath
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.BaseEdge
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepTraverser
 import org.apache.tinkerpop.gremlin.ogm.reflection.*
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
-import org.apache.tinkerpop.gremlin.structure.Edge
-import org.apache.tinkerpop.gremlin.structure.Vertex
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
@@ -35,69 +36,63 @@ import kotlin.reflect.full.isSubclassOf
  * The main object a client's application will interact with.
  * This class provides the ability to map objects from a clients domain to the graph and back.
  *
- * Remember to register classes annotated with @Vertex using the 'vertexClasses' parameter as this
+ * Remember to register classes annotated with @Element using the 'vertexClasses' parameter as this
  * library does not scan for those objects automatically.
  */
 open class GraphMapper(
         val g: GraphTraversalSource,
-        vertexClasses: Set<KClass<*>>,
-        relationships: Map<Relationship<*, *>, KClass<out BaseEdge<*, *>>?>,
-        nestedObjectClasses: Set<KClass<*>> = setOf(),
+        vertices: Set<KClass<out Vertex>>,
+        relationships: Map<Relationship<out Vertex, out Vertex>, KClass<out Edge<Vertex, Vertex>>?> = mapOf(),
+        nestedObjects: Set<KClass<*>> = setOf(),
         private val scalarMappers: Map<KClass<*>, PropertyBiMapper<*, *>> = mapOf()
 ) {
 
-    private val vertexDescriptions: Map<KClass<*>, VertexDescription<*>> =
-            vertexClasses.associate { it to VertexDescription(it) }
+    private val vertexDescriptions: Map<KClass<out Vertex>, VertexDescription<out Vertex>> = vertices.associate { it to VertexDescription(it) }
 
-    private val edgeDescriptions: Map<Relationship<*, *>, EdgeDescription<*, *, *>?> =
-            relationships.mapValues { entry -> entry.value?.let { EdgeDescription(entry.key, it) } }
+    private val edgeDescriptions: Map<KClass<out Edge<Vertex, Vertex>>, EdgeDescription<Vertex, Vertex, out Edge<Vertex, Vertex>>> =
+            relationships.filterNullValues().entries.associate { it.value to EdgeDescription(it.key, it.value) }
 
-    private val nestedObjectDescriptions: Map<KClass<*>, NestedObjectDescription<*>> =
-            nestedObjectClasses.associate { it to NestedObjectDescription(it) }
+    private val relationshipsByName: Map<String, Relationship<out Vertex, out Vertex>> = relationships.keys.associateBy { it.name }
 
-    private val vertexDescriptionsByLabel: Map<String, VertexDescription<*>> =
-            vertexDescriptions.mapKeys { it.value.label }
+    private val nestedObjectDescriptions: Map<KClass<*>, NestedObjectDescription<*>> = nestedObjects.associate { it to NestedObjectDescription(it) }
 
-    private val relationshipNameToRelationship: Map<String, Relationship<*, *>> =
-            edgeDescriptions.keys.associateBy { it.name }
+    private val vertexDescriptionsByLabel: Map<String, VertexDescription<*>> = vertexDescriptions.mapKeys { it.value.label }
 
-    @Suppress("UNCHECKED_CAST")
-    private val edgeKClassToRelationship: Map<KClass<out BaseEdge<*, *>>, Relationship<*, *>> =
-            relationships.filterValues { it != null }.entries.associate { it.value to it.key } as Map<KClass<out BaseEdge<*, *>>, Relationship<*, *>>
+    private val edgeDescriptionsByLabel: Map<String, EdgeDescription<*, *, *>> = edgeDescriptions.mapKeys { it.value.label }
 
-    private val edgeMapper = object : BiMapper<BaseEdge<Any, Any>, Edge> {
-        override fun forwardMap(from: BaseEdge<Any, Any>): Edge = from.edgeMapper().forwardMap(from)
-        override fun inverseMap(from: Edge): BaseEdge<Any, Any> = from.edgeMapper<Any, Any, BaseEdge<Any, Any>>().inverseMap(from)
+    private val edgeMapper = object : BiMapper<Edge<Vertex, Vertex>, org.apache.tinkerpop.gremlin.structure.Edge> {
+        override fun forwardMap(from: Edge<Vertex, Vertex>): org.apache.tinkerpop.gremlin.structure.Edge = from.edgeMapper().forwardMap(from)
+        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Edge): Edge<Vertex, Vertex> = from.edgeMapper<Vertex, Vertex, Edge<Vertex, Vertex>>().inverseMap(from)
     }
 
-    private val vertexMapper = object : BiMapper<Any, Vertex> {
-        override fun forwardMap(from: Any): Vertex = from.vertexMapper().forwardMap(from)
-        override fun inverseMap(from: Vertex): Any = from.vertexMapper<Any>().inverseMap(from)
+    private val vertexMapper = object : BiMapper<Vertex, org.apache.tinkerpop.gremlin.structure.Vertex> {
+        override fun forwardMap(from: Vertex): org.apache.tinkerpop.gremlin.structure.Vertex = from.vertexMapper().forwardMap(from)
+        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Vertex): Vertex = from.vertexMapper<Vertex>().inverseMap(from)
     }
 
     /**
      * Fetch all vertices of vertex type V. For this function, V may be a superclass of
      * classes registered as a vertex.
      */
-    inline fun <reified V : Any> fetchV(): List<V> = getV(V::class).toList()
+    inline fun <reified V : Vertex> fetchV(): List<V> = getV(V::class).toList()
 
     /**
      * Fetches vertices with a given id. The returned list will contain null
      * for ids that that don't correspond with a vertex to the graph.
      */
-    fun <V : Any> fetchV(id: Any): V? = fetchV<V>(listOf(id)).single()
+    fun <V : Vertex> fetchV(id: Any): V? = fetchV<V>(listOf(id)).single()
 
     /**
      * Fetches vertices with a given id. The returned list will contain null
      * for ids that that don't correspond with a vertex to the graph.
      */
-    fun <V : Any> fetchV(vararg ids: Any): List<V?> = fetchV(ids.asList())
+    fun <V : Vertex> fetchV(vararg ids: Any): List<V?> = fetchV(ids.asList())
 
     /**
      * Fetches vertices with a given id. The returned list will contain null
      * for ids that that don't correspond with a vertex to the graph.
      */
-    fun <V : Any> fetchV(ids: Collection<Any>): List<V?> {
+    fun <V : Vertex> fetchV(ids: Collection<Any>): List<V?> {
         if (ids.none()) {
             return emptyList()
         }
@@ -116,29 +111,29 @@ open class GraphMapper(
     /**
      * Gets a graph traversal that returns a vertex with a given id.
      */
-    fun <V : Any> getV(id: Any): GraphTraversal<*, V> = getV(listOf(id))
+    fun <V : Vertex> getV(id: Any): GraphTraversal<*, V> = getV(listOf(id))
 
     /**
      * Gets a graph traversal that returns vertices with a given id.
      */
-    fun <V : Any> getV(vararg ids: Any): GraphTraversal<*, V> = getV(ids.toList())
+    fun <V : Vertex> getV(vararg ids: Any): GraphTraversal<*, V> = getV(ids.toList())
 
     /**
      * Gets a graph traversal that returns vertices with a given id.
      */
-    fun <V : Any> getV(ids: Collection<Any>): GraphTraversal<*, V> = getVInternal<V>(ids).map { it.get().second }
+    fun <V : Vertex> getV(ids: Collection<Any>): GraphTraversal<*, V> = getVInternal<V>(ids).map { it.get().second }
 
     /**
      * Get a traversal that returns all vertices of vertex type V. For this function, V may be a superclass of
      * classes registered as a vertex.
      */
-    inline fun <reified V : Any> getV(): GraphTraversal<*, V> = getV(V::class)
+    inline fun <reified V : Vertex> getV(): GraphTraversal<*, V> = getV(V::class)
 
     /**
      * Get a traversal that returns all vertices of vertex type V. For this function, V may be a superclass of
      * classes registered as a vertex.
      */
-    fun <V : Any> getV(kClass: KClass<V>): GraphTraversal<*, V> {
+    fun <V : Vertex> getV(kClass: KClass<V>): GraphTraversal<*, V> {
         val labels = vertexDescriptions.filterKeys { vertexKClass ->
             vertexKClass.isSubclassOf(kClass)
         }.values.map { vertexObjectDescription ->
@@ -160,26 +155,25 @@ open class GraphMapper(
     /**
      * Fetch all edges of edge type E. E must have been registered with a relationship.
      */
-    inline fun <reified FROM : Any, reified TO : Any, reified E : BaseEdge<FROM, TO>> fetchE(): List<E> =
-            getE(E::class).toList()
+    inline fun <reified FROM : Vertex, reified TO : Vertex, reified E : Edge<FROM, TO>> fetchE(): List<E> = getE(E::class).toList()
 
     /**
      * Fetches an edge with a given id. Null is returned if no edge exists to the graph
      * with the given id.
      */
-    fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> fetchE(id: Any): E? = fetchE<FROM, TO, E>(listOf(id)).single()
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> fetchE(id: Any): E? = fetchE<FROM, TO, E>(listOf(id)).single()
 
     /**
      * Fetches edges with a given id. The returned list will contain null
      * for ids that that don't correspond with an edge to the graph.
      */
-    fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> fetchE(vararg ids: Any): List<E?> = fetchE<FROM, TO, E>(ids.asList())
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> fetchE(vararg ids: Any): List<E?> = fetchE<FROM, TO, E>(ids.asList())
 
     /**
      * Fetches edges with a given id. The returned list will contain null
      * for ids that that don't correspond with an edge to the graph.
      */
-    fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> fetchE(ids: Collection<Any>): List<E?> {
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> fetchE(ids: Collection<Any>): List<E?> {
         if (ids.none()) {
             return emptyList()
         }
@@ -198,57 +192,57 @@ open class GraphMapper(
     /**
      * Gets a graph traversal that returns an edge with a given id.
      */
-    fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> getE(id: Any): GraphTraversal<*, E> = getE(listOf(id))
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getE(id: Any): GraphTraversal<*, E> = getE(listOf(id))
 
     /**
      * Gets a graph traversal that returns edges with a given id.
      */
-    fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> getE(vararg ids: Any):GraphTraversal<*, E> = getE(ids.asList())
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getE(vararg ids: Any): GraphTraversal<*, E> = getE(ids.asList())
 
     /**
      * Gets a graph traversal that returns edges with a given id.
      */
-    fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> getE(ids: Collection<Any>): GraphTraversal<*, E> =
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getE(ids: Collection<Any>): GraphTraversal<*, E> =
             getEInternal<FROM, TO, E>(ids).map { it.get().second }
 
     /**
      * Get a traversal that returns all edges of edge type E. E must have been registered with a relationship.
      */
-    inline fun <reified FROM : Any, reified TO : Any, reified E : BaseEdge<FROM, TO>> getE(): GraphTraversal<*, E> =
+    inline fun <reified FROM : Vertex, reified TO : Vertex, reified E : Edge<FROM, TO>> getE(): GraphTraversal<*, E> =
             getE(E::class)
 
     /**
      * Get a traversal that returns all edges of edge type E. E must have been registered with a relationship.
      */
-    fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> getE(kClass: KClass<E>): GraphTraversal<*, E> {
-        val relationship = edgeKClassToRelationship[kClass] ?: throw UnregisteredClass(kClass)
-        logger.debug("Will get all edges with label ${relationship.name}")
-        return g.E().hasLabel(relationship.name)
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getE(kClass: KClass<E>): GraphTraversal<*, E> {
+        val edgeDescription = edgeDescriptions[kClass] ?: throw UnregisteredClass(kClass)
+        logger.debug("Will get all edges with label ${edgeDescription.label}")
+        return g.E().hasLabel(edgeDescription.label)
                 .map { vertex ->
                     vertex.get().edgeMapper<FROM, TO, E>().inverseMap(vertex.get())
                 }
     }
 
     /**
-     * Saves a objects annotated with @Vertex to the graph. If property annotated with @ID is null,
+     * Saves a objects annotated with @Element to the graph. If property annotated with @ID is null,
      * a new vertex will be created, otherwise this object will overwrite the current vertex with that id.
      * The returned object will always have a non-null @ID
      */
-    fun <V : Any> saveV(vararg objs: V): List<V> = objs.map { saveV(it) }
+    fun <V : Vertex> saveV(vararg objs: V): List<V> = objs.map { saveV(it) }
 
     /**
-     * Saves a objects annotated with @Vertex to the graph. If property annotated with @ID is null,
+     * Saves a objects annotated with @Element to the graph. If property annotated with @ID is null,
      * a new vertex will be created, otherwise this object will overwrite the current vertex with that id.
      * The returned object will always have a non-null @ID
      */
-    fun <V : Any> saveV(objs: List<V>): List<V> = objs.map { saveV(it) }
+    fun <V : Vertex> saveV(objs: List<V>): List<V> = objs.map { saveV(it) }
 
     /**
-     * Saves an object annotated with @Vertex to the graph. If property annotated with @ID is null,
+     * Saves an object annotated with @Element to the graph. If property annotated with @ID is null,
      * a new vertex will be created, otherwise this object will overwrite the current vertex with that id.
      * The returned object will always have a non-null @ID
      */
-    fun <V : Any> saveV(obj: V): V {
+    fun <V : Vertex> saveV(obj: V): V {
         val mapper = obj.vertexMapper()
         val vertex = mapper.forwardMap(obj)
         logger.debug("Saved vertex with id ${vertex.id()}")
@@ -258,17 +252,17 @@ open class GraphMapper(
     /**
      * Saves edges to the graph
      */
-    fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> saveE(vararg edges: E) : List<E> = edges.map { saveE(it) }
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> saveE(vararg edges: E): List<E> = edges.map { saveE(it) }
 
     /**
      * Saves edges to the graph
      */
-    fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> saveE(edges: Iterable<E>) : List<E> = edges.map { saveE(it) }
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> saveE(edges: Iterable<E>): List<E> = edges.map { saveE(it) }
 
     /**
      * Saves an edge to the graph. This is a no-op if the edge already exists.
      */
-    fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> saveE(edge: E): E {
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> saveE(edge: E): E {
         val mapper = edge.edgeMapper()
         val serialized = mapper.forwardMap(edge)
         logger.debug("Saved edge with id ${serialized.id()}")
@@ -278,40 +272,40 @@ open class GraphMapper(
     /**
      * Traverses from a single object to the path's required destination vertex.
      */
-    fun <FROM : Any, TO> traverse(boundStep: SingleBoundPath.ToSingle<FROM, TO>): TO =
+    fun <FROM : Vertex, TO> traverse(boundStep: SingleBoundPath.ToSingle<FROM, TO>): TO =
             traverse(boundStep.froms, boundStep.path)[boundStep.from]!!.single()
 
     /**
      * Traverses from a single object to the path's optional destination vertex.
      */
-    fun <FROM : Any, TO> traverse(boundStep: SingleBoundPath.ToOptional<FROM, TO>): TO? =
+    fun <FROM : Vertex, TO> traverse(boundStep: SingleBoundPath.ToOptional<FROM, TO>): TO? =
             traverse(boundStep.froms, boundStep.path)[boundStep.from]!!.singleOrNull()
 
     /**
      * Traverses from a single object to the path's destination vertices.
      */
-    fun <FROM : Any, TO> traverse(boundStep: SingleBoundPath.ToMany<FROM, TO>): List<TO> =
+    fun <FROM : Vertex, TO> traverse(boundStep: SingleBoundPath.ToMany<FROM, TO>): List<TO> =
             traverse(boundStep.froms, boundStep.path)[boundStep.from]!!
 
     /**
      * Traverses from multiple objects to the path's required destination vertex for each origin object.
      */
-    fun <FROM : Any, TO> traverse(boundStep: BoundPathToSingle<FROM, TO>): Map<FROM, TO> =
+    fun <FROM : Vertex, TO> traverse(boundStep: BoundPathToSingle<FROM, TO>): Map<FROM, TO> =
             traverse(boundStep.froms, boundStep.path).entries.associate { it.key to it.value.single() }
 
     /**
      * Traverses from multiple objects to the path's optional destination vertex for each origin object.
      */
-    fun <FROM : Any, TO> traverse(boundStep: BoundPathToOptional<FROM, TO>): Map<FROM, TO?> =
+    fun <FROM : Vertex, TO> traverse(boundStep: BoundPathToOptional<FROM, TO>): Map<FROM, TO?> =
             traverse(boundStep.froms, boundStep.path).entries.associate { it.key to it.value.singleOrNull() }
 
     /**
      * Traverses from multiple objects to the path's destination vertices for each origin object.
      */
-    fun <FROM : Any, TO> traverse(boundStep: BoundPathToMany<FROM, TO>): Map<FROM, List<TO>> =
+    fun <FROM : Vertex, TO> traverse(boundStep: BoundPathToMany<FROM, TO>): Map<FROM, List<TO>> =
             traverse(boundStep.froms, boundStep.path)
 
-    private fun <FROM : Any, TO> traverse(
+    private fun <FROM : Vertex, TO> traverse(
             froms: Iterable<FROM>,
             path: Path<FROM, TO>
     ): Map<FROM, List<TO>> {
@@ -335,7 +329,7 @@ open class GraphMapper(
         }
     }
 
-    private fun <V : Any> getVInternal(ids: Collection<Any>): GraphTraversal<*, Pair<Any, V>> =
+    private fun <V : Vertex> getVInternal(ids: Collection<Any>): GraphTraversal<*, Pair<Any, V>> =
             ids
                     .map { id ->
                         g.V(id)
@@ -347,7 +341,7 @@ open class GraphMapper(
                         vertex.get().id() to vertex.get().vertexMapper<V>().inverseMap(vertex.get())
                     }
 
-    private fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> getEInternal(ids: Collection<Any>): GraphTraversal<*, Pair<Any, E>> =
+    private fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getEInternal(ids: Collection<Any>): GraphTraversal<*, Pair<Any, E>> =
             ids
                     .map { id ->
                         g.E(id)
@@ -359,34 +353,38 @@ open class GraphMapper(
                         edge.get().id() to edge.get().edgeMapper<FROM, TO, E>().inverseMap(edge.get())
                     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> Edge.edgeMapper(): EdgeMapper<FROM, TO, E> {
-        val relationship = relationshipNameToRelationship[label()]
-        val edgeDescription = edgeDescriptions[relationship] as EdgeDescription<FROM, TO, E>?
-        val fromVertexDescription = vertexDescriptionsByLabel[outVertex().label()] as VertexDescription<FROM>? ?: throw UnregisteredLabel(outVertex())
-        val toVertexDescription = vertexDescriptionsByLabel[inVertex().label()] as VertexDescription<TO>? ?: throw UnregisteredLabel(inVertex())
+
+    private fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> org.apache.tinkerpop.gremlin.structure.Edge.edgeMapper(): EdgeMapper<FROM, TO, E> {
+        @Suppress("UNCHECKED_CAST")
+        val edgeDescription = edgeDescriptionsByLabel[label()] as EdgeDescription<FROM, TO, E>?
+        @Suppress("UNCHECKED_CAST")
+        val fromVertexDescription = vertexDescriptionsByLabel[outVertex().label()] as VertexDescription<FROM>?
+                ?: throw UnregisteredLabel(outVertex())
+        @Suppress("UNCHECKED_CAST")
+        val toVertexDescription = vertexDescriptionsByLabel[inVertex().label()] as VertexDescription<TO>?
+                ?: throw UnregisteredLabel(inVertex())
         return EdgeMapper(g, edgeDescription, fromVertexDescription, toVertexDescription)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> E.edgeMapper(): EdgeMapper<FROM, TO, E> {
-        val edgeDescription = edgeDescriptions[relationship] as EdgeDescription<FROM, TO, E>?
+    private fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E.edgeMapper(): EdgeMapper<FROM, TO, E> {
+        @Suppress("UNCHECKED_CAST")
+        val edgeDescription = edgeDescriptions[this::class] as EdgeDescription<FROM, TO, E>?
+        @Suppress("UNCHECKED_CAST")
         val fromVertexDescription = vertexDescriptions[from::class] as VertexDescription<FROM>? ?: throw UnregisteredClass(from)
+        @Suppress("UNCHECKED_CAST")
         val toVertexDescription = vertexDescriptions[to::class] as VertexDescription<TO>? ?: throw UnregisteredClass(to)
         return EdgeMapper(g, edgeDescription, fromVertexDescription, toVertexDescription)
     }
 
-    private fun <T : Any> Vertex.vertexMapper(): VertexMapper<T> {
+    private fun <T : Vertex> org.apache.tinkerpop.gremlin.structure.Vertex.vertexMapper(): VertexMapper<T> {
         @Suppress("UNCHECKED_CAST")
-        val vertexDescription = vertexDescriptionsByLabel[label()] as VertexDescription<T>?
-                ?: throw UnregisteredLabel(this)
+        val vertexDescription = vertexDescriptionsByLabel[label()] as VertexDescription<T>? ?: throw UnregisteredLabel(this)
         return VertexMapper(g, vertexDescription)
     }
 
-    private fun <T : Any> T.vertexMapper(): VertexMapper<T> {
+    private fun <T : Vertex> T.vertexMapper(): VertexMapper<T> {
         @Suppress("UNCHECKED_CAST")
-        val vertexDescription = vertexDescriptions[this::class] as VertexDescription<T>?
-                ?: throw UnregisteredClass(this)
+        val vertexDescription = vertexDescriptions[this::class] as VertexDescription<T>? ?: throw UnregisteredClass(this)
         return VertexMapper(g, vertexDescription)
     }
 
@@ -401,10 +399,10 @@ open class GraphMapper(
         return (scalarMappers[this] ?: defaultPropertyMappers[this]) as PropertyBiMapper<T, SerializedProperty>?
     }
 
-    private inner class EdgeMapper<FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> private constructor(
+    private inner class EdgeMapper<FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> private constructor(
             val edgeSerializer: EdgeSerializer<FROM, TO, E>,
             val edgeDeserializer: EdgeDeserializer<FROM, TO, E>
-    ) : BiMapper<E, Edge>{
+    ) : BiMapper<E, org.apache.tinkerpop.gremlin.structure.Edge> {
 
         constructor(
                 g: GraphTraversalSource,
@@ -416,16 +414,16 @@ open class GraphMapper(
                 EdgeDeserializer(edgeDescription, fromVertexDescription, toVertexDescription)
         )
 
-        override fun forwardMap(from: E): Edge = edgeSerializer(from)
-        override fun inverseMap(from: Edge): E = edgeDeserializer(from)
+        override fun forwardMap(from: E): org.apache.tinkerpop.gremlin.structure.Edge = edgeSerializer(from)
+        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Edge): E = edgeDeserializer(from)
     }
 
-    private inner class EdgeSerializer<FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> private constructor(
+    private inner class EdgeSerializer<FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> private constructor(
             private val g: GraphTraversalSource,
             private val objectSerializer: ObjectSerializer<E>?,
             private val fromVertexDescription: VertexDescription<FROM>,
             private val toVertexDescription: VertexDescription<TO>
-    ) : Mapper<E, Edge> {
+    ) : Mapper<E, org.apache.tinkerpop.gremlin.structure.Edge> {
 
         constructor(
                 g: GraphTraversalSource,
@@ -438,10 +436,12 @@ open class GraphMapper(
                 fromVertexDescription,
                 toVertexDescription)
 
-        override fun invoke(from: E): Edge {
+        override fun invoke(from: E): org.apache.tinkerpop.gremlin.structure.Edge {
             val fromVertex = from.from
             val toVertex = from.to
-            val relationship = from.relationship
+            val relationship = edgeDescriptions[from::class]?.relationship ?: {
+                if (from is BasicEdge<*, *>) from.relationship else null
+            }() ?: throw UnregisteredClass(from::class)
             val fromID = fromVertexDescription.id.property.get(fromVertex) ?: throw ObjectNotSaved(fromVertex)
             val toID = toVertexDescription.id.property.get(toVertex) ?: throw ObjectNotSaved(toVertex)
             val existingEdge = ((g.V(fromID) out relationship).hasId(toID) `in` relationship).hasId(fromID) outE relationship
@@ -463,7 +463,7 @@ open class GraphMapper(
                 } ?: edge.get()
             }
             val createOrGetEdge = g.inject<Any>(0).coalesce(existingEdge.sideEffect {
-                logger.debug("BaseEdge ${relationship.name} from $fromVertex to $toVertex already exists. Save edge is a no-op.")
+                logger.debug("BasicEdge ${relationship.name} from $fromVertex to $toVertex already exists. Save edge is a no-op.")
             }, createEdge.sideEffect {
                 logger.debug("Creating edge ${relationship.name} from $fromVertex to $toVertex.")
             })
@@ -471,28 +471,28 @@ open class GraphMapper(
             return createOrGetEdge.toList().single()
         }
 
-        private infix fun GraphTraversal<*, Vertex>.out(relationship: Relationship<*, *>): GraphTraversal<*, Vertex> =
+        private infix fun GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex>.out(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex> =
                 when (relationship.direction) {
                     Relationship.Direction.FORWARD -> out(relationship.name)
                     Relationship.Direction.BACKWARD -> `in`(relationship.name)
                     null -> both(relationship.name)
                 }
 
-        private infix fun GraphTraversal<*, Vertex>.`in`(relationship: Relationship<*, *>): GraphTraversal<*, Vertex> =
+        private infix fun GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex>.`in`(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex> =
                 when (relationship.direction) {
                     Relationship.Direction.FORWARD -> `in`(relationship.name)
                     Relationship.Direction.BACKWARD -> out(relationship.name)
                     null -> both(relationship.name)
                 }
 
-        private infix fun GraphTraversal<*, Vertex>.outE(relationship: Relationship<*, *>): GraphTraversal<*, Edge> =
+        private infix fun GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex>.outE(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Edge> =
                 when (relationship.direction) {
                     Relationship.Direction.FORWARD -> outE(relationship.name)
                     Relationship.Direction.BACKWARD -> inE(relationship.name)
                     null -> bothE(relationship.name)
                 }
 
-        private infix fun GraphTraversal<*, Vertex>.inE(relationship: Relationship<*, *>): GraphTraversal<*, Edge> =
+        private infix fun GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex>.inE(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Edge> =
                 when (relationship.direction) {
                     Relationship.Direction.FORWARD -> inE(relationship.name)
                     Relationship.Direction.BACKWARD -> outE(relationship.name)
@@ -500,11 +500,11 @@ open class GraphMapper(
                 }
     }
 
-    private inner class EdgeDeserializer<FROM : Any, TO : Any, E : BaseEdge<FROM, TO>> private constructor(
+    private inner class EdgeDeserializer<FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> private constructor(
             private val objectDeserializer: ObjectDeserializer<E>?,
             private val fromVertexDeserializer: VertexDeserializer<FROM>,
             private val toVertexDeserializer: VertexDeserializer<TO>
-    ) : Mapper<Edge, E> {
+    ) : Mapper<org.apache.tinkerpop.gremlin.structure.Edge, E> {
 
         constructor(
                 edgeDescription: EdgeDescription<FROM, TO, E>?,
@@ -515,13 +515,13 @@ open class GraphMapper(
                     ObjectDeserializer(
                             edgeDescription,
                             idTag to edgeDescription.id,
-                            toVertexTag to edgeDescription.toVertex.parameter,
-                            fromVertexTag to edgeDescription.fromVertex.parameter)
+                            toVertexTag to edgeDescription.toVertex,
+                            fromVertexTag to edgeDescription.fromVertex)
                 },
                 VertexDeserializer(fromVertexDescription),
                 VertexDeserializer(toVertexDescription))
 
-        override fun invoke(from: Edge): E {
+        override fun invoke(from: org.apache.tinkerpop.gremlin.structure.Edge): E {
             val toVertex = toVertexDeserializer(from.inVertex())
             val fromVertex = fromVertexDeserializer(from.outVertex())
             return objectDeserializer?.let {
@@ -532,17 +532,17 @@ open class GraphMapper(
                 return it(serializedProperties)
             } ?: {
                 @Suppress("UNCHECKED_CAST")
-                val relationship = relationshipNameToRelationship[from.label()] as Relationship<FROM, TO>? ?: throw UnregisteredLabel(from)
+                val relationship = relationshipsByName[from.label()] as Relationship<FROM, TO>? ?: throw UnregisteredLabel(from)
                 @Suppress("UNCHECKED_CAST")
-                BaseEdge(fromVertex, toVertex, relationship) as E
+                BasicEdge(fromVertex, toVertex, relationship) as E
             }()
         }
     }
 
-    private inner class VertexMapper<T : Any> private constructor(
+    private inner class VertexMapper<T : Vertex> private constructor(
             val vertexSerializer: VertexSerializer<T>,
             val vertexDeserializer: VertexDeserializer<T>
-    ) : BiMapper<T, Vertex> {
+    ) : BiMapper<T, org.apache.tinkerpop.gremlin.structure.Vertex> {
 
         constructor(
                 g: GraphTraversalSource,
@@ -552,15 +552,15 @@ open class GraphMapper(
                 VertexDeserializer(vertexDescription)
         )
 
-        override fun forwardMap(from: T): Vertex = vertexSerializer(from)
-        override fun inverseMap(from: Vertex): T = vertexDeserializer(from)
+        override fun forwardMap(from: T): org.apache.tinkerpop.gremlin.structure.Vertex = vertexSerializer(from)
+        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Vertex): T = vertexDeserializer(from)
     }
 
-    private inner class VertexSerializer<in T : Any> private constructor(
+    private inner class VertexSerializer<in T : Vertex> private constructor(
             private val g: GraphTraversalSource,
             private val vertexDescription: VertexDescription<T>,
             private val objectSerializer: ObjectSerializer<T>
-    ) : Mapper<T, Vertex> {
+    ) : Mapper<T, org.apache.tinkerpop.gremlin.structure.Vertex> {
 
         constructor(
                 g: GraphTraversalSource,
@@ -571,7 +571,7 @@ open class GraphMapper(
                 ObjectSerializer(vertexDescription)
         )
 
-        override fun invoke(from: T): Vertex {
+        override fun invoke(from: T): org.apache.tinkerpop.gremlin.structure.Vertex {
             val id = vertexDescription.id.property.get(from)
             val traversal = when (id) {
                 null -> g.addV(vertexDescription.label)
@@ -584,14 +584,14 @@ open class GraphMapper(
         }
     }
 
-    private inner class VertexDeserializer<out T : Any> private constructor(
+    private inner class VertexDeserializer<out T : Vertex> private constructor(
             private val objectDeserializer: ObjectDeserializer<T>
-    ) : Mapper<Vertex, T> {
+    ) : Mapper<org.apache.tinkerpop.gremlin.structure.Vertex, T> {
 
         constructor(vertexDescription: VertexDescription<T>)
                 : this(ObjectDeserializer(vertexDescription, Pair(idTag, vertexDescription.id)))
 
-        override fun invoke(from: Vertex): T {
+        override fun invoke(from: org.apache.tinkerpop.gremlin.structure.Vertex): T {
             val serializedProperties = from.getProperties() + Pair(idTag, from.id())
             return objectDeserializer(serializedProperties)
         }

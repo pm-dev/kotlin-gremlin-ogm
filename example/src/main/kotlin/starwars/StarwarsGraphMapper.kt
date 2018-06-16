@@ -10,14 +10,14 @@ import starwars.models.Sibling.Companion.siblings
 @Component
 internal class StarwarsGraphMapper : GraphMapper(
         g = graph.traversal(),
-        vertexClasses = setOf(
+        vertices = setOf(
                 Human::class,
                 Droid::class),
         relationships = mapOf(
                 friends to null,
                 siblings to Sibling::class
         ),
-        nestedObjectClasses = setOf(
+        nestedObjects = setOf(
                 Name::class
         ),
         scalarMappers = mapOf(

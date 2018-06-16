@@ -16,7 +16,7 @@ private fun exampleGraph(): TinkerGraph {
 
 internal fun exampleGraphMapper() = GraphMapper(
         g = exampleGraph().traversal(),
-        vertexClasses = setOf(
+        vertices = setOf(
                 VertexWithBoolean::class,
                 VertexWithByte::class,
                 VertexWithInt::class,
@@ -52,7 +52,7 @@ internal fun exampleGraphMapper() = GraphMapper(
                 symmetricSingleToSingle to null,
                 fromIntToBool to IntToBoolEdge::class
         ),
-        nestedObjectClasses = setOf(
+        nestedObjects = setOf(
                 Nested::class,
                 ObjectWithInt::class
         ),

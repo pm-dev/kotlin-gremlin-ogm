@@ -1,16 +1,14 @@
 package util.example
 
-import org.apache.tinkerpop.gremlin.ogm.annotations.ID
-import org.apache.tinkerpop.gremlin.ogm.annotations.Mapper
-import org.apache.tinkerpop.gremlin.ogm.annotations.Property
-import org.apache.tinkerpop.gremlin.ogm.annotations.Vertex
+import org.apache.tinkerpop.gremlin.ogm.annotations.*
+import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.assertj.core.internal.bytebuddy.utility.RandomString
 import java.time.Instant
 import java.util.*
 import kotlin.math.absoluteValue
 
 
-@Vertex(label = "VertexWithInt")
+@Element(label = "VertexWithInt")
 internal class VertexWithInt(
 
         @ID
@@ -20,12 +18,13 @@ internal class VertexWithInt(
         int: Int
 
 ) : Base<Int>(id = id, a = int) {
+
     companion object {
         fun sample() = VertexWithInt(int = Random().nextInt())
     }
 }
 
-@Vertex(label = "VertexWithByte")
+@Element(label = "VertexWithByte")
 internal class VertexWithByte(
 
         @ID
@@ -35,12 +34,13 @@ internal class VertexWithByte(
         byte: Byte
 
 ) : Base<Byte>(id = id, a = byte) {
+
     companion object {
         fun sample() = VertexWithByte(byte = Byte.MAX_VALUE)
     }
 }
 
-@Vertex(label = "VertexWithBoolean")
+@Element(label = "VertexWithBoolean")
 internal class VertexWithBoolean(
 
         @ID
@@ -50,12 +50,13 @@ internal class VertexWithBoolean(
         bool: Boolean
 
 ) : Base<Boolean>(id = id, a = bool) {
+
     companion object {
         fun sample() = VertexWithBoolean(bool = Random().nextBoolean())
     }
 }
 
-@Vertex(label = "VertexWithDouble")
+@Element(label = "VertexWithDouble")
 internal class VertexWithDouble(
 
         @ID
@@ -66,12 +67,13 @@ internal class VertexWithDouble(
         double: Double
 
 ) : Base<Double>(id = id, a = double) {
+
     companion object {
         fun sample() = VertexWithDouble(double = Random().nextDouble())
     }
 }
 
-@Vertex(label = "VertexWithFloat")
+@Element(label = "VertexWithFloat")
 internal class VertexWithFloat(
 
         @ID
@@ -81,12 +83,13 @@ internal class VertexWithFloat(
         float: Float
 
 ) : Base<Float>(id = id, a = float) {
+
     companion object {
         fun sample() = VertexWithFloat(float = Random().nextFloat())
     }
 }
 
-@Vertex(label = "VertexWithLong")
+@Element(label = "VertexWithLong")
 internal class VertexWithLong(
 
         @ID
@@ -96,12 +99,13 @@ internal class VertexWithLong(
         long: Long
 
 ) : Base<Long>(id = id, a = long) {
+
     companion object {
         fun sample() = VertexWithLong(long = Random().nextLong())
     }
 }
 
-@Vertex(label = "VertexWithString")
+@Element(label = "VertexWithString")
 internal class VertexWithString(
 
         @ID
@@ -111,12 +115,13 @@ internal class VertexWithString(
         string: String
 
 ) : Base<String>(id = id, a = string) {
+
     companion object {
         fun sample() = VertexWithString(string = RandomString.make())
     }
 }
 
-@Vertex(label = "VertexWithInstant")
+@Element(label = "VertexWithInstant")
 internal class VertexWithInstant(
 
         @ID
@@ -126,12 +131,13 @@ internal class VertexWithInstant(
         instant: Instant
 
 ) : Base<Instant>(id = id, a = instant) {
+
     companion object {
         fun sample() = VertexWithInstant(instant = Instant.now())
     }
 }
 
-@Vertex(label = "VertexWithUUID")
+@Element(label = "VertexWithUUID")
 internal class VertexWithUUID(
 
         @ID
@@ -141,12 +147,13 @@ internal class VertexWithUUID(
         uuid: UUID
 
 ) : Base<UUID>(id = id, a = uuid) {
+
     companion object {
         fun sample() = VertexWithUUID(uuid = UUID.randomUUID())
     }
 }
 
-@Vertex(label = "VertexWithDoubleNested")
+@Element(label = "VertexWithDoubleNested")
 internal class VertexWithDoubleNested(
 
         @ID
@@ -156,12 +163,13 @@ internal class VertexWithDoubleNested(
         nested: Nested
 
 ) : Base<Nested>(id = id, a = nested) {
+
     companion object {
         fun sample() = VertexWithDoubleNested(nested = Nested.sample())
     }
 }
 
-@Vertex(label = "VertexWithPrimitiveList")
+@Element(label = "VertexWithPrimitiveList")
 internal class VertexWithPrimitiveList(
 
         @ID
@@ -171,12 +179,13 @@ internal class VertexWithPrimitiveList(
         listOfInts: List<Int>
 
 ) : Base<List<Int>>(id = id, a = listOfInts) {
+
     companion object {
         fun sample() = VertexWithPrimitiveList(listOfInts = listOf(Random().nextInt(), Random().nextInt()))
     }
 }
 
-@Vertex(label = "VertexWithPrimitiveSet")
+@Element(label = "VertexWithPrimitiveSet")
 internal class VertexWithPrimitiveSet(
 
         @ID
@@ -186,12 +195,13 @@ internal class VertexWithPrimitiveSet(
         setOfStrings: Set<String>
 
 ) : Base<Set<String>>(id = id, a = setOfStrings) {
+
     companion object {
         fun sample() = VertexWithPrimitiveSet(setOfStrings = setOf(RandomString.make(), RandomString.make()))
     }
 }
 
-@Vertex(label = "VertexWithObjectList")
+@Element(label = "VertexWithObjectList")
 internal class VertexWithObjectList(
 
         @ID
@@ -201,12 +211,13 @@ internal class VertexWithObjectList(
         listOfObjextWithInts: List<ObjectWithInt>
 
 ) : Base<List<ObjectWithInt>>(id = id, a = listOfObjextWithInts) {
+
     companion object {
         fun sample() = VertexWithObjectList(listOfObjextWithInts = listOf(ObjectWithInt.sample(), ObjectWithInt.sample()))
     }
 }
 
-@Vertex(label = "VertexWithPrimitiveMap")
+@Element(label = "VertexWithPrimitiveMap")
 internal class VertexWithPrimitiveMap(
 
         @ID
@@ -216,6 +227,7 @@ internal class VertexWithPrimitiveMap(
         intMap: Map<String, Int>
 
 ) : Base<Map<String, Int>>(id = id, a = intMap) {
+
     companion object {
         fun sample() = VertexWithPrimitiveMap(intMap = mapOf(
                 "first" to Random().nextInt(),
@@ -223,7 +235,7 @@ internal class VertexWithPrimitiveMap(
     }
 }
 
-@Vertex(label = "VertexWithObjectMap")
+@Element(label = "VertexWithObjectMap")
 internal class VertexWithObjectMap(
 
         @ID
@@ -233,6 +245,7 @@ internal class VertexWithObjectMap(
         objWithIntMap: Map<String, ObjectWithInt>
 
 ) : Base<Map<String, ObjectWithInt>>(id = id, a = objWithIntMap) {
+
     companion object {
         fun sample() = VertexWithObjectMap(objWithIntMap = mapOf(
                 "first" to ObjectWithInt.sample(),
@@ -240,7 +253,7 @@ internal class VertexWithObjectMap(
     }
 }
 
-@Vertex(label = "VertexWithEnum")
+@Element(label = "VertexWithEnum")
 internal class VertexWithEnum(
 
         @ID
@@ -250,12 +263,13 @@ internal class VertexWithEnum(
         sport: Sport
 
 ) : Base<Sport>(id = id, a = sport) {
+
     companion object {
         fun sample() = VertexWithEnum(sport = Sport.values()[Random().nextInt().absoluteValue % Sport.values().size])
     }
 }
 
-@Vertex(label = "VertexWithNumber")
+@Element(label = "VertexWithNumber")
 internal class VertexWithNumber(
 
         @ID
@@ -270,7 +284,7 @@ internal class VertexWithNumber(
     }
 }
 
-@Vertex(label = "VertexWithCustomMapper")
+@Element(label = "VertexWithCustomMapper")
 internal class VertexWithCustomMapper(
 
         @ID
@@ -286,7 +300,7 @@ internal class VertexWithCustomMapper(
     }
 }
 
-@Vertex(label = "VertexWithNullable")
+@Element(label = "VertexWithNullable")
 internal class VertexWithNullable(
 
         @ID
@@ -296,21 +310,22 @@ internal class VertexWithNullable(
         nullableString: String? = null
 
 ) : Base<String?>(id = id, a = nullableString) {
+
     companion object {
         fun sample() = VertexWithNullable()
     }
 }
 
-@Vertex(label = "VertexWithTransient")
+@Element(label = "VertexWithTransient")
 internal class VertexWithTransient(
 
-        @param:ID
-        @property:ID
+        @ID
         val id: Long? = null,
 
         val transientString: String? = null
 
-) {
+) : Vertex {
+
     companion object {
         fun sample() = VertexWithTransient(transientString = RandomString.make())
     }
@@ -318,12 +333,13 @@ internal class VertexWithTransient(
 
 internal abstract class Base<out T : Any?>(
 
-        @property:ID
         val id: Long? = null,
 
         @property:Property(key = "a")
         val a: T
-) {
+
+) : Vertex {
+
     override fun hashCode(): Int = id?.hashCode() ?: super.hashCode()
 
     override fun equals(other: Any?): Boolean = id != null && other != null && other is Base<*> && id == other.id

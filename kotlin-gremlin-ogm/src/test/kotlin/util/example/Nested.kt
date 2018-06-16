@@ -5,8 +5,7 @@ import java.util.*
 
 internal data class ObjectWithInt(
 
-        @param:Property(key = "intVal")
-        @property:Property(key = "intVal")
+        @Property(key = "intVal")
         val intVal: Int
 ) {
     companion object {
@@ -16,8 +15,7 @@ internal data class ObjectWithInt(
 
 internal data class Nested(
 
-        @param:Property(key = "objWithInt")
-        @property:Property(key = "objWithInt")
+        @Property(key = "objWithInt")
         val nestedObj: ObjectWithInt
 ) {
     companion object {
