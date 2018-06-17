@@ -324,7 +324,7 @@ internal class VertexWithTransient(
 
         val transientString: String? = null
 
-) : Vertex {
+) {
 
     companion object {
         fun sample() = VertexWithTransient(transientString = RandomString.make())
@@ -338,7 +338,7 @@ internal abstract class Base<out T : Any?>(
         @property:Property(key = "a")
         val a: T
 
-) : Vertex {
+) {
 
     override fun hashCode(): Int = id?.hashCode() ?: super.hashCode()
 

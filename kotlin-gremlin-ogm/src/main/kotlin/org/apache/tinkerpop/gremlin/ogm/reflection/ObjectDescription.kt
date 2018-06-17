@@ -97,7 +97,7 @@ private fun <T : Any> KClass<T>.constructor(): KFunction<T> = primaryConstructor
         ?: throw PrimaryConstructorMissing(this)
 
 private fun <T : Any> KClass<T>.label(): String = findAnnotation<org.apache.tinkerpop.gremlin.ogm.annotations.Element>()?.label
-        ?: throw VertexAnnotationMissing(this)
+        ?: throw ElementAnnotationMissing(this)
 
 private fun <FROM : Vertex, TO : Vertex, T : Edge<FROM, TO>> KClass<T>.toVertexPropertyDescription(constructor: KFunction<T>): KParameter {
     val annotatedToVertexParams = constructor.parameters.filter { param -> param.findAnnotation<ToVertex>() != null }

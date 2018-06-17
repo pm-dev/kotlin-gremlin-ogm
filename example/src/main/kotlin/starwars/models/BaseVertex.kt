@@ -6,7 +6,7 @@ import java.time.Instant
 internal abstract class BaseVertex(
         val id: Long?,
         val createdAt: Instant
-) : Vertex {
+) {
 
     override fun hashCode(): Int = id?.hashCode() ?: super.hashCode()
 

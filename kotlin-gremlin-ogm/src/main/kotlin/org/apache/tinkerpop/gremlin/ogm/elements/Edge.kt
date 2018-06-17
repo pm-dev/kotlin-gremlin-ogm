@@ -8,7 +8,7 @@ import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
  * [Edge] may be implemented for clients wishing to add properties to edges. In this case, the
  * [Edge] subclass must be registered with a GraphMapper alongside its [Relationship]
  */
-interface Edge<out FROM : Vertex, out TO : Vertex> : Element {
+interface Edge<out FROM : Vertex, out TO : Vertex> {
 
     /**
      * The out-vertex for the edge. Final subclasses must annotate the parameter
@@ -21,11 +21,5 @@ interface Edge<out FROM : Vertex, out TO : Vertex> : Element {
      * that sets this with @ToVertex.
      */
     val to: TO
-
-    /**
-     * The relationship connecting the two vertices. Final subclasses should be one-to-one
-     * with a specific relationship, meaning no constructor parameter is necessary
-     */
-//    val relationship: Relationship<FROM, TO>
 }
 

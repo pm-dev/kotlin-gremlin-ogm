@@ -22,21 +22,22 @@ internal class DescriptionBuilderTest {
     }
 
 
+    @Element("test") interface VertexInterface
 
     @Test(expected = PrimaryConstructorMissing::class)
     fun `test no primary constructor`() {
-        VertexDescription(Vertex::class)
+        VertexDescription(VertexInterface::class)
     }
 
     @Test(expected = ConflictingAnnotations::class)
     fun `test combined id and property on property annotation`() {
-        @Element("test") class Vert(@ID @Property("a") val a: String?) : Vertex
+        @Element("test") class Vert(@ID @Property("a") val a: String?)
         VertexDescription(Vert::class)
     }
 
     @Test(expected = IDParameterRequired::class)
     fun `test duplicate id on property`() {
-        @Element("test") class Vert(@ID val id1: String?, @ID val id2: String?) : Vertex
+        @Element("test") class Vert(@ID val id1: String?, @ID val id2: String?)
         VertexDescription(Vert::class)
     }
 
@@ -63,19 +64,19 @@ internal class DescriptionBuilderTest {
 
     @Test(expected = NonNullableID::class)
     fun `test non-nullable id property`() {
-        @Element("test") class Vert(@ID val id: String) : Vertex
+        @Element("test") class Vert(@ID val id: String)
         VertexDescription(Vert::class)
     }
     
     @Test(expected = IDParameterRequired::class)
     fun `test id property missing`() {
-        @Element("test") class Vert(val id: String?) : Vertex
+        @Element("test") class Vert(val id: String?)
         VertexDescription(Vert::class)
     }
 
     @Test(expected = MapperUnsupported::class)
     fun `test id mapper unsupported`() {
-        @Element("test") class Vert(@ID @Mapper(Base64Mapper::class) val id: String?) : Vertex
+        @Element("test") class Vert(@ID @Mapper(Base64Mapper::class) val id: String?)
         VertexDescription(Vert::class)
     }
 
@@ -102,25 +103,25 @@ internal class DescriptionBuilderTest {
 
     @Test(expected = DuplicatePropertyName::class)
     fun `test duplicate param name`() {
-        @Element("test") class Vert(@ID val id: String?, @Property("a") val a: String, @Property("a") val b: String) : Vertex
+        @Element("test") class Vert(@ID val id: String?, @Property("a") val a: String, @Property("a") val b: String)
         VertexDescription(Vert::class)
     }
 
     @Test(expected = ReservedIDName::class)
     fun `test reserved id name`() {
-        @Element("test") class Vert(@ID val id: String?, @Property(idTag) val a: String) : Vertex
+        @Element("test") class Vert(@ID val id: String?, @Property(idTag) val a: String)
         VertexDescription(Vert::class)
     }
 
     @Test(expected = ReservedNestedPropertyDelimiter::class)
     fun `test reserved nested property delimiter`() {
-        @Element("test") class Vert(@ID val id: String?, @Property("a$nestedPropertyDelimiter") val a: String) : Vertex
+        @Element("test") class Vert(@ID val id: String?, @Property("a$nestedPropertyDelimiter") val a: String)
         VertexDescription(Vert::class)
     }
 
     @Test(expected = ReservedNumberKey::class)
     fun `test reserved number key`() {
-        @Element("test") class Vert(@ID val id: String?, @Property("23") val a: String) : Vertex
+        @Element("test") class Vert(@ID val id: String?, @Property("23") val a: String)
         VertexDescription(Vert::class)
     }
 
@@ -131,13 +132,13 @@ internal class DescriptionBuilderTest {
                 @ID val id: String?,
                 @Property("a") val a: String,
                 @Property("b") @Mapper(LongToStringMapper::class) val b: String
-        ) : Vertex
+        )
         VertexDescription(Vert::class)
     }
 
     @Test(expected = NonNullableNonOptionalParameter::class)
     fun `test non nullable non optional parameter annotated`() {
-        @Element("test") class Vert(@ID val id: String?, val a: String) : Vertex
+        @Element("test") class Vert(@ID val id: String?, val a: String)
         VertexDescription(Vert::class)
     }
 
@@ -153,7 +154,7 @@ internal class DescriptionBuilderTest {
                 val a: Long,
 
                 b: String?
-        ) : Vertex
+        )
         val description = VertexDescription(Vert::class)
 
         assertThat(description.id).isNotNull
@@ -189,7 +190,7 @@ internal class DescriptionBuilderTest {
 
                 @Property("b")
                 b: String
-        ) : Vertex {
+        ) {
             @Property("a") val lowercaseA get() = a.toLowerCase()
             @Property("b") val lowercaseB = b.toLowerCase()
         }

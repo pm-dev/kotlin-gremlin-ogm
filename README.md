@@ -46,14 +46,14 @@ which exposes a graph database through a GraphQL endpoint.
 
 - Gradle
         
-        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.10.0'
+        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.10.1'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kotlin-gremlin-ogm</artifactId>
-            <version>0.10.0</version>
+            <version>0.10.1</version>
         </dependency>
         
         
