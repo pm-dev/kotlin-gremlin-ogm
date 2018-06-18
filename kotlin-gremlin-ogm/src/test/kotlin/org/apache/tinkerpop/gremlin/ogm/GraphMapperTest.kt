@@ -194,7 +194,7 @@ internal class GraphMapperTest {
     fun `test load all`() {
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
-        val objs = gm.getV<VertexWithInt>()
+        val objs = gm.V<VertexWithInt>()
 
         assertThat(objs.toList()).isEqualTo(listOf(a, b))
     }

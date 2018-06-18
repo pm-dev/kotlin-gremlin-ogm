@@ -16,7 +16,7 @@ annotation class Mapper(
 
         /**
          * The class to use for mapping a property to/from the graph. Must have a constructor with
-         * no arguments or where getV arguments are optional.
+         * no arguments or where V arguments are optional.
          */
         val kClass: KClass<out PropertyBiMapper<out Any, out SerializedProperty>>
 )

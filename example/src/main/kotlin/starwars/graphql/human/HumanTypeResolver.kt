@@ -2,6 +2,7 @@ package starwars.graphql.human
 
 import com.coxautodev.graphql.tools.GraphQLResolver
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
+import org.apache.tinkerpop.gremlin.ogm.traverse
 import org.springframework.stereotype.Component
 import starwars.graphql.character.CharacterTypeResolver
 import starwars.models.Human

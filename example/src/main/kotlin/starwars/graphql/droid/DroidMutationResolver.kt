@@ -2,8 +2,10 @@ package starwars.graphql.droid
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
+import org.apache.tinkerpop.gremlin.ogm.fetchV
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
+import org.apache.tinkerpop.gremlin.ogm.saveE
 import org.springframework.stereotype.Component
 import starwars.models.Character
 import starwars.models.Droid
@@ -15,7 +17,7 @@ import java.time.Instant
 internal class DroidMutationResolver(
         private val graph: GraphMapper
 ) : GraphQLMutationResolver {
-
+    
     fun createDroid(
             name: String,
             primaryFunction: String,
@@ -23,7 +25,7 @@ internal class DroidMutationResolver(
             appearsIn: Set<Episode>): Droid {
         val nameParts = name.split(" ")
         val lastName = nameParts.subList(1, nameParts.size).joinToString(" ")
-        val friends = graph.fetchV<Character>(friendIds).filterNotNull()
+        val friends = graph.fetchV<Character>(friendIds)
         val droid = graph.saveV(Droid(
                 name = Name(first = nameParts.first(), last = if (lastName.isEmpty()) null else lastName),
                 appearsIn = appearsIn,

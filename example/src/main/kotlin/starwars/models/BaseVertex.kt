@@ -1,6 +1,5 @@
 package starwars.models
 
-import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import java.time.Instant
 
 internal abstract class BaseVertex(
