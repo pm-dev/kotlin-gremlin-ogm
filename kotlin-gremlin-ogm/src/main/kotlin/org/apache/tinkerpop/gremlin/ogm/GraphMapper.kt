@@ -4,7 +4,6 @@ import org.apache.tinkerpop.gremlin.ogm.elements.BasicEdge
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.*
-import org.apache.tinkerpop.gremlin.ogm.extensions.filterNullValues
 import org.apache.tinkerpop.gremlin.ogm.extensions.getProperties
 import org.apache.tinkerpop.gremlin.ogm.extensions.setProperties
 import org.apache.tinkerpop.gremlin.ogm.extensions.toMultiMap
@@ -12,9 +11,6 @@ import org.apache.tinkerpop.gremlin.ogm.mappers.BiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.Mapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
-import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.InstantPropertyMapper
-import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.UUIDPropertyMapper
-import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.identity.*
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepTraverser
@@ -22,8 +18,6 @@ import org.apache.tinkerpop.gremlin.ogm.reflection.*
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
 import org.slf4j.LoggerFactory
-import java.time.Instant
-import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.isSubclassOf
@@ -40,30 +34,19 @@ open class GraphMapper(
         vertices: Set<KClass<out Vertex>>,
         relationships: Map<Relationship<out Vertex, out Vertex>, KClass<out Edge<Vertex, Vertex>>?> = mapOf(),
         nestedObjects: Set<KClass<*>> = setOf(),
-        private val scalarMappers: Map<KClass<*>, PropertyBiMapper<*, *>> = mapOf()
+        scalarMappers: Map<KClass<*>, PropertyBiMapper<*, *>> = mapOf()
 ) {
 
-    private val vertexDescriptions: Map<KClass<out Vertex>, VertexDescription<out Vertex>> = vertices.associate { it to VertexDescription(it) }
-
-    private val edgeDescriptions: Map<KClass<out Edge<Vertex, Vertex>>, EdgeDescription<Vertex, Vertex, out Edge<Vertex, Vertex>>> =
-            relationships.filterNullValues().entries.associate { it.value to EdgeDescription(it.key, it.value) }
-
-    private val relationshipsByName: Map<String, Relationship<out Vertex, out Vertex>> = relationships.keys.associateBy { it.name }
-
-    private val nestedObjectDescriptions: Map<KClass<*>, NestedObjectDescription<*>> = nestedObjects.associate { it to NestedObjectDescription(it) }
-
-    private val vertexDescriptionsByLabel: Map<String, VertexDescription<*>> = vertexDescriptions.mapKeys { it.value.label }
-
-    private val edgeDescriptionsByLabel: Map<String, EdgeDescription<*, *, *>> = edgeDescriptions.mapKeys { it.value.label }
+    private val graphDescription = GraphDescription(vertices, relationships, nestedObjects, scalarMappers)
 
     private val edgeMapper = object : BiMapper<Edge<Vertex, Vertex>, org.apache.tinkerpop.gremlin.structure.Edge> {
-        override fun forwardMap(from: Edge<Vertex, Vertex>): org.apache.tinkerpop.gremlin.structure.Edge = from.edgeMapper().forwardMap(from)
-        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Edge): Edge<Vertex, Vertex> = from.edgeMapper<Vertex, Vertex, Edge<Vertex, Vertex>>().inverseMap(from)
+        override fun forwardMap(from: Edge<Vertex, Vertex>): org.apache.tinkerpop.gremlin.structure.Edge = serializeE(from)
+        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Edge): Edge<Vertex, Vertex> = deserializeE(from)
     }
 
     private val vertexMapper = object : BiMapper<Vertex, org.apache.tinkerpop.gremlin.structure.Vertex> {
-        override fun forwardMap(from: Vertex): org.apache.tinkerpop.gremlin.structure.Vertex = from.vertexMapper().forwardMap(from)
-        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Vertex): Vertex = from.vertexMapper<Vertex>().inverseMap(from)
+        override fun forwardMap(from: Vertex): org.apache.tinkerpop.gremlin.structure.Vertex = serializeV(from)
+        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Vertex): Vertex = deserializeV(from)
     }
 
     /**
@@ -83,7 +66,7 @@ open class GraphMapper(
                     traversal1.union(traversal2)
                 }
                 .map { vertex ->
-                    vertex.get().vertexMapper<V>().inverseMap(vertex.get())
+                    deserializeV<V>(vertex.get())
                 }
     }
 
@@ -92,7 +75,7 @@ open class GraphMapper(
      * V may be a superclass of classes registered as a vertex.
      */
     fun <V : Vertex> V(kClass: KClass<V>): GraphTraversal<*, V> {
-        val labels = vertexDescriptions.filterKeys { vertexKClass ->
+        val labels = graphDescription.vertexDescriptions.filterKeys { vertexKClass ->
             vertexKClass.isSubclassOf(kClass)
         }.values.map { vertexObjectDescription ->
             vertexObjectDescription.label
@@ -104,7 +87,7 @@ open class GraphMapper(
         }.reduce { traversal1, traversal2 ->
             g.V().union(traversal1, traversal2)
         }.map { vertex ->
-            vertex.get().vertexMapper<V>().inverseMap(vertex.get())
+            deserializeV<V>(vertex.get())
         }
     }
 
@@ -125,7 +108,7 @@ open class GraphMapper(
                     traversal1.union(traversal2)
                 }
                 .map { edge ->
-                    edge.get().edgeMapper<FROM, TO, E>().inverseMap(edge.get())
+                    deserializeE<FROM, TO, E>(edge.get())
                 }
     }
 
@@ -134,12 +117,12 @@ open class GraphMapper(
      * an edge with this GraphMapper).
      */
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(kClass: KClass<E>): GraphTraversal<*, E> {
-        val edgeDescription = edgeDescriptions[kClass] ?: throw UnregisteredClass(kClass)
+        val edgeDescription = graphDescription.edgeDescriptions[kClass] ?: throw UnregisteredClass(kClass)
         logger.debug("Will get all edges with label ${edgeDescription.label}")
         return g.E()
                 .hasLabel(edgeDescription.label)
                 .map { vertex ->
-                    vertex.get().edgeMapper<FROM, TO, E>().inverseMap(vertex.get())
+                    deserializeE<FROM, TO, E>(vertex.get())
                 }
     }
 
@@ -149,11 +132,10 @@ open class GraphMapper(
      * The returned object will always have a non-null @ID. If the property annotated with @ID is non-null,
      * but the vertex cannot be found, an exception is thrown.
      */
-    fun <V : Vertex> saveV(obj: V): V {
-        val mapper = obj.vertexMapper()
-        val vertex = mapper.forwardMap(obj)
-        logger.debug("Saved vertex with id ${vertex.id()}")
-        return mapper.inverseMap(vertex)
+    fun <V : Vertex> saveV(deserialized: V): V {
+        val serialized = serializeV(deserialized)
+        logger.debug("Saved vertex with id ${serialized.id()}")
+        return deserializeV(serialized)
     }
 
     /**
@@ -162,10 +144,9 @@ open class GraphMapper(
      * The returned object will always have a non-null @ID.
      */
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> saveE(edge: E): E {
-        val mapper = edge.edgeMapper()
-        val serialized = mapper.forwardMap(edge)
+        val serialized = serializeE(edge)
         logger.debug("Saved edge with id ${serialized.id()}")
-        return mapper.inverseMap(serialized)
+        return deserializeE(serialized)
     }
 
     fun <FROM : Vertex, TO> traverse(froms: Iterable<FROM>, path: Path<FROM, TO>): Map<FROM, List<TO>> {
@@ -189,95 +170,64 @@ open class GraphMapper(
         }
     }
 
-    private fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> org.apache.tinkerpop.gremlin.structure.Edge.edgeMapper(): EdgeMapper<FROM, TO, E> {
-        @Suppress("UNCHECKED_CAST")
-        val edgeDescription = edgeDescriptionsByLabel[label()] as EdgeDescription<FROM, TO, E>?
-        @Suppress("UNCHECKED_CAST")
-        val fromVertexDescription = vertexDescriptionsByLabel[outVertex().label()] as VertexDescription<FROM>?
-                ?: throw UnregisteredLabel(outVertex())
-        @Suppress("UNCHECKED_CAST")
-        val toVertexDescription = vertexDescriptionsByLabel[inVertex().label()] as VertexDescription<TO>?
-                ?: throw UnregisteredLabel(inVertex())
-        return EdgeMapper(g, edgeDescription, fromVertexDescription, toVertexDescription)
+    private fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(edge: org.apache.tinkerpop.gremlin.structure.Edge): E {
+        val deserializer = EdgeDeserializer<FROM, TO, E>(
+                graphDescription.getEdgeDescription(edge.label()),
+                graphDescription.getVertexDescription(edge.outVertex().label()) ?: throw UnregisteredLabel(edge.outVertex()),
+                graphDescription.getVertexDescription(edge.inVertex().label()) ?: throw UnregisteredLabel(edge.inVertex()))
+        return deserializer(edge)
     }
 
-    private fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E.edgeMapper(): EdgeMapper<FROM, TO, E> {
-        @Suppress("UNCHECKED_CAST")
-        val edgeDescription = edgeDescriptions[this::class] as EdgeDescription<FROM, TO, E>?
-        @Suppress("UNCHECKED_CAST")
-        val fromVertexDescription = vertexDescriptions[from::class] as VertexDescription<FROM>?
-                ?: throw UnregisteredClass(from)
-        @Suppress("UNCHECKED_CAST")
-        val toVertexDescription = vertexDescriptions[to::class] as VertexDescription<TO>? ?: throw UnregisteredClass(to)
-        return EdgeMapper(g, edgeDescription, fromVertexDescription, toVertexDescription)
+
+    private fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serializeE(edge: E): org.apache.tinkerpop.gremlin.structure.Edge {
+        val serializer = EdgeSerializer(
+                g,
+                graphDescription.getEdgeDescription(edge::class),
+                graphDescription.getVertexDescription(edge.from::class) ?: throw UnregisteredClass(edge.from),
+                graphDescription.getVertexDescription(edge.to::class) ?: throw UnregisteredClass(edge.to))
+        return serializer(edge)
     }
 
-    private fun <T : Vertex> org.apache.tinkerpop.gremlin.structure.Vertex.vertexMapper(): VertexMapper<T> {
-        @Suppress("UNCHECKED_CAST")
-        val vertexDescription = vertexDescriptionsByLabel[label()] as VertexDescription<T>?
-                ?: throw UnregisteredLabel(this)
-        return VertexMapper(g, vertexDescription)
+    private fun <V : Vertex> serializeV(deserialized: V): org.apache.tinkerpop.gremlin.structure.Vertex {
+        val serializer = VertexSerializer(g, graphDescription.getVertexDescription(deserialized::class)
+                ?: throw UnregisteredClass(deserialized))
+        return serializer(deserialized)
     }
 
-    private fun <T : Vertex> T.vertexMapper(): VertexMapper<T> {
-        @Suppress("UNCHECKED_CAST")
-        val vertexDescription = vertexDescriptions[this::class] as VertexDescription<T>?
-                ?: throw UnregisteredClass(this)
-        return VertexMapper(g, vertexDescription)
+    private fun <V : Vertex> deserializeV(serialized: org.apache.tinkerpop.gremlin.structure.Vertex): V {
+        val deserializer = VertexDeserializer(graphDescription.getVertexDescription<V>(serialized.label())
+                ?: throw UnregisteredLabel(serialized))
+        return deserializer(serialized)
     }
 
-    private fun <T : Any> KClass<T>.nestedObjectMapper(): ObjectMapper<T>? {
-        @Suppress("UNCHECKED_CAST")
-        val nestedObjectDescription = nestedObjectDescriptions[this] as ObjectDescription<T>? ?: return null
-        return ObjectMapper(nestedObjectDescription)
+    private fun <T : Any> serializeNestedObject(deserialized: T, deserializedClass: KClass<out T>): Map<*, *>? {
+        val description = graphDescription.getNestedObjectDescription(deserializedClass) ?: return null
+        val serializer = ObjectSerializer(description)
+        return serializer(deserialized)
     }
 
-    private fun <T : Any> KClass<T>.scalarMapper(): PropertyBiMapper<T, SerializedProperty>? {
-        @Suppress("UNCHECKED_CAST")
-        return (scalarMappers[this] ?: defaultPropertyMappers[this]) as PropertyBiMapper<T, SerializedProperty>?
+    private fun <T : Any> deserializeNestedObject(serialized: Map<*, *>, deserializedClass: KClass<out T>): T? {
+        val description = graphDescription.getNestedObjectDescription(deserializedClass) ?: return null
+        val deserializer = ObjectDeserializer(description)
+        return deserializer(serialized)
     }
 
-    private inner class EdgeMapper<FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> private constructor(
-            val edgeSerializer: EdgeSerializer<FROM, TO, E>,
-            val edgeDeserializer: EdgeDeserializer<FROM, TO, E>
-    ) : BiMapper<E, org.apache.tinkerpop.gremlin.structure.Edge> {
+    private fun <T : Any> getScalarPropertyBiMapper(deserializedClass: KClass<out T>): PropertyBiMapper<T, SerializedProperty>? =
+            graphDescription.getScalarMapper(deserializedClass)
+                    ?: graphDescription.getDefaultPropertyMapper(deserializedClass)
 
-        constructor(
-                g: GraphTraversalSource,
-                edgeDescription: EdgeDescription<FROM, TO, E>?,
-                fromVertexDescription: VertexDescription<FROM>,
-                toVertexDescription: VertexDescription<TO>
-        ) : this(
-                EdgeSerializer(g, edgeDescription, fromVertexDescription, toVertexDescription),
-                EdgeDeserializer(edgeDescription, fromVertexDescription, toVertexDescription)
-        )
-
-        override fun forwardMap(from: E): org.apache.tinkerpop.gremlin.structure.Edge = edgeSerializer(from)
-        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Edge): E = edgeDeserializer(from)
-    }
-
-    private inner class EdgeSerializer<FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> private constructor(
+    private inner class EdgeSerializer<out FROM : Vertex, out TO : Vertex, in E : Edge<FROM, TO>>(
             private val g: GraphTraversalSource,
-            private val objectSerializer: ObjectSerializer<E>?,
+            private val edgeDescription: EdgeDescription<FROM, TO, E>?,
             private val fromVertexDescription: VertexDescription<FROM>,
             private val toVertexDescription: VertexDescription<TO>
     ) : Mapper<E, org.apache.tinkerpop.gremlin.structure.Edge> {
 
-        constructor(
-                g: GraphTraversalSource,
-                edgeDescription: EdgeDescription<FROM, TO, E>?,
-                fromVertexDescription: VertexDescription<FROM>,
-                toVertexDescription: VertexDescription<TO>
-        ) : this(
-                g,
-                edgeDescription?.let { ObjectSerializer(it) },
-                fromVertexDescription,
-                toVertexDescription)
-
         override fun invoke(from: E): org.apache.tinkerpop.gremlin.structure.Edge {
+            val objectSerializer = edgeDescription?.let { ObjectSerializer(it) }
             val fromVertex = from.from
             val toVertex = from.to
-            val relationship = edgeDescriptions[from::class]?.relationship ?: {
+            val relationship = graphDescription.edgeDescriptions[from::class]?.relationship ?: {
                 if (from is BasicEdge<*, *>) from.relationship else null
             }() ?: throw UnregisteredClass(from::class)
             val fromID = fromVertexDescription.id.property.get(fromVertex) ?: throw ObjectNotSaved(fromVertex)
@@ -338,28 +288,22 @@ open class GraphMapper(
                 }
     }
 
-    private inner class EdgeDeserializer<FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> private constructor(
-            private val objectDeserializer: ObjectDeserializer<E>?,
-            private val fromVertexDeserializer: VertexDeserializer<FROM>,
-            private val toVertexDeserializer: VertexDeserializer<TO>
+    private inner class EdgeDeserializer<out FROM : Vertex, out TO : Vertex, out E : Edge<FROM, TO>>(
+            private val edgeDescription: EdgeDescription<FROM, TO, E>?,
+            private val fromVertexDescription: VertexDescription<FROM>,
+            private val toVertexDescription: VertexDescription<TO>
     ) : Mapper<org.apache.tinkerpop.gremlin.structure.Edge, E> {
 
-        constructor(
-                edgeDescription: EdgeDescription<FROM, TO, E>?,
-                fromVertexDescription: VertexDescription<FROM>,
-                toVertexDescription: VertexDescription<TO>
-        ) : this(
-                edgeDescription?.let {
-                    ObjectDeserializer(
-                            edgeDescription,
-                            idTag to edgeDescription.id,
-                            toVertexTag to edgeDescription.toVertex,
-                            fromVertexTag to edgeDescription.fromVertex)
-                },
-                VertexDeserializer(fromVertexDescription),
-                VertexDeserializer(toVertexDescription))
-
         override fun invoke(from: org.apache.tinkerpop.gremlin.structure.Edge): E {
+            val objectDeserializer = edgeDescription?.let {
+                ObjectDeserializer(
+                        edgeDescription,
+                        idTag to edgeDescription.id,
+                        toVertexTag to edgeDescription.toVertex,
+                        fromVertexTag to edgeDescription.fromVertex)
+            }
+            val fromVertexDeserializer = VertexDeserializer(fromVertexDescription)
+            val toVertexDeserializer = VertexDeserializer(toVertexDescription)
             val toVertex = toVertexDeserializer(from.inVertex())
             val fromVertex = fromVertexDeserializer(from.outVertex())
             return objectDeserializer?.let {
@@ -370,7 +314,7 @@ open class GraphMapper(
                 return it(serializedProperties)
             } ?: {
                 @Suppress("UNCHECKED_CAST")
-                val relationship = relationshipsByName[from.label()] as Relationship<FROM, TO>?
+                val relationship = graphDescription.relationshipsByName[from.label()] as Relationship<FROM, TO>?
                         ?: throw UnregisteredLabel(from)
                 @Suppress("UNCHECKED_CAST")
                 BasicEdge(fromVertex, toVertex, relationship) as E
@@ -378,39 +322,13 @@ open class GraphMapper(
         }
     }
 
-    private inner class VertexMapper<T : Vertex> private constructor(
-            val vertexSerializer: VertexSerializer<T>,
-            val vertexDeserializer: VertexDeserializer<T>
-    ) : BiMapper<T, org.apache.tinkerpop.gremlin.structure.Vertex> {
-
-        constructor(
-                g: GraphTraversalSource,
-                vertexDescription: VertexDescription<T>
-        ) : this(
-                VertexSerializer(g, vertexDescription),
-                VertexDeserializer(vertexDescription)
-        )
-
-        override fun forwardMap(from: T): org.apache.tinkerpop.gremlin.structure.Vertex = vertexSerializer(from)
-        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Vertex): T = vertexDeserializer(from)
-    }
-
-    private inner class VertexSerializer<in T : Vertex> private constructor(
+    private inner class VertexSerializer<in T : Vertex>(
             private val g: GraphTraversalSource,
-            private val vertexDescription: VertexDescription<T>,
-            private val objectSerializer: ObjectSerializer<T>
+            private val vertexDescription: VertexDescription<T>
     ) : Mapper<T, org.apache.tinkerpop.gremlin.structure.Vertex> {
 
-        constructor(
-                g: GraphTraversalSource,
-                vertexDescription: VertexDescription<T>
-        ) : this(
-                g,
-                vertexDescription,
-                ObjectSerializer(vertexDescription)
-        )
-
         override fun invoke(from: T): org.apache.tinkerpop.gremlin.structure.Vertex {
+            val objectSerializer = ObjectSerializer(vertexDescription)
             val id = vertexDescription.id.property.get(from)
             val traversal = when (id) {
                 null -> g.addV(vertexDescription.label)
@@ -423,12 +341,11 @@ open class GraphMapper(
         }
     }
 
-    private inner class VertexDeserializer<out T : Vertex> private constructor(
-            private val objectDeserializer: ObjectDeserializer<T>
+    private inner class VertexDeserializer<out T : Vertex>(
+            vertexDescription: VertexDescription<T>
     ) : Mapper<org.apache.tinkerpop.gremlin.structure.Vertex, T> {
 
-        constructor(vertexDescription: VertexDescription<T>)
-                : this(ObjectDeserializer(vertexDescription, Pair(idTag, vertexDescription.id)))
+        val objectDeserializer = ObjectDeserializer(vertexDescription, Pair(idTag, vertexDescription.id))
 
         override fun invoke(from: org.apache.tinkerpop.gremlin.structure.Vertex): T {
             val serializedProperties = from.getProperties() + Pair(idTag, from.id())
@@ -436,28 +353,16 @@ open class GraphMapper(
         }
     }
 
-    private inner class ObjectMapper<T : Any> private constructor(
-            private val serializer: ObjectSerializer<T>,
-            private val deserializer: ObjectDeserializer<T>
-    ) : BiMapper<T, Map<String, SerializedProperty?>> {
-
-        constructor(objectDescription: ObjectDescription<T>) :
-                this(ObjectSerializer(objectDescription), ObjectDeserializer(objectDescription))
-
-        override fun forwardMap(from: T): Map<String, SerializedProperty?> = serializer(from)
-        override fun inverseMap(from: Map<String, SerializedProperty?>): T = deserializer(from)
-    }
-
     private inner class ObjectSerializer<in T : Any>(
             private val objectDescription: ObjectDescription<T>
-    ) : Mapper<T, Map<String, SerializedProperty?>> {
+    ) : Mapper<T, Map<*, *>> {
 
         override fun invoke(from: T): Map<String, SerializedProperty?> =
-                objectDescription.properties.mapValues { keyValue ->
-                    val propertyDescription = keyValue.value
+                objectDescription.properties.mapValues {
+                    val propertyDescription = it.value
                     val unserializedPropertyValue = propertyDescription.property.get(from)
-                    val mapper = PropertyMapper(propertyDescription)
-                    mapper.forwardMap(unserializedPropertyValue)
+                    val serializer = PropertySerializer(propertyDescription)
+                    serializer(unserializedPropertyValue)
                 }
     }
 
@@ -466,16 +371,16 @@ open class GraphMapper(
             private val idProperty: Pair<String, PropertyDescription<T, *>>? = null,
             private val fromVertexParameter: Pair<String, KParameter>? = null,
             private val toVertexParameter: Pair<String, KParameter>? = null
-    ) : Mapper<Map<String, SerializedProperty?>, T> {
+    ) : Mapper<Map<*, *>, T> {
 
-        override fun invoke(from: Map<String, SerializedProperty?>): T {
+        override fun invoke(from: Map<*, *>): T {
             val constructorParameters = mutableMapOf<KParameter, Any?>()
             constructorParameters.putAll(objectDescription.properties.entries.associate { keyValue ->
                 val propertyKey = keyValue.key
                 val propertyDescription = keyValue.value
                 val serializedPropertyValue = from[propertyKey]
-                val mapper = PropertyMapper(propertyDescription)
-                val deserializedPropertyValue = mapper.inverseMap(serializedPropertyValue)
+                val deserializer = PropertyDeserializer(propertyDescription)
+                val deserializedPropertyValue = deserializer(serializedPropertyValue)
                 propertyDescription.parameter to deserializedPropertyValue
             })
             constructorParameters.putAll(objectDescription.nullConstructorParameters.associate { it to null })
@@ -495,20 +400,8 @@ open class GraphMapper(
         }
     }
 
-    private inner class PropertyMapper<T> private constructor(
-            private val propertySerializer: PropertySerializer<T>,
-            private val propertyDeserializer: PropertyDeserializer<T>
-    ) : BiMapper<Any?, SerializedProperty?> {
-
-        constructor(propertyDescription: PropertyDescription<T, *>)
-                : this(PropertySerializer(propertyDescription), PropertyDeserializer(propertyDescription))
-
-        override fun forwardMap(from: Any?): SerializedProperty? = propertySerializer(from)
-        override fun inverseMap(from: SerializedProperty?): Any? = propertyDeserializer(from)
-    }
-
-    private inner class PropertySerializer<T>(
-            private val propertyDescription: PropertyDescription<T, *>
+    private inner class PropertySerializer<in T>(
+            private val propertyDescription: PropertyDescription<*, T>
     ) : Mapper<Any?, SerializedProperty?> {
 
         override fun invoke(from: Any?): SerializedProperty? {
@@ -519,50 +412,45 @@ open class GraphMapper(
                 return propertyDescription.mapper.forwardMap(from)
             }
             return when (from) {
-                is Iterable<*> -> from.map {
-                    @Suppress("UNCHECKED_CAST")
-                    val fromClass = propertyDescription.property.returnType.arguments.single().type?.classifier as? KClass<Any>
+                is Iterable<*> -> {
+                    val fromClass = propertyDescription.property.returnType.arguments.single().type?.classifier as? KClass<out Any>
                             ?: throw IncompatibleIterable(propertyDescription)
-                    fromClass.serialize(it)
+                    from.map {
+                        serialize(it, fromClass)
+                    }
                 }
                 is Map<*, *> -> {
                     val mapTypeParameters = propertyDescription.property.returnType.arguments
                     @Suppress("UNCHECKED_CAST")
-                    val keyClass = mapTypeParameters.first().type?.classifier as? KClass<Any>
+                    val keyClass = mapTypeParameters.first().type?.classifier as? KClass<out Any>
                             ?: throw IncompatibleMap(propertyDescription)
                     @Suppress("UNCHECKED_CAST")
-                    val valueClass = mapTypeParameters.last().type?.classifier as? KClass<Any>
+                    val valueClass = mapTypeParameters.last().type?.classifier as? KClass<out Any>
                             ?: throw IncompatibleMap(propertyDescription)
                     from.entries.associate {
-                        keyClass.serialize(it.key) to valueClass.serialize(it.value)
+                        serialize(it.key, keyClass) to serialize(it.value, valueClass)
                     }
                 }
-                else -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val kClass = propertyDescription.kClass as KClass<Any>
-                    kClass.serialize(from)
-                }
+                else -> serialize(from, propertyDescription.kClass)
             }
         }
 
-        private fun KClass<Any>.serialize(property: Any?): SerializedProperty? {
+        private fun serialize(property: Any?, deserializedClass: KClass<out Any>): SerializedProperty? {
             if (property == null) {
                 return null
             }
-            @Suppress("UNCHECKED_CAST")
-            return this.scalarMapper()?.forwardMap(property)
-                    ?: this.nestedObjectMapper()?.forwardMap(property)
+            return getScalarPropertyBiMapper(deserializedClass)?.forwardMap(property)
+                    ?: serializeNestedObject(property, deserializedClass)
                     ?: throw ObjectSerializerMissing(property)
         }
     }
 
-    private inner class PropertyDeserializer<T>(
+    private inner class PropertyDeserializer<out T>(
             private val propertyDescription: PropertyDescription<T, *>
     ) : Mapper<SerializedProperty?, Any?> {
 
         override fun invoke(from: SerializedProperty?): Any? {
-            @Suppress("UNCHECKED_CAST")
-            val objectClass = propertyDescription.kClass as KClass<Any>
+            val objectClass = propertyDescription.kClass
             if (from == null) {
                 return if (objectClass.isSubclassOf(Map::class)) emptyMap<Any, Any>() else null
             }
@@ -571,12 +459,11 @@ open class GraphMapper(
             }
             return when (from) {
                 is Iterable<*> -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val toClass = propertyDescription.property.returnType.arguments.single().type?.classifier as? KClass<Any>
+                    val toClass = propertyDescription.property.returnType.arguments.single().type?.classifier as? KClass<out Any>
                             ?: throw IncompatibleIterable(propertyDescription)
                     when {
-                        objectClass.isSubclassOf(Set::class) -> from.map { toClass.deserialize(it) }.toSet()
-                        objectClass.isSubclassOf(List::class) -> from.map { toClass.deserialize(it) }
+                        objectClass.isSubclassOf(Set::class) -> from.map { deserialize(it, toClass) }.toSet()
+                        objectClass.isSubclassOf(List::class) -> from.map { deserialize(it, toClass) }
                         else -> throw IterableNotSupported(objectClass)
                     }
                 }
@@ -586,31 +473,28 @@ open class GraphMapper(
                     if (objectClass.isSubclassOf(Map::class)) {
                         val mapTypeParameters = propertyDescription.property.returnType.arguments
                         @Suppress("UNCHECKED_CAST")
-                        val keyClass = mapTypeParameters.first().type?.classifier as? KClass<Any>
+                        val keyClass = mapTypeParameters.first().type?.classifier as? KClass<out Any>
                                 ?: throw IncompatibleMap(propertyDescription)
                         @Suppress("UNCHECKED_CAST")
-                        val valueClass = mapTypeParameters.last().type?.classifier as? KClass<Any>
+                        val valueClass = mapTypeParameters.last().type?.classifier as? KClass<out Any>
                                 ?: throw IncompatibleMap(propertyDescription)
-                        from.entries.associate { keyClass.deserialize(it.key) to valueClass.deserialize(it.value) }
+                        from.entries.associate { deserialize(it.key, keyClass) to deserialize(it.value, valueClass) }
                     } else {
-                        objectClass.deserialize(from)
+                        deserialize(from, objectClass)
                     }
                 }
-                else -> objectClass.deserialize(from)
+                else -> deserialize(from, objectClass)
             }
         }
 
-        private fun KClass<Any>.deserialize(property: SerializedProperty?): Any? = when (property) {
+        private fun deserialize(property: SerializedProperty?, deserializedClass: KClass<out Any>): Any? = when (property) {
             null -> null
             is Map<*, *> -> {
-                @Suppress("UNCHECKED_CAST")
-                property as Map<String, SerializedProperty?>
-                nestedObjectMapper()?.inverseMap(property) ?: throw ObjectDeserializerMissing(property, this)
+                deserializeNestedObject(property, deserializedClass)
+                        ?: throw ObjectDeserializerMissing(property, deserializedClass)
             }
-            else -> {
-                val sm = scalarMapper()
-                sm?.inverseMap(property) ?: throw PropertyDeserializerMissing(property, this)
-            }
+            else -> getScalarPropertyBiMapper(deserializedClass)?.inverseMap(property)
+                    ?: throw PropertyDeserializerMissing(property, deserializedClass)
         }
     }
 
@@ -629,16 +513,5 @@ open class GraphMapper(
         private const val toKey = "to"
 
         private val logger = LoggerFactory.getLogger(GraphMapper::class.java)
-
-        private val defaultPropertyMappers = mapOf<KClass<*>, PropertyBiMapper<*, *>>(
-                String::class to StringPropertyMapper,
-                Byte::class to BytePropertyMapper,
-                Float::class to FloatPropertyMapper,
-                Double::class to DoublePropertyManager,
-                Long::class to LongPropertyMapper,
-                Int::class to IntegerPropertyMapper,
-                Boolean::class to BooleanPropertyMapper,
-                Instant::class to InstantPropertyMapper,
-                UUID::class to UUIDPropertyMapper)
     }
 }

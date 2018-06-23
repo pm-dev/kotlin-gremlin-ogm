@@ -177,8 +177,7 @@ private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T,
         if (annotation.key.contains(nestedPropertyDelimiter)) throw ReservedNestedPropertyDelimiter(this, annotation.key)
         if (annotation.key.toIntOrNull() != null) throw ReservedNumberKey(this, annotation.key)
         annotation.key to PropertyDescription(param, property, param.findMapper())
-    }
-            .associate { it }
+    }.associate { it }
     if (propertyDescriptionsByKey.size != parametersToAnnotation.size) throw DuplicatePropertyName(this)
     return propertyDescriptionsByKey
 }
