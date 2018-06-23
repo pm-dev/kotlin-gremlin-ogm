@@ -200,16 +200,32 @@ open class GraphMapper(
         return deserializer(serialized)
     }
 
-    private fun <T : Any> serializeNestedObject(deserialized: T, deserializedClass: KClass<out T>): Map<*, *>? {
-        val description = graphDescription.getNestedObjectDescription(deserializedClass) ?: return null
-        val serializer = ObjectSerializer(description)
-        return serializer(deserialized)
+    private fun serializeProperty(property: Any?, deserializedClass: KClass<out Any>): SerializedProperty? {
+        if (property == null) {
+            return null
+        }
+        val serialized = getScalarPropertyBiMapper(deserializedClass)?.forwardMap(property)
+        if (serialized != null) {
+            return serialized
+        }
+        val description = graphDescription.getNestedObjectDescription(deserializedClass)
+        if (description != null) {
+            val serializer = ObjectSerializer(description)
+            return serializer(property)
+        }
+        throw ObjectSerializerMissing(property)
     }
 
-    private fun <T : Any> deserializeNestedObject(serialized: Map<*, *>, deserializedClass: KClass<out T>): T? {
-        val description = graphDescription.getNestedObjectDescription(deserializedClass) ?: return null
-        val deserializer = ObjectDeserializer(description)
-        return deserializer(serialized)
+    private fun deserializeProperty(property: SerializedProperty?, deserializedClass: KClass<out Any>): Any? = when (property) {
+        null -> null
+        is Map<*, *> -> {
+            val description = graphDescription.getNestedObjectDescription(deserializedClass)
+                    ?: throw ObjectDeserializerMissing(property, deserializedClass)
+            val deserializer = ObjectDeserializer(description)
+            deserializer(property)
+        }
+        else -> getScalarPropertyBiMapper(deserializedClass)?.inverseMap(property)
+                ?: throw PropertyDeserializerMissing(property, deserializedClass)
     }
 
     private fun <T : Any> getScalarPropertyBiMapper(deserializedClass: KClass<out T>): PropertyBiMapper<T, SerializedProperty>? =
@@ -416,7 +432,7 @@ open class GraphMapper(
                     val fromClass = propertyDescription.property.returnType.arguments.single().type?.classifier as? KClass<out Any>
                             ?: throw IncompatibleIterable(propertyDescription)
                     from.map {
-                        serialize(it, fromClass)
+                        serializeProperty(it, fromClass)
                     }
                 }
                 is Map<*, *> -> {
@@ -428,20 +444,11 @@ open class GraphMapper(
                     val valueClass = mapTypeParameters.last().type?.classifier as? KClass<out Any>
                             ?: throw IncompatibleMap(propertyDescription)
                     from.entries.associate {
-                        serialize(it.key, keyClass) to serialize(it.value, valueClass)
+                        serializeProperty(it.key, keyClass) to serializeProperty(it.value, valueClass)
                     }
                 }
-                else -> serialize(from, propertyDescription.kClass)
+                else -> serializeProperty(from, propertyDescription.kClass)
             }
-        }
-
-        private fun serialize(property: Any?, deserializedClass: KClass<out Any>): SerializedProperty? {
-            if (property == null) {
-                return null
-            }
-            return getScalarPropertyBiMapper(deserializedClass)?.forwardMap(property)
-                    ?: serializeNestedObject(property, deserializedClass)
-                    ?: throw ObjectSerializerMissing(property)
         }
     }
 
@@ -462,8 +469,8 @@ open class GraphMapper(
                     val toClass = propertyDescription.property.returnType.arguments.single().type?.classifier as? KClass<out Any>
                             ?: throw IncompatibleIterable(propertyDescription)
                     when {
-                        objectClass.isSubclassOf(Set::class) -> from.map { deserialize(it, toClass) }.toSet()
-                        objectClass.isSubclassOf(List::class) -> from.map { deserialize(it, toClass) }
+                        objectClass.isSubclassOf(Set::class) -> from.map { deserializeProperty(it, toClass) }.toSet()
+                        objectClass.isSubclassOf(List::class) -> from.map { deserializeProperty(it, toClass) }
                         else -> throw IterableNotSupported(objectClass)
                     }
                 }
@@ -478,23 +485,13 @@ open class GraphMapper(
                         @Suppress("UNCHECKED_CAST")
                         val valueClass = mapTypeParameters.last().type?.classifier as? KClass<out Any>
                                 ?: throw IncompatibleMap(propertyDescription)
-                        from.entries.associate { deserialize(it.key, keyClass) to deserialize(it.value, valueClass) }
+                        from.entries.associate { deserializeProperty(it.key, keyClass) to deserializeProperty(it.value, valueClass) }
                     } else {
-                        deserialize(from, objectClass)
+                        deserializeProperty(from, objectClass)
                     }
                 }
-                else -> deserialize(from, objectClass)
+                else -> deserializeProperty(from, objectClass)
             }
-        }
-
-        private fun deserialize(property: SerializedProperty?, deserializedClass: KClass<out Any>): Any? = when (property) {
-            null -> null
-            is Map<*, *> -> {
-                deserializeNestedObject(property, deserializedClass)
-                        ?: throw ObjectDeserializerMissing(property, deserializedClass)
-            }
-            else -> getScalarPropertyBiMapper(deserializedClass)?.inverseMap(property)
-                    ?: throw PropertyDeserializerMissing(property, deserializedClass)
         }
     }
 
