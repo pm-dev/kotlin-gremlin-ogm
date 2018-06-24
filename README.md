@@ -11,13 +11,13 @@ supported by most graph database implementations, including JanusGraph.
 
 Define a Vertex
 
-    @Element(label = "Person")
+    @Element("Person")
     class Person(
     
             @ID
             val id: Long? = null,
                
-            @Property(key = "name")
+            @Property("name")
             val name: String)
     
 Define a Relationship
@@ -101,7 +101,7 @@ that call back into the library, thus, your graph implementation must be running
 - `String`
 
 If your Gremlin implementation does not support one of these native types, make sure to register a 
-property mapper for it with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L50) 
+property mapper for it with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L39) 
 or declare a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
 
@@ -110,7 +110,7 @@ or declare a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/maste
 - [`Instant` -> `String`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/InstantPropertyMapper.kt)
 - [`UUID` -> `String`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/UUIDPropertyMapper.kt)
 
-To use other property types, register your custom property mapper with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L50) or declare
+To use other property types, register your custom property mapper with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L39) or declare
 a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
 
@@ -151,18 +151,19 @@ Given:
         class Name(val first: String, val last: String)
         class Person(val names: Set<Name>)
         
-...is serialized in the graph using vertex perperties:
+...is serialized in the graph using vertex properties:
 
         "names.0.first" -> "Cassius"
         "names.0.last" -> "Clay"
         "names.1.first" -> "Muhammad"
         "names.1.last" -> "Ali"
-        
-Or if the collection is empty we use a special `UUID` token:
+
+To preserve the difference between a null and empty collection or map, we use 
+a special `UUID` token. For example if the names `Set` was empty:
 
         "names" -> "474A56F1-6309-41B5-A632-AD53F57DBDAE"                
 
-...to preserve the difference between an empty and a null list.
+...or in the case of an empty map, the special `UUID` is: `9B94DCB9-D405-47C1-B56D-72F83C4E81D3`.
 
 
 #### Legal:
