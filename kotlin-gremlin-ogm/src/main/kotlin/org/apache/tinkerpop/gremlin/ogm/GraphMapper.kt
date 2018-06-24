@@ -173,8 +173,10 @@ open class GraphMapper(
     private fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(edge: org.apache.tinkerpop.gremlin.structure.Edge): E {
         val deserializer = EdgeDeserializer<FROM, TO, E>(
                 graphDescription.getEdgeDescription(edge.label()),
-                graphDescription.getVertexDescription(edge.outVertex().label()) ?: throw UnregisteredLabel(edge.outVertex()),
-                graphDescription.getVertexDescription(edge.inVertex().label()) ?: throw UnregisteredLabel(edge.inVertex()))
+                graphDescription.getVertexDescription(edge.outVertex().label())
+                        ?: throw UnregisteredLabel(edge.outVertex()),
+                graphDescription.getVertexDescription(edge.inVertex().label())
+                        ?: throw UnregisteredLabel(edge.inVertex()))
         return deserializer(edge)
     }
 
@@ -421,28 +423,29 @@ open class GraphMapper(
     ) : Mapper<Any?, SerializedProperty?> {
 
         override fun invoke(from: Any?): SerializedProperty? {
-            if (from == null) {
-                return null
-            }
-            if (propertyDescription.mapper != null) {
+            if (propertyDescription.mapper != null && from != null) {
                 return propertyDescription.mapper.forwardMap(from)
             }
             return when (from) {
+                null -> null
                 is Iterable<*> -> {
-                    val fromClass = propertyDescription.property.returnType.arguments.single().type?.classifier as? KClass<out Any>
-                            ?: throw IncompatibleIterable(propertyDescription)
+                    val fromClass by lazy {
+                        propertyDescription.property.returnType.arguments.single().type?.classifier as? KClass<out Any> ?: throw IncompatibleIterable(propertyDescription)
+                    }
                     from.map {
                         serializeProperty(it, fromClass)
                     }
                 }
                 is Map<*, *> -> {
-                    val mapTypeParameters = propertyDescription.property.returnType.arguments
-                    @Suppress("UNCHECKED_CAST")
-                    val keyClass = mapTypeParameters.first().type?.classifier as? KClass<out Any>
-                            ?: throw IncompatibleMap(propertyDescription)
-                    @Suppress("UNCHECKED_CAST")
-                    val valueClass = mapTypeParameters.last().type?.classifier as? KClass<out Any>
-                            ?: throw IncompatibleMap(propertyDescription)
+                    val mapTypeParameters by lazy { propertyDescription.property.returnType.arguments }
+                    val keyClass by lazy {
+                        mapTypeParameters.first().type?.classifier as? KClass<out Any>
+                                ?: throw IncompatibleMap(propertyDescription)
+                    }
+                    val valueClass by lazy {
+                        mapTypeParameters.last().type?.classifier as? KClass<out Any>
+                                ?: throw IncompatibleMap(propertyDescription)
+                    }
                     from.entries.associate {
                         serializeProperty(it.key, keyClass) to serializeProperty(it.value, valueClass)
                     }
@@ -457,40 +460,39 @@ open class GraphMapper(
     ) : Mapper<SerializedProperty?, Any?> {
 
         override fun invoke(from: SerializedProperty?): Any? {
-            val objectClass = propertyDescription.kClass
-            if (from == null) {
-                return if (objectClass.isSubclassOf(Map::class)) emptyMap<Any, Any>() else null
-            }
-            if (propertyDescription.mapper != null) {
+            if (propertyDescription.mapper != null && from != null) {
                 return propertyDescription.mapper.inverseMap(from)
             }
             return when (from) {
+                null -> null
                 is Iterable<*> -> {
-                    val toClass = propertyDescription.property.returnType.arguments.single().type?.classifier as? KClass<out Any>
-                            ?: throw IncompatibleIterable(propertyDescription)
+                    val toClass by lazy {
+                        propertyDescription.property.returnType.arguments.single().type?.classifier as? KClass<out Any>
+                                ?: throw IncompatibleIterable(propertyDescription)
+                    }
                     when {
-                        objectClass.isSubclassOf(Set::class) -> from.map { deserializeProperty(it, toClass) }.toSet()
-                        objectClass.isSubclassOf(List::class) -> from.map { deserializeProperty(it, toClass) }
-                        else -> throw IterableNotSupported(objectClass)
+                        propertyDescription.kClass.isSubclassOf(Set::class) -> from.map { deserializeProperty(it, toClass) }.toSet()
+                        propertyDescription.kClass.isSubclassOf(List::class) -> from.map { deserializeProperty(it, toClass) }
+                        else -> throw IterableNotSupported(propertyDescription.kClass)
                     }
                 }
                 is Map<*, *> -> {
-                    @Suppress("UNCHECKED_CAST")
-                    from as Map<String, SerializedProperty?>
-                    if (objectClass.isSubclassOf(Map::class)) {
+                    if (propertyDescription.kClass.isSubclassOf(Map::class)) {
                         val mapTypeParameters = propertyDescription.property.returnType.arguments
-                        @Suppress("UNCHECKED_CAST")
-                        val keyClass = mapTypeParameters.first().type?.classifier as? KClass<out Any>
-                                ?: throw IncompatibleMap(propertyDescription)
-                        @Suppress("UNCHECKED_CAST")
-                        val valueClass = mapTypeParameters.last().type?.classifier as? KClass<out Any>
-                                ?: throw IncompatibleMap(propertyDescription)
+                        val keyClass by lazy {
+                            mapTypeParameters.first().type?.classifier as? KClass<out Any>
+                                    ?: throw IncompatibleMap(propertyDescription)
+                        }
+                        val valueClass by lazy {
+                            mapTypeParameters.last().type?.classifier as? KClass<out Any>
+                                    ?: throw IncompatibleMap(propertyDescription)
+                        }
                         from.entries.associate { deserializeProperty(it.key, keyClass) to deserializeProperty(it.value, valueClass) }
                     } else {
-                        deserializeProperty(from, objectClass)
+                        deserializeProperty(from, propertyDescription.kClass)
                     }
                 }
-                else -> deserializeProperty(from, objectClass)
+                else -> deserializeProperty(from, propertyDescription.kClass)
             }
         }
     }

@@ -27,7 +27,8 @@ internal class ElementsTest {
                                 "first" to "Muhammad",
                                 "last" to "Ali")),
                 "gender" to "male",
-                "fliesLike" to listOf("butterfly"))
+                "fliesLike" to listOf("butterfly"),
+                "hometown" to emptyMap<Any, Any>())
         
         vertexProperties = listOf(
                 "names.0.salutations" to emptyListToken,
@@ -38,7 +39,8 @@ internal class ElementsTest {
                 "names.1.first" to "Muhammad",
                 "names.1.last" to "Ali",
                 "gender" to "male",
-                "fliesLike.0" to "butterfly")
+                "fliesLike.0" to "butterfly",
+                "hometown" to emptyMapToken)
     }
 
     @Test

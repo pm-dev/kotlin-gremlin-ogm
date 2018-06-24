@@ -1,6 +1,7 @@
 package org.apache.tinkerpop.gremlin.ogm.extensions
 
 import org.apache.tinkerpop.gremlin.ogm.exceptions.EmptyListTokenIsReserved
+import org.apache.tinkerpop.gremlin.ogm.exceptions.EmptyMapTokenIsReserved
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
 import org.apache.tinkerpop.gremlin.structure.Element
 
@@ -23,10 +24,11 @@ internal fun <T : Element> T.setProperties(
         it.remove()
     }
     newProperties.forEach { key, value ->
-        if (value == emptyListToken) {
-            throw EmptyListTokenIsReserved(emptyListToken)
+        when (value) {
+            emptyListToken -> throw EmptyListTokenIsReserved(emptyListToken)
+            emptyMapToken -> throw EmptyMapTokenIsReserved(emptyMapToken)
+            else -> setProperty(key, value)
         }
-        setProperty(key, value)
     }
     return this
 }
@@ -38,15 +40,25 @@ internal const val nestedPropertyDelimiter = '.'
 
 /**
  *
- * When we encounter an empty list, it's important to saveV a property value that represents an empty list,
+ * When we encounter an empty list, it's important to save a property value that represents an empty list,
  * rather than not saving anything, otherwise, when reading the value for that property later, it would appear that the
- * value is null, which is different from an empty list. This token is what we'll saveV to mark the property value
+ * value is null, which is different from an empty list. This token is what we'll save to mark the property value
  * as an empty list. This value must never be changed after it's used to a graph.
  *
  * This is internal and not private for testing.
  */
 internal const val emptyListToken = "474A56F1-6309-41B5-A632-AD53F57DBDAE"
 
+/**
+ *
+ * When we encounter an empty map, it's important to save a property value that represents an empty map,
+ * rather than not saving anything, otherwise, when reading the value for that property later, it would appear that the
+ * value is null, which is different from an empty map. This token is what we'll save to mark the property value
+ * as an empty map. This value must never be changed after it's used to a graph.
+ *
+ * This is internal and not private for testing.
+ */
+internal const val emptyMapToken = "9B94DCB9-D405-47C1-B56D-72F83C4E81D3"
 
 /**
  * Whereas SerializedProperty can be any type accepted by the underlying graph implementation PLUS
@@ -71,6 +83,7 @@ private fun SerializedProperty.listify(): SerializedProperty =
                 }
                 this.toList() ?: this
             }
+            emptyMapToken -> emptyMap<Any, Any>()
             emptyListToken -> emptyList<Any>()
             else -> this
         }
@@ -128,12 +141,14 @@ private fun Element.setProperty(
             }
         }
         is Map<*, *> -> {
-            @Suppress("UNCHECKED_CAST")
-            value as Map<String, SerializedProperty?>
-            value.mapKeys { entry ->
-                key + nestedPropertyDelimiter + entry.key
-            }.forEach { k, v ->
-                setProperty(k, v)
+            if (value.isEmpty()) {
+                setProperty(key, emptyMapToken)
+            } else {
+                value.mapKeys { entry ->
+                    key + nestedPropertyDelimiter + entry.key
+                }.forEach { k, v ->
+                    setProperty(k, v)
+                }
             }
         }
         null -> {}

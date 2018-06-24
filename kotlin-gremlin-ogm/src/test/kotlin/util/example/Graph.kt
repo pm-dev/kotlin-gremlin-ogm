@@ -32,6 +32,7 @@ internal fun exampleGraphMapper() = GraphMapper(
                 VertexWithPrimitiveSet::class,
                 VertexWithPrimitiveList::class,
                 VertexWithPrimitiveMap::class,
+                VertexWithNullablePrimitiveMap::class,
                 VertexWithEnum::class,
                 VertexWithNumber::class,
                 VertexWithCustomMapper::class,

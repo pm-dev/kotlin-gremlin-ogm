@@ -114,6 +114,11 @@ internal class GraphMapperTest {
     }
 
     @Test
+    fun `test save and load VertexWithNullablePrimitiveMap null map`() {
+        saveAndLoadVertex(VertexWithNullablePrimitiveMap.sample())
+    }
+
+    @Test
     fun `test save and load VertexWithEnum`() {
         saveAndLoadVertex(VertexWithEnum.sample())
     }
@@ -199,7 +204,7 @@ internal class GraphMapperTest {
         assertThat(objs.toList()).isEqualTo(listOf(a, b))
     }
 
-    private inline fun <reified T : Base<*>> saveAndLoadVertex(vertex: T) {
+    private inline fun <reified T : BaseVertex<*>> saveAndLoadVertex(vertex: T) {
         assertThat(vertex.id).isNull()
 
         val saved = gm.saveV(vertex)
