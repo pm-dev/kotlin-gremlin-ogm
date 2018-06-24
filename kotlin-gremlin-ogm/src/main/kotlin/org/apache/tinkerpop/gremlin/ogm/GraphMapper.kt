@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package org.apache.tinkerpop.gremlin.ogm
 
 import org.apache.tinkerpop.gremlin.ogm.elements.BasicEdge
@@ -137,6 +139,14 @@ open class GraphMapper(
         logger.debug("Saved vertex with id ${serialized.id()}")
         return deserializeV(serialized)
     }
+
+    /**
+     * Saves vertices to the graph. If the property annotated with @ID is null,
+     * a new vertex will be created, otherwise this object will overwrite the current vertex with that id.
+     * The returned object will always have a non-null @ID. If the property annotated with @ID is non-null,
+     * but the vertex cannot be found, an exception is thrown.
+     */
+    fun <V : Vertex> saveV(objs: Iterable<V>): List<V> = objs.map { saveV(it) }
 
     /**
      * Saves edges to the graph. If the property annotated with @ID is null,

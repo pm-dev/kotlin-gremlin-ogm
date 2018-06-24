@@ -68,14 +68,6 @@ fun <V : Vertex> GraphMapper.fetchV(ids: Collection<Any>): List<V> = V<V>(ids).t
 fun <V : Vertex> GraphMapper.saveV(vararg objs: V): List<V> = objs.map { saveV(it) }
 
 /**
- * Saves vertices to the graph. If the property annotated with @ID is null,
- * a new vertex will be created, otherwise this object will overwrite the current vertex with that id.
- * The returned object will always have a non-null @ID. If the property annotated with @ID is non-null,
- * but the vertex cannot be found, an exception is thrown.
- */
-fun <V : Vertex> GraphMapper.saveV(objs: List<V>): List<V> = objs.map { saveV(it) }
-
-/**
  *
  *  ===== Edges =====
  *
