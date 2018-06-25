@@ -35,7 +35,7 @@ Save an Edge
         
 Traverse an edge
 
-        graphMapper.traverse(friends from michael) // retuns list: [ dwight ]
+        graphMapper.traverse(friends from michael) // returns list: [ dwight ]
         graphMapper.traverse(friends from dwight) // returns list: [ michael ]        
 
 More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example/src/main/kotlin/starwars), 
@@ -46,14 +46,14 @@ which exposes a graph database through a GraphQL endpoint.
 
 - Gradle
         
-        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.10.4'
+        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.11.0'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kotlin-gremlin-ogm</artifactId>
-            <version>0.10.4</version>
+            <version>0.11.0</version>
         </dependency>
         
         

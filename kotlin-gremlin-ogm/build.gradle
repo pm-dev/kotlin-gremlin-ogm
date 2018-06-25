@@ -20,7 +20,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'com.github.ben-manes.versions'
 
-version = '0.10.4'
+version = '0.11.0'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions {
@@ -87,7 +87,7 @@ publishing {
 			customizePom(pom)
 			groupId 'com.github.pm-dev'
 			artifactId 'kotlin-gremlin-ogm'
-			version '0.10.4'
+			version '0.11.0'
 
 			from components.java
 
