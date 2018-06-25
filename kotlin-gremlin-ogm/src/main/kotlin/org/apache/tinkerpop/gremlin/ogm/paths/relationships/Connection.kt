@@ -30,16 +30,16 @@ interface Connection<FROM : Vertex, TO : Vertex> : Path<FROM, TO> {
 
     override fun invoke(from: StepTraverser<FROM>): GraphTraversal<*, TO> {
         val serialized = from.traversal.map { fromObject ->
-            from.vertexMapper.forwardMap(fromObject.get())
+            from.graphMapper.serializeV(fromObject.get())
         }
         val traversed = relationships().fold(initial = serialized) { traversal, relationship ->
             if (relationship is Relationship.ToSingle) {
-                traversal.coalesce(Companion.to(relationship), throwMissingEdge(relationship))
+                traversal.coalesce(traversalTo(relationship), throwMissingEdge(relationship))
             } else {
                 traversal.to(relationship)
             }
         }
-        return traversed.map { toVertex -> from.vertexMapper.inverseMap(toVertex.get()) as TO }
+        return traversed.map { toVertex -> from.graphMapper.deserializeV<TO>(toVertex.get()) }
     }
 
     interface FromOne<FROM : Vertex, TO : Vertex> : Connection<FROM, TO> {
@@ -169,7 +169,7 @@ interface Connection<FROM : Vertex, TO : Vertex> : Path<FROM, TO> {
                 throw MissingEdge(it.get(), relationship.name)
             } as GraphTraversal<Vertex, org.apache.tinkerpop.gremlin.structure.Vertex>
 
-        private fun to(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex> =
+        private fun traversalTo(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex> =
                 DefaultGraphTraversal<Vertex, org.apache.tinkerpop.gremlin.structure.Vertex>().to(relationship)
 
         private fun GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex>.to(relationship: Relationship<*, *>) =

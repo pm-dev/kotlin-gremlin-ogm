@@ -1,10 +1,9 @@
 package org.apache.tinkerpop.gremlin.ogm.paths.steps
 
-import org.apache.tinkerpop.gremlin.ogm.paths.Path
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.*
-import org.apache.tinkerpop.gremlin.ogm.elements.BasicEdge
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
+import org.apache.tinkerpop.gremlin.ogm.paths.Path
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.*
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 
 interface EdgeStep<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> : Step<FROM, E> {
@@ -14,10 +13,9 @@ interface EdgeStep<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> : Step<FROM, E
     ) : Step.ToSingle<FROM, E>({ traverser ->
 
         traverser.traversal.map {
-            traverser.vertexMapper.forwardMap(it.get())
+            traverser.graphMapper.serializeV(it.get())
         }.outE(relationship.name).map {
-            @Suppress("UNCHECKED_CAST")
-            traverser.edgeMapper.inverseMap(it.get()) as E
+            traverser.graphMapper.deserializeE<FROM, TO, E>(it.get())
         }
     })
 
@@ -26,10 +24,9 @@ interface EdgeStep<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> : Step<FROM, E
     ) : Step.ToOptional<FROM, E>({ traverser ->
 
         traverser.traversal.map {
-            traverser.vertexMapper.forwardMap(it.get())
+            traverser.graphMapper.serializeV(it.get())
         }.outE(relationship.name).map {
-            @Suppress("UNCHECKED_CAST")
-            traverser.edgeMapper.inverseMap(it.get()) as E
+            traverser.graphMapper.deserializeE<FROM, TO, E>(it.get())
         }
     })
 
@@ -38,10 +35,9 @@ interface EdgeStep<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> : Step<FROM, E
     ) : Step.ToMany<FROM, E>({ traverser ->
 
         traverser.traversal.map {
-            traverser.vertexMapper.forwardMap(it.get())
+            traverser.graphMapper.serializeV(it.get())
         }.outE(relationship.name).map {
-            @Suppress("UNCHECKED_CAST")
-            traverser.edgeMapper.inverseMap(it.get()) as E
+            traverser.graphMapper.deserializeE<FROM, TO, E>(it.get())
         }
     })
 }

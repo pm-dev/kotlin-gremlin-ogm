@@ -9,7 +9,6 @@ import org.apache.tinkerpop.gremlin.ogm.exceptions.*
 import org.apache.tinkerpop.gremlin.ogm.extensions.getProperties
 import org.apache.tinkerpop.gremlin.ogm.extensions.setProperties
 import org.apache.tinkerpop.gremlin.ogm.extensions.toMultiMap
-import org.apache.tinkerpop.gremlin.ogm.mappers.BiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.Mapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
@@ -40,16 +39,6 @@ open class GraphMapper(
 ) {
 
     private val graphDescription = GraphDescription(vertices, relationships, nestedObjects, scalarMappers)
-
-    private val edgeMapper = object : BiMapper<Edge<Vertex, Vertex>, org.apache.tinkerpop.gremlin.structure.Edge> {
-        override fun forwardMap(from: Edge<Vertex, Vertex>): org.apache.tinkerpop.gremlin.structure.Edge = serializeE(from)
-        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Edge): Edge<Vertex, Vertex> = deserializeE(from)
-    }
-
-    private val vertexMapper = object : BiMapper<Vertex, org.apache.tinkerpop.gremlin.structure.Vertex> {
-        override fun forwardMap(from: Vertex): org.apache.tinkerpop.gremlin.structure.Vertex = serializeV(from)
-        override fun inverseMap(from: org.apache.tinkerpop.gremlin.structure.Vertex): Vertex = deserializeV(from)
-    }
 
     /**
      * Gets a graph traversal that emits vertices for given ids.
@@ -169,7 +158,7 @@ open class GraphMapper(
         @Suppress("UNCHECKED_CAST")
         val traversed = path.path().fold(initial = traversalStart as GraphTraversal<Any, Any>) { traversal, step ->
             step as Path<Any, Any>
-            step(StepTraverser(traversal, vertexMapper, edgeMapper)) as GraphTraversal<Any, Any>
+            step(StepTraverser(traversal, this)) as GraphTraversal<Any, Any>
         }
         @Suppress("UNCHECKED_CAST")
         return traversed.`as`(toKey).select<Any>(fromKey, toKey).toMultiMap(froms) {

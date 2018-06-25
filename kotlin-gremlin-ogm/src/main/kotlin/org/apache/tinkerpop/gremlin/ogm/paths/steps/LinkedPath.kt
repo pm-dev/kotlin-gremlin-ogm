@@ -12,7 +12,7 @@ internal interface LinkedPath<FROM, MIDDLE, TO> : Path<FROM, TO> {
     override fun path() = first.path() + second.path()
 
     override fun invoke(from: StepTraverser<FROM>): GraphTraversal<*, TO> =
-            second(StepTraverser(first(from), from.vertexMapper, from.edgeMapper))
+            second(StepTraverser(first(from), from.graphMapper))
 
     class ToSingle<FROM, MIDDLE, TO>(
             override val first: Path.ToSingle<FROM, MIDDLE>,
