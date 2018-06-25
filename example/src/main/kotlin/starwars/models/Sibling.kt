@@ -8,7 +8,7 @@ import org.janusgraph.graphdb.relations.RelationIdentifier
 internal class Sibling(
 
         @ID
-        private val id: RelationIdentifier? = null,
+        id: RelationIdentifier? = null,
 
         @FromVertex
         from: Human,

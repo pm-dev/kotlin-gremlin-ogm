@@ -8,13 +8,14 @@ import starwars.models.Character.Companion.friends
 import starwars.models.Episode
 import starwars.models.Name
 import starwars.traversals.character.toSecondDegreeFriends
+import java.util.*
 
 
 internal interface CharacterTypeResolver {
 
     val graph: GraphMapper
 
-    fun getId(character: Character): Long = character.id ?: -1
+    fun getId(character: Character): Any = character.id ?: UUID.randomUUID().toString()
     fun getName(character: Character): Name = character.name
     fun getAppearsIn(character: Character): Set<Episode> = character.appearsIn
     fun getFriends(character: Character): List<Character> = graph.traverse(friends from character)
