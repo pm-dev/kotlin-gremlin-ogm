@@ -23,11 +23,9 @@ internal class DroidMutationResolver(
             primaryFunction: String,
             friendIds: Set<Long>,
             appearsIn: Set<Episode>): Droid {
-        val nameParts = name.split(" ")
-        val lastName = nameParts.subList(1, nameParts.size).joinToString(" ")
         val friends = graph.fetchV<Character>(friendIds)
         val droid = graph.saveV(Droid(
-                name = Name(first = nameParts.first(), last = if (lastName.isEmpty()) null else lastName),
+                name = Name.parse(name),
                 appearsIn = appearsIn,
                 createdAt = Instant.now(),
                 primaryFunction = primaryFunction))

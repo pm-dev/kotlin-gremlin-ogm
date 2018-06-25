@@ -180,7 +180,7 @@ open class GraphMapper(
         }
     }
 
-    private fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(edge: org.apache.tinkerpop.gremlin.structure.Edge): E {
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(edge: org.apache.tinkerpop.gremlin.structure.Edge): E {
         val deserializer = EdgeDeserializer<FROM, TO, E>(
                 graphDescription.getEdgeDescription(edge.label()),
                 graphDescription.getVertexDescription(edge.outVertex().label())
@@ -191,7 +191,7 @@ open class GraphMapper(
     }
 
 
-    private fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serializeE(edge: E): org.apache.tinkerpop.gremlin.structure.Edge {
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serializeE(edge: E): org.apache.tinkerpop.gremlin.structure.Edge {
         val serializer = EdgeSerializer(
                 g,
                 graphDescription.getEdgeDescription(edge::class),
@@ -200,13 +200,13 @@ open class GraphMapper(
         return serializer(edge)
     }
 
-    private fun <V : Vertex> serializeV(deserialized: V): org.apache.tinkerpop.gremlin.structure.Vertex {
+    fun <V : Vertex> serializeV(deserialized: V): org.apache.tinkerpop.gremlin.structure.Vertex {
         val serializer = VertexSerializer(g, graphDescription.getVertexDescription(deserialized::class)
                 ?: throw UnregisteredClass(deserialized))
         return serializer(deserialized)
     }
 
-    private fun <V : Vertex> deserializeV(serialized: org.apache.tinkerpop.gremlin.structure.Vertex): V {
+    fun <V : Vertex> deserializeV(serialized: org.apache.tinkerpop.gremlin.structure.Vertex): V {
         val deserializer = VertexDeserializer(graphDescription.getVertexDescription<V>(serialized.label())
                 ?: throw UnregisteredLabel(serialized))
         return deserializer(serialized)

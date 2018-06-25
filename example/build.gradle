@@ -59,6 +59,7 @@ dependencies {
 
     // JanusGraph
     compile("org.janusgraph:janusgraph-core:0.2.0")
+    compile("org.janusgraph:janusgraph-lucene:0.2.0")
 
     // OGM
     compile project(':kotlin-gremlin-ogm')
