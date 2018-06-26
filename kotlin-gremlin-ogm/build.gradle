@@ -149,10 +149,10 @@ def customizePom(pom) {
 
 			description 'The Object Graph Mapping Library for Kotlin and Gremlin'
 			name 'kotlin-gremlin-ogm'
-			url 'https://github.com/mautini/schemaorg-java'
+			url 'https://github.com/pm-dev/kotlin-gremlin-ogm'
 			organization {
-				name 'com.github.pm-dev'
-				url 'https://github.com/pm-dev'
+				name 'Peter Meyers'
+				url 'https://www.excusethedisruption.com'
 			}
 			issueManagement {
 				system 'GitHub'
