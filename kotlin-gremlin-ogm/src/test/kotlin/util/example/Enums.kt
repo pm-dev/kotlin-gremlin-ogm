@@ -16,6 +16,8 @@ internal enum class Sport {
                 FOOTBALL, "FOOTBALL",
                 BASEBALL, "BASEBALL",
                 TENNIS, "TENNIS")
+
+        override val serializedClass get() = String::class
     }
 }
 

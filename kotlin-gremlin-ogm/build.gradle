@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		kotlinVersion = '1.2.50'
+		kotlinVersion = '1.2.51'
 		// the password can be specified via command line: gradle :kotlin-gremlin-ogm:publish -P repoPassword=
 		repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
 	}

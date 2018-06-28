@@ -2,7 +2,6 @@ package org.apache.tinkerpop.gremlin.ogm.reflection
 
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
-import org.apache.tinkerpop.gremlin.ogm.extensions.filterNullValues
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.InstantPropertyMapper
@@ -13,65 +12,51 @@ import java.time.Instant
 import java.util.*
 import kotlin.reflect.KClass
 
-internal class GraphDescription (
-        vertices: Set<KClass<out Vertex>>,
-        relationships: Map<Relationship<out Vertex, out Vertex>, KClass<out Edge<Vertex, Vertex>>?> = mapOf(),
-        nestedObjects: Set<KClass<*>> = setOf(),
-        private val scalarMappers: Map<KClass<*>, PropertyBiMapper<*, *>> = mapOf()
-) {
+/**
+ * An interface that describes a graph's vertices, edges, object properties, scalar properties and is
+ * used by a GraphMapper to serialize/deserialize these instances to/from the graph, respectively.
+ */
+interface GraphDescription {
 
-    val vertexDescriptions: Map<KClass<out Vertex>, VertexDescription<out Vertex>> = vertices.associate { it to VertexDescription(it) }
+    /**
+     *  Vertices
+     */
 
-    val edgeDescriptions: Map<KClass<out Edge<Vertex, Vertex>>, EdgeDescription<Vertex, Vertex, out Edge<Vertex, Vertex>>> =
-            relationships.filterNullValues().entries.associate { it.value to EdgeDescription(it.key, it.value) }
+    val vertexClasses: Set<KClass<out Vertex>>
 
-    val relationshipsByName: Map<String, Relationship<out Vertex, out Vertex>> = relationships.keys.associateBy { it.name }
+    fun <T: Vertex> getVertexDescription(vertexClass: KClass<out T>): VertexDescription<T>
 
-    private val nestedObjectDescriptions: Map<KClass<*>, NestedObjectDescription<*>> = nestedObjects.associate { it to NestedObjectDescription(it) }
+    val vertexLabels: Set<String>
 
-    private val vertexDescriptionsByLabel: Map<String, VertexDescription<*>> = vertexDescriptions.mapKeys { it.value.label }
+    fun <T: Vertex> getVertexDescription(vertexLabel: String): VertexDescription<T>
 
-    private val edgeDescriptionsByLabel: Map<String, EdgeDescription<*, *, *>> = edgeDescriptions.mapKeys { it.value.label }
+    /**
+     * Edges
+     */
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T: Vertex> getVertexDescription(deserializedClass: KClass<out T>): VertexDescription<T>? =
-            vertexDescriptions[deserializedClass] as? VertexDescription<T>
+    val edgeClasses: Set<KClass<out Edge<Vertex, Vertex>>>
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T: Vertex> getVertexDescription(label: String): VertexDescription<T>? =
-            vertexDescriptionsByLabel[label] as? VertexDescription<T>
+    fun <FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> getEdgeDescription(edgeClass: KClass<out E>): EdgeDescription<FROM, TO, E>
 
-    @Suppress("UNCHECKED_CAST")
-    fun <FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> getEdgeDescription(deserializedClass: KClass<out E>): EdgeDescription<FROM, TO, E>? =
-            edgeDescriptions[deserializedClass] as? EdgeDescription<FROM, TO, E>
+    val edgeLabels: Set<String>
 
-    @Suppress("UNCHECKED_CAST")
-    fun <FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> getEdgeDescription(label: String): EdgeDescription<FROM, TO, E>? =
-            edgeDescriptionsByLabel[label] as? EdgeDescription<FROM, TO, E>
+    fun <FROM : Vertex, TO : Vertex> getEdgeRelationship(edgeLabel: String): Relationship<FROM, TO>
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getNestedObjectDescription(deserializedClass: KClass<out T>): ObjectDescription<T>? =
-            nestedObjectDescriptions[deserializedClass] as? ObjectDescription<T>
+    fun <FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> getEdgeDescription(edgeLabel: String): EdgeDescription<FROM, TO, E>?
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getScalarMapper(deserializedClass: KClass<out T>): PropertyBiMapper<T, SerializedProperty>? =
-            scalarMappers[deserializedClass] as? PropertyBiMapper<T, SerializedProperty>
+    /**
+     * Nested Objects
+     */
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getDefaultPropertyMapper(deserializedClass: KClass<out T>): PropertyBiMapper<T, SerializedProperty>? =
-            defaultPropertyMappers[deserializedClass] as? PropertyBiMapper<T, SerializedProperty>
+    val objectPropertyClasses: Set<KClass<out Any>>
 
-    companion object {
+    fun <T : Any> getObjectPropertyDescription(objectPropertyClass: KClass<out T>): ObjectDescription<T>
 
-        private val defaultPropertyMappers = mapOf<KClass<*>, PropertyBiMapper<*, *>>(
-                String::class to StringPropertyMapper,
-                Byte::class to BytePropertyMapper,
-                Float::class to FloatPropertyMapper,
-                Double::class to DoublePropertyManager,
-                Long::class to LongPropertyMapper,
-                Int::class to IntegerPropertyMapper,
-                Boolean::class to BooleanPropertyMapper,
-                Instant::class to InstantPropertyMapper,
-                UUID::class to UUIDPropertyMapper)
-    }
+    /**
+     * Scalars
+     */
+
+    val scalarPropertyClasses: Set<KClass<out Any>>
+
+    fun <T : Any> getScalarPropertyMapper(scalarClass: KClass<out T>): PropertyBiMapper<T, SerializedProperty>
 }

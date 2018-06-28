@@ -1,11 +1,8 @@
 package org.apache.tinkerpop.gremlin.ogm.exceptions
 
-import org.apache.tinkerpop.gremlin.structure.Element
-
 internal class UnregisteredLabel(
-        element: Element
+        label: String
 ) : ClientException(
-        description = "Attempting to deserialize an element with label ${element.label()}, but no " +
-                "class has been registered with GraphMapper whose @Element annotation has label ${element.label()} " +
-                "or whose Edge was registered with a relationship with name ${element.label()}."
+        description = "Attempting to deserialize an element with label $label, but no " +
+                "@Element class or Relationship has been registered with GraphMapper with the label $label."
 )

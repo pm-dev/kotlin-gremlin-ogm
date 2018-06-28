@@ -1,8 +1,10 @@
 package org.apache.tinkerpop.gremlin.ogm.exceptions
 
+import kotlin.reflect.KClass
+
 internal class UnregisteredClass(
-        obj: Any
+        kClass: KClass<*>
 ) : ClientException(
-        description = "Attempting to serialize $obj to the graph, however this object's class ${obj::class} " +
+        description = "Attempting to serialize object to the graph whose class: $kClass " +
                 "has not been registered with your GraphMapper instance."
 )

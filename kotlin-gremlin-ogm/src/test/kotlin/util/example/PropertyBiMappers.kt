@@ -8,6 +8,8 @@ internal class Base64Mapper : PropertyBiMapper<String, String> {
     override fun forwardMap(from: String): String = Base64.getEncoder().encodeToString(from.toByteArray())
 
     override fun inverseMap(from: String): String = String(Base64.getDecoder().decode(from))
+
+    override val serializedClass get() = String::class
 }
 
 internal class NumberToStringMapper : PropertyBiMapper<Number, String> {
@@ -39,4 +41,6 @@ internal class NumberToStringMapper : PropertyBiMapper<Number, String> {
             else -> throw Exception("Unrecognized prefix: $from")
         }
     }
+
+    override val serializedClass get() = String::class
 }

@@ -13,4 +13,6 @@ internal object InstantPropertyMapper : PropertyBiMapper<Instant, String> {
         val nano = parts[1].toLong()
         return Instant.ofEpochSecond(epochSecond, nano)
     }
+
+    override val serializedClass get() = String::class
 }

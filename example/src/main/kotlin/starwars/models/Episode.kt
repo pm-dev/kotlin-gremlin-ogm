@@ -14,5 +14,7 @@ internal enum class Episode {
                 NEW_HOPE, "NEW_HOPE",
                 EMPIRE, "EMPIRE",
                 JEDI, "JEDI")
+
+        override val serializedClass get() = String::class
     }
 }

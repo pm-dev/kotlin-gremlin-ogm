@@ -1,14 +1,15 @@
 package starwars.graphql.character
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.springframework.stereotype.Component
+import starwars.StarwarsGraphMapper
 import starwars.models.Character
 import starwars.models.Name
+import kotlin.reflect.full.isSubclassOf
 
 @Component
 internal class CharacterQueryResolver(
-        private val gm: GraphMapper
+        private val gm: StarwarsGraphMapper
 ) : GraphQLQueryResolver {
 
     fun hero(): Character = character("Luke Skywalker")!!
@@ -23,9 +24,22 @@ internal class CharacterQueryResolver(
      */
     fun character(rawName: String): Character? {
         val name = Name.parse(rawName)
-        return gm.g.V().has("name.first", name.first).apply {
-            if (name.last != null) has("name.last", name.last)
-        }.map { gm.deserializeV<Character>(it.get()) }.tryNext().orElse(null)
+        // TODO build a DSL for querying all elements with label and indexed property
+        val labels = gm.graphDescription.vertexClasses.filter { vertexClass ->
+            vertexClass.isSubclassOf(Character::class)
+        }.map { vertexClass ->
+            gm.graphDescription.getVertexDescription(vertexClass).label
+        }
+        return labels.mapNotNull { label ->
+            gm.g.V().has(label, "name.first", name.first).apply {
+                if (name.last != null) has("name.last", name.last)
+            }.map { vertex ->
+                gm.deserializeV<Character>(vertex.get())
+            }.tryNext().orElse(null)
+            // This should be union'd instead of executing a traversal for each label
+            // unfortunately, union-ing these traversals causes a JanusGraph warning
+            // that all vertices are being iterated over.
+        }.firstOrNull()
     }
 }
 

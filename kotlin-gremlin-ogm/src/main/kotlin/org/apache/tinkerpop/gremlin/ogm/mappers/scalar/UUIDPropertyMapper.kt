@@ -8,4 +8,6 @@ internal object UUIDPropertyMapper : PropertyBiMapper<UUID, String> {
     override fun forwardMap(from: UUID) = from.toString()
 
     override fun inverseMap(from: String): UUID = UUID.fromString(from)
+
+    override val serializedClass get() = String::class
 }

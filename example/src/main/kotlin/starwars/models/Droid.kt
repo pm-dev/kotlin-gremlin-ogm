@@ -3,6 +3,7 @@ package starwars.models
 import org.apache.tinkerpop.gremlin.ogm.annotations.Element
 import org.apache.tinkerpop.gremlin.ogm.annotations.ID
 import org.apache.tinkerpop.gremlin.ogm.annotations.Property
+import org.janusgraph.ogm.annotations.Indexed
 import java.time.Instant
 
 @Element(label = "Droid")

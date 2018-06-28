@@ -1,5 +1,9 @@
 language: java
 jdk:
   - oraclejdk8
-install: ./gradlew :kotlin-gremlin-ogm:assemble -x :kotlin-gremlin-ogm:signArchives
-script: ./gradlew :kotlin-gremlin-ogm:check
+install:
+  - ./gradlew :kotlin-gremlin-ogm:assemble -x :kotlin-gremlin-ogm:signArchives
+  - ./gradlew :kotlin-janusgraph-ogm:assemble -x :kotlin-janusgraph-ogm:signArchives
+script:
+  - ./gradlew :kotlin-gremlin-ogm:check
+  - ./gradlew :kotlin-janusgraph-ogm:check

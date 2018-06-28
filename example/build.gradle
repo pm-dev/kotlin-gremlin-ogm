@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.50'
+        kotlinVersion = '1.2.51'
         springBootVersion = '2.0.3.RELEASE'
     }
     repositories {
@@ -61,9 +61,8 @@ dependencies {
     compile("com.google.guava:guava:25.1-jre")
 
     // JanusGraph
-    compile("org.janusgraph:janusgraph-core:0.2.0")
     compile("org.janusgraph:janusgraph-lucene:0.2.0")
 
     // OGM
-    compile project(':kotlin-gremlin-ogm')
+    compile project(':kotlin-janusgraph-ogm')
 }

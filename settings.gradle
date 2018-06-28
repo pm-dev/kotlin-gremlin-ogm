@@ -1,1 +1,1 @@
-include ':kotlin-gremlin-ogm', ':example'
+include ':kotlin-gremlin-ogm', ':example', ':kotlin-janusgraph-ogm'

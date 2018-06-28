@@ -4,7 +4,9 @@
 [![Latest Release](https://maven-badges.herokuapp.com/maven-central/com.github.pm-dev/kotlin-gremlin-ogm/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.pm-dev/kotlin-gremlin-ogm/)
 
 Gremlin is the graph traversal language for the Apache TinkerPop graph framework and is
-supported by most graph database implementations, including JanusGraph.
+supported by most graph database implementations. 
+Check out [kotlin-janusgraph-ogm](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/kotlin-janusgraph-ogm)
+for additional JanusGraph specific features.
 
 
 #### Basic Usage:
@@ -33,7 +35,7 @@ Save an Edge
 
         graphMapper.saveE(friends from michael to dwight)
         
-Traverse an edge
+Traverse an Edge
 
         graphMapper.traverse(friends from michael) // returns list: [ dwight ]
         graphMapper.traverse(friends from dwight) // returns list: [ michael ]        

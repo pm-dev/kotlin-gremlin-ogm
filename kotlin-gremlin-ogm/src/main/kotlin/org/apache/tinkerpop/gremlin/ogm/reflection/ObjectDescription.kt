@@ -1,7 +1,6 @@
 package org.apache.tinkerpop.gremlin.ogm.reflection
 
 
-import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.apache.tinkerpop.gremlin.ogm.annotations.*
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Element
@@ -9,6 +8,7 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.*
 import org.apache.tinkerpop.gremlin.ogm.extensions.filterNullValues
 import org.apache.tinkerpop.gremlin.ogm.extensions.nestedPropertyDelimiter
+import org.apache.tinkerpop.gremlin.ogm.mappers.EdgeDeserializer.Companion.idTag
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
@@ -19,7 +19,7 @@ import kotlin.reflect.full.*
  * Describes information about an object that is registered to be persisted to a graph either as a
  * vertex, edge or nested object.
  */
-internal sealed class ObjectDescription<T : Any>(kClass: KClass<T>) {
+sealed class ObjectDescription<T : Any>(kClass: KClass<T>) {
 
     /**
      * The constructor for the object that can be called with the parameters of the property description's +
@@ -45,7 +45,7 @@ internal sealed class ObjectDescription<T : Any>(kClass: KClass<T>) {
 /**
  * Contains the reflection information needed to map an object to/from a graph element (vertex or edge).
  */
-internal sealed class ElementDescription<T : Element>(kClass: KClass<T>) : ObjectDescription<T>(kClass) {
+sealed class ElementDescription<T : Element>(kClass: KClass<T>) : ObjectDescription<T>(kClass) {
 
     /**
      * The label of the element as stored to the graph
@@ -61,12 +61,12 @@ internal sealed class ElementDescription<T : Element>(kClass: KClass<T>) : Objec
 /**
  * Contains the reflection information needed to map an object to/from a vertex.
  */
-internal class VertexDescription<T : Vertex>(kClass: KClass<T>) : ElementDescription<T>(kClass)
+class VertexDescription<T : Vertex>(kClass: KClass<T>) : ElementDescription<T>(kClass)
 
 /**
  * Contains the reflection information needed to map an object to/from an edge.
  */
-internal class EdgeDescription<out FROM : Vertex, out TO : Vertex, T : Edge<FROM, TO>>(
+class EdgeDescription<out FROM : Vertex, out TO : Vertex, T : Edge<FROM, TO>>(
 
         /**
          * The relationship for this edge
@@ -91,7 +91,7 @@ internal class EdgeDescription<out FROM : Vertex, out TO : Vertex, T : Edge<FROM
 /**
  * Describes information about an object that is registered to be persisted to a graph as a nested object.
  */
-internal class NestedObjectDescription<T : Any>(kClass: KClass<T>) : ObjectDescription<T>(kClass)
+class ObjectPropertyDescription<T : Any>(kClass: KClass<T>) : ObjectDescription<T>(kClass)
 
 private fun <T : Any> KClass<T>.constructor(): KFunction<T> = primaryConstructor
         ?: throw PrimaryConstructorMissing(this)
@@ -173,7 +173,7 @@ private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T,
         if (param.findAnnotation<ToVertex>() != null) throw ConflictingAnnotations(this, param)
         if (param.findAnnotation<FromVertex>() != null) throw ConflictingAnnotations(this, param)
         if (param.findAnnotation<ID>() != null) throw ConflictingAnnotations(this, param)
-        if (annotation.key == GraphMapper.idTag) throw ReservedIDName(this)
+        if (annotation.key == idTag) throw ReservedIDName(this)
         if (annotation.key.contains(nestedPropertyDelimiter)) throw ReservedNestedPropertyDelimiter(this, annotation.key)
         if (annotation.key.toIntOrNull() != null) throw ReservedNumberKey(this, annotation.key)
         annotation.key to PropertyDescription(param, property, param.findMapper())

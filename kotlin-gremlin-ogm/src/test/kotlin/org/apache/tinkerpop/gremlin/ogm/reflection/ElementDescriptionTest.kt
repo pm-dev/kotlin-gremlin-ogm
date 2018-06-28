@@ -2,25 +2,25 @@
 
 package org.apache.tinkerpop.gremlin.ogm.reflection
 
-import org.apache.tinkerpop.gremlin.ogm.GraphMapper.Companion.idTag
 import org.apache.tinkerpop.gremlin.ogm.annotations.*
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.*
 import org.apache.tinkerpop.gremlin.ogm.extensions.nestedPropertyDelimiter
+import org.apache.tinkerpop.gremlin.ogm.mappers.EdgeDeserializer.Companion.idTag
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import util.example.Base64Mapper
 import util.example.asymmetricManyToMany
 
-internal class DescriptionBuilderTest {
+internal class ElementDescriptionTest {
 
     class LongToStringMapper : PropertyBiMapper<Long, String> {
         override fun forwardMap(from: Long) = from.toString()
         override fun inverseMap(from: String) = from.toLong()
+        override val serializedClass get() = String::class
     }
-
 
     @Element("test") interface VertexInterface
 
