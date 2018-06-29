@@ -5,10 +5,12 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("com.github.ben-manes:gradle-versions-plugin:0.20.0")
     }
 }
 
@@ -17,6 +19,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'idea'
 apply plugin: 'application'
+apply plugin: 'com.github.ben-manes.versions'
 
 mainClassName = 'starwars.ApplicationKt'
 group = 'starwars'
@@ -51,8 +54,8 @@ dependencies {
     compile("org.jetbrains.kotlin:kotlin-reflect")
 
     // GraphQL
-    compile('com.graphql-java:graphql-java-servlet:4.7.0')
-    compile('com.graphql-java:graphql-java-tools:4.3.0')
+    compile('com.graphql-java:graphql-java-servlet:5.0.1')
+    compile('com.graphql-java:graphql-java-tools:5.1.0')
 
     // Guava
     compile("com.google.guava:guava:25.1-jre")
