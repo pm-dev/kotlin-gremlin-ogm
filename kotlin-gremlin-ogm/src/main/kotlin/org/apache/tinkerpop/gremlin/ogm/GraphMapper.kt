@@ -273,16 +273,16 @@ interface GraphMapper {
         }.toMany()
     }
 
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(edge: org.apache.tinkerpop.gremlin.structure.Edge): E =
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(edge: GraphEdge): E =
             EdgeDeserializer(graphDescription)(edge)
 
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serializeE(edge: E): org.apache.tinkerpop.gremlin.structure.Edge =
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serializeE(edge: E): GraphEdge =
             EdgeSerializer(graphDescription, g)(edge)
 
-    fun <V : Vertex> serializeV(deserialized: V): org.apache.tinkerpop.gremlin.structure.Vertex =
+    fun <V : Vertex> serializeV(deserialized: V): GraphVertex =
             VertexSerializer(graphDescription, g)(deserialized)
 
-    fun <V : Vertex> deserializeV(serialized: org.apache.tinkerpop.gremlin.structure.Vertex): V =
+    fun <V : Vertex> deserializeV(serialized: GraphVertex): V =
             VertexDeserializer(graphDescription)(serialized)
 
     companion object {
