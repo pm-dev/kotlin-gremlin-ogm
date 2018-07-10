@@ -37,11 +37,8 @@ Save an Edge
         
 Lookup Vertex and Traverse an Edge
 
-        val michael = graphMapper.g.V()
-            .has("Person", "name", "Michael Scott")
-            .map { vertex -> graphMapper.deserializeV<Person>(vertex.get()) }
-            .next()
-        val dwight = graphMapper.traverse(friends from michael).single()
+        val michael = graphMapper.allV<Person> { has("name", "Michael Scott") }.toSingle().fetch()      
+        val dwight = graphMapper.traverse(friends from michael).toSingle().fetch()
 
 More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example/src/main/kotlin/starwars), 
 which exposes a graph database through a GraphQL endpoint.
@@ -51,12 +48,12 @@ which exposes a graph database through a GraphQL endpoint.
 
 - Gradle
         
-        compile 'com.github.pm-dev:kotlin-janusgraph-ogm:0.11.0'
+        compile 'com.github.pm-dev:kotlin-janusgraph-ogm:0.13.0'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kotlin-janusgraph-ogm</artifactId>
-            <version>0.11.0</version>
+            <version>0.13.0</version>
         </dependency>

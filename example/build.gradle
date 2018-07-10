@@ -54,8 +54,8 @@ dependencies {
     compile("org.jetbrains.kotlin:kotlin-reflect")
 
     // GraphQL
-    compile('com.graphql-java:graphql-java-servlet:5.0.1')
-    compile('com.graphql-java:graphql-java-tools:5.1.0')
+    compile('com.graphql-java:graphql-java-servlet:5.1.0')
+    compile('com.graphql-java:graphql-java-tools:5.2.0')
 
     // Guava
     compile("com.google.guava:guava:25.1-jre")

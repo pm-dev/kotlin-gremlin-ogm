@@ -3,7 +3,6 @@ package starwars
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
-import org.apache.tinkerpop.gremlin.ogm.saveE
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component

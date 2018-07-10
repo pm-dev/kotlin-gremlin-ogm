@@ -5,7 +5,6 @@ import org.junit.Test
 
 internal class MutableMapsTest {
 
-
     @Test
     fun `test mapValuesInPlace`() {
         val mutableMap = mutableMapOf(
@@ -21,14 +20,33 @@ internal class MutableMapsTest {
 
     @Test
     fun `test toMultiMap`() {
-        val multiMap = listOf(1, 1, 2, 2, 3, 4, 5).iterator().toMultiMap {
-            it.toString() to it
-        }
+        val multiMap = sequenceOf(1 to "a", 1 to "b", 2 to "c", 2 to "d", 3 to "e", 4 to "f", 5 to "g").toMultiMap()
         assertThat(multiMap).hasSize(5)
-        assertThat(multiMap["1"]).hasSize(2)
-        assertThat(multiMap["2"]).hasSize(2)
-        assertThat(multiMap["3"]).hasSize(1)
-        assertThat(multiMap["4"]).hasSize(1)
-        assertThat(multiMap["5"]).hasSize(1)
+        assertThat(multiMap[1]).hasSize(2)
+        assertThat(multiMap[2]).hasSize(2)
+        assertThat(multiMap[3]).hasSize(1)
+        assertThat(multiMap[4]).hasSize(1)
+        assertThat(multiMap[5]).hasSize(1)
+    }
+
+    @Test
+    fun `test toOptionalMap`() {
+        val optionalMap = sequenceOf(1 to "a", 2 to null).toOptionalMap()
+        assertThat(optionalMap).hasSize(2)
+        assertThat(optionalMap[1]).isEqualTo("a")
+        assertThat(optionalMap[2]).isNull()
+    }
+
+    @Test
+    fun `test toSingleMap`() {
+        val multiMap = sequenceOf(1 to "a", 2 to "b").toSingleMap()
+        assertThat(multiMap).hasSize(2)
+        assertThat(multiMap[1]).isEqualTo("a")
+        assertThat(multiMap[2]).isEqualTo("b")
+    }
+
+    @Test(expected = NoSuchElementException::class)
+    fun `test toSingleMap no element`() {
+        sequenceOf(1 to "a").toSingleMap(requireKeys = setOf(1, 2))
     }
 }
