@@ -17,7 +17,7 @@ internal open class Application {
         val graph = JanusGraphFactory.build()
                 .set("storage.backend", "inmemory")
                 .set("index.search.backend", "lucene")
-                .set("index.search.directory", "/private/var/tmp")
+                .set("index.search.directory", "/tmp")
                 .open()
         graphIndicesBuilder(graph)
         return graph.traversal()
