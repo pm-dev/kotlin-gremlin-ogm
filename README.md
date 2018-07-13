@@ -2,6 +2,9 @@
 
 [![Build Status](https://travis-ci.org/pm-dev/kotlin-gremlin-ogm.svg?branch=master)](https://travis-ci.org/pm-dev/kotlin-gremlin-ogm)
 [![Latest Release](https://maven-badges.herokuapp.com/maven-central/com.github.pm-dev/kotlin-gremlin-ogm/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.pm-dev/kotlin-gremlin-ogm/)
+[![Kotlin Version](https://img.shields.io/badge/kotlin-1.2.51-blue.svg)](http://kotlinlang.org/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Code Coverage](https://codecov.io/gh/pm-dev/kotlin-gremlin-ogm/branch/code-cov/graph/badge.svg)](https://codecov.io/gh/pm-dev/kotlin-gremlin-ogm/branch/code-cov)
 
 Gremlin is the graph traversal language for the Apache TinkerPop graph framework and is
 supported by most graph database implementations. 
