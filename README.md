@@ -4,7 +4,6 @@
 [![Latest Release](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/com/github/pm-dev/kotlin-gremlin-ogm/maven-metadata.xml.svg)](http://central.maven.org/maven2/com/github/pm-dev/kotlin-gremlin-ogm/)
 [![Kotlin Version](https://img.shields.io/badge/kotlin-1.2.51-blue.svg)](http://kotlinlang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Code Coverage](https://codecov.io/gh/pm-dev/kotlin-gremlin-ogm/branch/code-cov/graph/badge.svg)](https://codecov.io/gh/pm-dev/kotlin-gremlin-ogm/branch/code-cov)
 
 Gremlin is the graph traversal language for the Apache TinkerPop graph framework and is
 supported by most graph database implementations. 
@@ -43,8 +42,12 @@ Traverse an Edge
         graphMapper.traverse(friends from michael).fetch() // returns list: [ dwight ]
         graphMapper.traverse(friends from dwight).fetch() // returns list: [ michael ]        
 
-More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example/src/main/kotlin/starwars), 
-which exposes a graph database through a GraphQL endpoint.
+More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example), which
+can be explored interactively using GraphiQL. From this directory, run:
+
+    gradlew :example:run
+
+Then load `http://localhost:5000/graphiql.html`
 
 
 #### Installation:
