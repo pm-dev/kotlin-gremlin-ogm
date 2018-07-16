@@ -1,5 +1,6 @@
 package starwars.models
 
+import framework.BaseEdge
 import org.apache.tinkerpop.gremlin.ogm.annotations.*
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import org.janusgraph.graphdb.relations.RelationIdentifier

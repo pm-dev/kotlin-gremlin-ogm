@@ -1,6 +1,7 @@
 package starwars.graphql.human
 
 import com.coxautodev.graphql.tools.GraphQLResolver
+import graphql.schema.DataFetchingEnvironment
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.springframework.stereotype.Component
 import starwars.graphql.character.CharacterTypeResolver
@@ -19,6 +20,6 @@ internal class HumanTypeResolver(
     fun getId(node: Human) = super.getId(node)
     fun getName(character: Human) = super.getName(character)
     fun getAppearsIn(character: Human) = super.getAppearsIn(character)
-    fun getFriends(character: Human) = super.getFriends(character)
+    fun getFriends(character: Human, env: DataFetchingEnvironment) = super.getFriends(character, env)
     fun getSecondDegreeFriends(character: Human, limit: Int?) = super.getSecondDegreeFriends(character, limit)
 }

@@ -1,6 +1,7 @@
 package starwars.graphql.droid
 
 import com.coxautodev.graphql.tools.GraphQLResolver
+import graphql.schema.DataFetchingEnvironment
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.springframework.stereotype.Component
 import starwars.graphql.character.CharacterTypeResolver
@@ -17,6 +18,6 @@ internal class DroidTypeResolver(
     fun getId(node: Droid) = super.getId(node)
     fun getName(character: Droid) = super.getName(character)
     fun getAppearsIn(character: Droid) = super.getAppearsIn(character)
-    fun getFriends(character: Droid) = super.getFriends(character)
+    fun getFriends(character: Droid, env: DataFetchingEnvironment) = super.getFriends(character, env)
     fun getSecondDegreeFriends(character: Droid, limit: Int?) = super.getSecondDegreeFriends(character, limit)
 }

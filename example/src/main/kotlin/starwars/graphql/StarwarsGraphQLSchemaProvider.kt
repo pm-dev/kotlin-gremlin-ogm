@@ -1,8 +1,7 @@
 package starwars.graphql
 
 import com.coxautodev.graphql.tools.SchemaParser
-import graphql.servlet.SimpleGraphQLServlet
-import org.springframework.boot.web.servlet.ServletRegistrationBean
+import graphql.servlet.DefaultGraphQLSchemaProvider
 import org.springframework.stereotype.Component
 import starwars.graphql.character.CharacterQueryResolver
 import starwars.graphql.droid.DroidMutationResolver
@@ -12,14 +11,13 @@ import starwars.graphql.human.HumanQueryResolver
 import starwars.graphql.human.HumanTypeResolver
 
 @Component
-internal class StarwarsGraphQLServletRegistrationBean(
+internal class StarwarsGraphQLSchemaProvider(
         characterQueryResolver: CharacterQueryResolver,
         humanTypeResolver: HumanTypeResolver,
         humanQueryResolver: HumanQueryResolver,
         droidTypeResolver: DroidTypeResolver,
         droidQueryResolver: DroidQueryResolver,
-        droidMutationResolver: DroidMutationResolver
-): ServletRegistrationBean<SimpleGraphQLServlet>(SimpleGraphQLServlet.builder(
+        droidMutationResolver: DroidMutationResolver) : DefaultGraphQLSchemaProvider(
         SchemaParser.newParser()
                 .file("starwars.graphqls")
                 .resolvers(
@@ -30,5 +28,4 @@ internal class StarwarsGraphQLServletRegistrationBean(
                         droidQueryResolver,
                         droidMutationResolver)
                 .build().makeExecutableSchema())
-        .build(),
-        "/graphql")
+

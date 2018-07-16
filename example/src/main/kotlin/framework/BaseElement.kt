@@ -1,4 +1,4 @@
-package starwars.models
+package framework
 
 internal abstract class BaseElement<ID>(
         val id: ID?

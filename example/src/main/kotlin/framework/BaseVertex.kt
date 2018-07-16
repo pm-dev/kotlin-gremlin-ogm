@@ -1,4 +1,4 @@
-package starwars.models
+package framework
 
 import java.time.Instant
 

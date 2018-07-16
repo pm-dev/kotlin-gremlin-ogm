@@ -1,5 +1,6 @@
 package starwars.models
 
+import framework.BaseVertex
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import org.janusgraph.ogm.annotations.Indexed
 import java.time.Instant
