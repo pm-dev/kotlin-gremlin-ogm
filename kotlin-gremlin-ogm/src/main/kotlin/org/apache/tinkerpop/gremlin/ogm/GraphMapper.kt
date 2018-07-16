@@ -45,29 +45,25 @@ interface GraphMapper {
     /**
      * Gets a graph traversal that emits a vertex with a given id.
      */
-    fun <V : Vertex> V(id: Any): GraphTraversalToOptional<*, V> = V<V>(listOf(id)).toOptional()
+    fun <V : Vertex> V(id: Any): GraphTraversalToOptional<*, V> = V<V>(setOf(id)).toOptional()
 
     /**
      * Gets a graph traversal that emits vertices for given ids.
      * No exception is thrown for ids that don't correspond to a vertex, thus the number of vertices the traversal emits
      * may be less than the number of ids.
      */
-    fun <V : Vertex> V(vararg ids: Any): GraphTraversalToMany<*, V> = V(ids.asIterable())
+    fun <V : Vertex> V(vararg ids: Any): GraphTraversalToMany<*, V> = V(ids.toSet())
 
     /**
      * Gets a graph traversal that emits vertices for given ids.
      * No exception is thrown for ids that don't correspond to a vertex, thus the number of vertices the traversal emits
      * may be less than the number of ids.
      */
-    fun <V : Vertex> V(ids: Iterable<Any>): GraphTraversalToMany<*, V> {
+    fun <V : Vertex> V(ids: Set<Any>): GraphTraversalToMany<*, V> {
         return if (ids.none()) {
             g.inject<V>()
         } else {
-            ids.map { id ->
-                g.V(id)
-            }.reduce { traversal1, traversal2 ->
-                traversal1.union(traversal2)
-            }.map { vertex ->
+            g.V(*ids.toTypedArray()).map { vertex ->
                 deserializeV<V>(vertex.get())
             }
         }.toMany()
@@ -119,7 +115,7 @@ interface GraphMapper {
      */
     fun <V : Vertex> saveV(deserialized: V): V {
         val serialized = serializeV(deserialized)
-        logger.debug("Saved vertex with id ${serialized.id()}")
+        logger.debug("Saved ${serialized.label()} vertex with id: ${serialized.id()}\n")
         return deserializeV(serialized)
     }
 
@@ -132,29 +128,25 @@ interface GraphMapper {
     /**
      * Gets a graph traversal that emits an edge with the given id.
      */
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(id: Any): GraphTraversalToOptional<*, E> = E<FROM, TO, E>(listOf(id)).toOptional()
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(id: Any): GraphTraversalToOptional<*, E> = E<FROM, TO, E>(setOf(id)).toOptional()
 
     /**
      * Gets a graph traversal that emits edges for given ids.
      * No exception is thrown for ids that don't correspond to an edge, thus the number of edges the traversal emits
      * may be less than the number of ids.
      */
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(vararg ids: Any): GraphTraversalToMany<*, E> = E(ids.asIterable())
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(vararg ids: Any): GraphTraversalToMany<*, E> = E(ids.toSet())
 
     /**
      * Gets a graph traversal that emits edges for given ids.
      * No exception is thrown for ids that don't correspond to an edge, thus the number of edges the traversal emits
      * may be less than the number of ids.
      */
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(ids: Iterable<Any>): GraphTraversalToMany<*, E> {
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(ids: Set<Any>): GraphTraversalToMany<*, E> {
         return if (ids.none()) {
             g.inject<E>()
         } else {
-            ids.map { id ->
-                g.E(id)
-            }.reduce { traversal1, traversal2 ->
-                traversal1.union(traversal2)
-            }.map { edge ->
+            g.E(*ids.toTypedArray()).map { edge ->
                 deserializeE<FROM, TO, E>(edge.get())
             }
         }.toMany()
@@ -205,7 +197,7 @@ interface GraphMapper {
      */
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> saveE(edge: E): E {
         val serialized = serializeE(edge)
-        logger.debug("Saved edge with id ${serialized.id()}")
+        logger.debug("Saved ${serialized.label()} edge with id ${serialized.id()}")
         return deserializeE(serialized)
     }
 

@@ -21,7 +21,7 @@ apply plugin: 'signing'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'jacoco'
 
-version = '0.13.0'
+version = '0.13.1'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions {
@@ -88,7 +88,7 @@ publishing {
 			customizePom(pom)
 			groupId 'com.github.pm-dev'
 			artifactId 'kotlin-gremlin-ogm'
-			version '0.13.0'
+			version '0.13.1'
 
 			from components.java
 
