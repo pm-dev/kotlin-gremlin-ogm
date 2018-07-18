@@ -265,17 +265,17 @@ interface GraphMapper {
         }.toMany()
     }
 
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(edge: GraphEdge): E =
-            EdgeDeserializer(graphDescription)(edge)
-
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serializeE(edge: E): GraphEdge =
             EdgeSerializer(graphDescription, g)(edge)
 
-    fun <V : Vertex> serializeV(deserialized: V): GraphVertex =
-            VertexSerializer(graphDescription, g)(deserialized)
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(graphEdge: GraphEdge): E =
+            EdgeDeserializer(graphDescription)(graphEdge)
 
-    fun <V : Vertex> deserializeV(serialized: GraphVertex): V =
-            VertexDeserializer(graphDescription)(serialized)
+    fun <V : Vertex> serializeV(vertex: V): GraphVertex =
+            VertexSerializer(graphDescription, g)(vertex)
+
+    fun <V : Vertex> deserializeV(graphVertex: GraphVertex): V =
+            VertexDeserializer(graphDescription)(graphVertex)
 
     companion object {
 
