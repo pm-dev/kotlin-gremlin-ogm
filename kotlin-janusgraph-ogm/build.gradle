@@ -42,10 +42,6 @@ repositories {
 
 dependencies {
 
-    // Kotlin
-    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    compile("org.jetbrains.kotlin:kotlin-reflect")
-
     // JanusGraph
     compile("org.janusgraph:janusgraph-core:0.2.0")
 

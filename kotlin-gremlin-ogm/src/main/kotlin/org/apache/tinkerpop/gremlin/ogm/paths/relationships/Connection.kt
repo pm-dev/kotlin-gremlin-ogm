@@ -2,6 +2,7 @@
 
 package org.apache.tinkerpop.gremlin.ogm.paths.relationships
 
+import org.apache.tinkerpop.gremlin.ogm.GraphVertex
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.MissingEdge
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
@@ -164,12 +165,12 @@ interface Connection<FROM : Vertex, TO : Vertex> : Path<FROM, TO> {
 
     companion object {
 
-        private fun throwMissingEdge(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex> =
+        private fun throwMissingEdge(relationship: Relationship<*, *>): GraphTraversal<*, GraphVertex> =
             DefaultGraphTraversal<Vertex, org.apache.tinkerpop.gremlin.structure.Vertex>().map {
                 throw MissingEdge(it.get(), relationship.name)
             } as GraphTraversal<Vertex, org.apache.tinkerpop.gremlin.structure.Vertex>
 
-        private fun traversalTo(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex> =
+        private fun traversalTo(relationship: Relationship<*, *>): GraphTraversal<*, GraphVertex> =
                 DefaultGraphTraversal<Vertex, org.apache.tinkerpop.gremlin.structure.Vertex>().to(relationship)
 
         private fun GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex>.to(relationship: Relationship<*, *>) =
