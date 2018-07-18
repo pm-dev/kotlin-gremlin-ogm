@@ -116,11 +116,11 @@ private fun MutableMap<String, SerializedProperty>.addProperty(propertyKey: Stri
             val firstKeyPart = propertyKey.substring(0, delimiterIndex)
             val nextKeyParts = propertyKey.substring(delimiterIndex + 1)
             @Suppress("UNCHECKED_CAST")
-            val map = get(firstKeyPart) as MutableMap<String, SerializedProperty>? ?: {
+            val map = get(firstKeyPart) as MutableMap<String, SerializedProperty>? ?: kotlin.run {
                 val newMap = mutableMapOf<String, SerializedProperty>()
                 put(firstKeyPart, newMap)
                 newMap
-            }()
+            }
             map.addProperty(nextKeyParts, propertyValue)
         }
     }

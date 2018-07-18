@@ -9,14 +9,14 @@ import util.example.IntToBoolEdge.Companion.fromIntToBool
 
 internal fun exampleGraphMapper() = object : GraphMapper {
 
-    val graph = {
+    val graph = kotlin.run {
         val idManager = TinkerGraph.DefaultIdManager.LONG.name
         val conf = BaseConfiguration()
         conf.setProperty(TinkerGraph.GREMLIN_TINKERGRAPH_VERTEX_ID_MANAGER, idManager)
         conf.setProperty(TinkerGraph.GREMLIN_TINKERGRAPH_EDGE_ID_MANAGER, idManager)
         conf.setProperty(TinkerGraph.GREMLIN_TINKERGRAPH_VERTEX_PROPERTY_ID_MANAGER, idManager)
         TinkerGraph.open(conf)
-    }()
+    }
 
     override val g: GraphTraversalSource get() = graph.traversal()
 

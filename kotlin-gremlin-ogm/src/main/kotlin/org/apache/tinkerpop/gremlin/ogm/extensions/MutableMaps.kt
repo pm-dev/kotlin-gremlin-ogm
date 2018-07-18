@@ -1,5 +1,7 @@
 package org.apache.tinkerpop.gremlin.ogm.extensions
 
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal.Symbols.map
+
 internal fun <K, V> MutableMap<K, V>.mapValuesInPlace(transform: (Map.Entry<K, V>) -> V) =
     entries.forEach { entry ->
         entry.setValue(transform(entry))
@@ -10,9 +12,9 @@ internal fun <K, V> Sequence<Pair<K, V>>.toMultiMap(requireKeys: Iterable<K> = e
     val map = mutableMapOf<K, MutableList<V>>()
     forEach {
         remainingRequiredKeys.remove(it.first)
-        map[it.first]?.add(it.second) ?: {
+        map[it.first]?.add(it.second) ?: kotlin.run {
             map[it.first] = mutableListOf(it.second)
-        }()
+        }
     }
     remainingRequiredKeys.forEach {
         map[it] = mutableListOf()
