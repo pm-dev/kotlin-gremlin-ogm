@@ -27,5 +27,7 @@ internal class Human(
         createdAt = createdAt,
         name = name,
         appearsIn = appearsIn
-)
+) {
+        companion object
+}
 

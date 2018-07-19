@@ -13,10 +13,7 @@ import org.apache.tinkerpop.gremlin.ogm.mappers.EdgeSerializer
 import org.apache.tinkerpop.gremlin.ogm.mappers.VertexDeserializer
 import org.apache.tinkerpop.gremlin.ogm.mappers.VertexSerializer
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundPathToMany
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundPathToOptional
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundPathToSingle
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.SingleBoundPath
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.*
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepTraverser
 import org.apache.tinkerpop.gremlin.ogm.reflection.GraphDescription
 import org.apache.tinkerpop.gremlin.ogm.traversals.*
@@ -29,6 +26,7 @@ import kotlin.reflect.full.isSubclassOf
 /**
  * The main object a client's application will interact with.
  * This interface provides the ability to map objects from a clients domain to the graph and back.
+ * The default implementation of all methods are thread-safe.
  */
 interface GraphMapper {
 
@@ -210,40 +208,45 @@ interface GraphMapper {
     /**
      * Traverses from a vertex to the path's required destination object.
      */
-    fun <FROM : Vertex, TO> traverse(boundStep: SingleBoundPath.ToSingle<FROM, TO>): GraphTraversalToSingle<*, TO> =
-            traverse(boundStep.froms, boundStep.path).traversal.map { it.get().second }.toSingle()
+    fun <FROM : Vertex, TO> traverse(boundPath: SingleBoundPath.ToSingle<FROM, TO>): GraphTraversalToSingle<*, TO> =
+            traversePath(boundPath).traversal.map { it.get().second }.toSingle()
 
     /**
      * Traverses from a vertex to the path's optional destination object.
      */
-    fun <FROM : Vertex, TO> traverse(boundStep: SingleBoundPath.ToOptional<FROM, TO>): GraphTraversalToOptional<*, TO> =
-            traverse(boundStep.froms, boundStep.path).traversal.map { it.get().second }.toOptional()
+    fun <FROM : Vertex, TO> traverse(boundPath: SingleBoundPath.ToOptional<FROM, TO>): GraphTraversalToOptional<*, TO> =
+            traversePath(boundPath).traversal.map { it.get().second }.toOptional()
 
     /**
      * Traverses from vertex to the path's destination objects.
      */
-    fun <FROM : Vertex, TO> traverse(boundStep: SingleBoundPath.ToMany<FROM, TO>): GraphTraversalToMany<*, TO> =
-            traverse(boundStep.froms, boundStep.path).traversal.map { it.get().second }.toMany()
+    fun <FROM : Vertex, TO> traverse(boundPath: SingleBoundPath.ToMany<FROM, TO>): GraphTraversalToMany<*, TO> =
+            traversePath(boundPath).traversal.map { it.get().second }.toMany()
 
     /**
      * Traverses from multiple vertices to the path's required destination object for each origin vertex.
      */
-    fun <FROM : Vertex, TO> traverse(boundStep: BoundPathToSingle<FROM, TO>): Map<FROM, TO> =
-            traverse(boundStep.froms, boundStep.path).toSingleMap(boundStep.froms)
+    fun <FROM : Vertex, TO> traverse(boundPath: BoundPath.ToSingle<FROM, TO>): Map<FROM, TO> =
+            traversePath(boundPath).toSingleMap(boundPath.froms)
 
     /**
      * Traverses from multiple vertices to the path's optional destination object for each origin vertex.
      */
-    fun <FROM : Vertex, TO> traverse(boundStep: BoundPathToOptional<FROM, TO>): Map<FROM, TO?> =
-            traverse(boundStep.froms, boundStep.path).toOptionalMap(boundStep.froms)
+    fun <FROM : Vertex, TO> traverse(boundPath: BoundPath.ToOptional<FROM, TO>): Map<FROM, TO?> =
+            traversePath(boundPath).toOptionalMap(boundPath.froms)
 
     /**
-     * Traverses from multiple vertices to the path's destination object for each origin vertex.
+     * Traverses from multiple vertices to the path's destination objects for each origin vertex.
      */
-    fun <FROM : Vertex, TO> traverse(boundStep: BoundPathToMany<FROM, TO>): Map<FROM, List<TO>> =
-            traverse(boundStep.froms, boundStep.path).toMultiMap(boundStep.froms)
+    fun <FROM : Vertex, TO> traverse(boundPath: BoundPath.ToMany<FROM, TO>): Map<FROM, List<TO>> =
+            traversePath(boundPath).toMultiMap(boundPath.froms)
 
-    fun <FROM : Vertex, TO> traverse(froms: Iterable<FROM>, path: Path<FROM, TO>): GraphTraversalToMany<*, Pair<FROM, TO>> {
+    /**
+     * Traverses from any number of vertices to the path's destination object(s) for each origin vertex.
+     */
+    fun <FROM : Vertex, TO> traversePath(boundPath: BoundPath<FROM, TO>): GraphTraversalToMany<*, Pair<FROM, TO>> {
+        val froms = boundPath.froms
+        val path = boundPath.path
         if (froms.none()) {
             return g.inject<Pair<FROM, TO>>().toMany()
         }

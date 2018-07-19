@@ -2,24 +2,29 @@ package starwars.graphql.human
 
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
-import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.springframework.stereotype.Component
+import starwars.graphql.StarwarsPath
 import starwars.graphql.character.CharacterTypeResolver
+import starwars.graphql.dataLoader
 import starwars.models.Human
-import starwars.traversals.human.toTwinSiblings
+import java.util.concurrent.CompletableFuture
 
 @Component
-internal class HumanTypeResolver(
-        override val graph: GraphMapper
-): CharacterTypeResolver, GraphQLResolver<Human> {
+internal class HumanTypeResolver : CharacterTypeResolver, GraphQLResolver<Human> {
 
     fun getHomePlanet(human: Human): String? = human.homePlanet
-    fun getTwinSiblings(human: Human): List<Human> = graph.traverse(human.toTwinSiblings()).fetch()
+
+    fun getTwinSiblings(human: Human, env: DataFetchingEnvironment): CompletableFuture<List<Human>> =
+            env.dataLoader<Human, List<Human>>(StarwarsPath.TWINS).load(human)
 
     // These redundant overrides are necessary for graphql.tools
     fun getId(node: Human) = super.getId(node)
+
     fun getName(character: Human) = super.getName(character)
+
     fun getAppearsIn(character: Human) = super.getAppearsIn(character)
+
     fun getFriends(character: Human, env: DataFetchingEnvironment) = super.getFriends(character, env)
-    fun getSecondDegreeFriends(character: Human, limit: Int?) = super.getSecondDegreeFriends(character, limit)
+
+    fun getSecondDegreeFriends(character: Human, limit: Int?, env: DataFetchingEnvironment) = super.getSecondDegreeFriends(character, limit, env)
 }

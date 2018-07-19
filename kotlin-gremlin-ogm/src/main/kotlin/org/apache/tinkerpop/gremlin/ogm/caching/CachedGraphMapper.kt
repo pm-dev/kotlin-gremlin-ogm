@@ -10,6 +10,8 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
  * A version of [GraphMapper] which supports caching of vertices and edges. The [GraphMapperCache] will be
  * invalidated for a Vertex or Edge whenever that Vertex or Edge is written (aka saved, aka serialized) to the graph.
  * Similarly, Edges/Vertices are written to the cache whenever they're read (aka fetched, aka deserialized) from the graph.
+ *
+ * **IMPORTANT** If a GraphMapper instance is shared across threads, the cache should be thread-safe.
  */
 interface CachedGraphMapper : GraphMapper {
 

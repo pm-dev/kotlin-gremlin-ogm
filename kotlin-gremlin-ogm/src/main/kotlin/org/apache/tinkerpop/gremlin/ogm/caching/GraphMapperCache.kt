@@ -4,7 +4,8 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 
 /**
- * The cache used by a CachedGraphMapper
+ * The cache used by a CachedGraphMapper. The implementation should be thread-safe if a
+ * CachedGraphMapper using this cache is shared across threads.
  */
 interface GraphMapperCache {
 
