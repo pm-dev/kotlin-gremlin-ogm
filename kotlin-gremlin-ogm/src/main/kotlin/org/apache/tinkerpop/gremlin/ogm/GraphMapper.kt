@@ -32,7 +32,7 @@ interface GraphMapper {
 
     val graphDescription: GraphDescription
 
-    val g: GraphTraversalSource
+    val traversal: GraphTraversalSource
 
     /**
      *
@@ -59,9 +59,9 @@ interface GraphMapper {
      */
     fun <V : Vertex> V(ids: Set<Any>): GraphTraversalToMany<*, V> {
         return if (ids.none()) {
-            g.inject<V>()
+            traversal.inject<V>()
         } else {
-            g.V(*ids.toTypedArray()).map { vertex ->
+            traversal.V(*ids.toTypedArray()).map { vertex ->
                 deserializeV<V>(vertex.get())
             }
         }.toMany()
@@ -81,9 +81,9 @@ interface GraphMapper {
         if (labels.isEmpty()) throw UnregisteredClass(kClass)
         logger.debug("Will get all vertices with labels $labels")
         return labels.map { label ->
-            g.V().hasLabel(label)
+            traversal.V().hasLabel(label)
         }.reduce { traversal1, traversal2 ->
-            g.V().union(traversal1, traversal2)
+            traversal.V().union(traversal1, traversal2)
         }.then().map { vertex ->
             deserializeV<V>(vertex.get())
         }.toMany()
@@ -142,9 +142,9 @@ interface GraphMapper {
      */
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(ids: Set<Any>): GraphTraversalToMany<*, E> {
         return if (ids.none()) {
-            g.inject<E>()
+            traversal.inject<E>()
         } else {
-            g.E(*ids.toTypedArray()).map { edge ->
+            traversal.E(*ids.toTypedArray()).map { edge ->
                 deserializeE<FROM, TO, E>(edge.get())
             }
         }.toMany()
@@ -166,9 +166,9 @@ interface GraphMapper {
         if (labels.isEmpty()) throw UnregisteredClass(kClass)
         logger.debug("Will get all edges with labels $labels")
         return labels.map { label ->
-            g.E().hasLabel(label)
+            traversal.E().hasLabel(label)
         }.reduce { traversal1, traversal2 ->
-            g.E().union(traversal1, traversal2)
+            traversal.E().union(traversal1, traversal2)
         }.then().map { edge ->
             deserializeE<FROM, TO, E>(edge.get())
         }.toMany()
@@ -248,9 +248,9 @@ interface GraphMapper {
         val froms = boundPath.froms
         val path = boundPath.path
         if (froms.none()) {
-            return g.inject<Pair<FROM, TO>>().toMany()
+            return traversal.inject<Pair<FROM, TO>>().toMany()
         }
-        val traversalStart = froms.fold(initial = g.inject<FROM>()) { traversal, from ->
+        val traversalStart = froms.fold(initial = traversal.inject<FROM>()) { traversal, from ->
             traversal.inject(from).`as`(fromKey)
         }
         @Suppress("UNCHECKED_CAST")
@@ -269,13 +269,13 @@ interface GraphMapper {
     }
 
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serializeE(edge: E): GraphEdge =
-            EdgeSerializer(graphDescription, g)(edge)
+            EdgeSerializer(graphDescription, traversal)(edge)
 
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(graphEdge: GraphEdge): E =
             EdgeDeserializer(graphDescription)(graphEdge)
 
     fun <V : Vertex> serializeV(vertex: V): GraphVertex =
-            VertexSerializer(graphDescription, g)(vertex)
+            VertexSerializer(graphDescription, traversal)(vertex)
 
     fun <V : Vertex> deserializeV(graphVertex: GraphVertex): V =
             VertexDeserializer(graphDescription)(graphVertex)

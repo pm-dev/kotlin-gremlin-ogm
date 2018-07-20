@@ -18,16 +18,16 @@ class BatchedGraphQLServlet(
         private val schemaProvider: GraphQLSchemaProvider,
         private val registrySupplier: DataLoaderRegistrySupplier,
         private val rootObjectBuilder: GraphQLRootObjectBuilder = DefaultGraphQLRootObjectBuilder(),
-        private val contextBuilder: GraphQLContextWithDataLoaderBuilder = GraphQLContextWithDataLoaderBuilder(),
+        private val contextBuilder: GraphQLContextWithDataLoaderBuilder = object : GraphQLContextWithDataLoaderBuilder {},
         private val errorHandler: GraphQLErrorHandler = DefaultGraphQLErrorHandler(),
         private val executionStrategyProvider: ExecutionStrategyProvider = DefaultExecutionStrategyProvider(),
         private val preparsedDocumentProvider: PreparsedDocumentProvider = NoOpPreparsedDocumentProvider.INSTANCE,
         private val dataLoaderDispatcherInstrumentationOptions: DataLoaderDispatcherInstrumentationOptions = DataLoaderDispatcherInstrumentationOptions.newOptions(),
         objectMapperConfigurer: ObjectMapperConfigurer? = null,
         listeners: List<GraphQLServletListener> = emptyList()
-) : GraphQLServlet(objectMapperConfigurer, listeners.plus(registrySupplier)) {
+) : GraphQLServlet(objectMapperConfigurer, listeners.plus(registrySupplier), false) {
 
-    override fun createContext(request: Optional<HttpServletRequest>, response: Optional<HttpServletResponse>): GraphQLContext = contextBuilder(request, response, registrySupplier.get())
+    override fun createContext(request: Optional<HttpServletRequest>, response: Optional<HttpServletResponse>): GraphQLContext = contextBuilder.build(request, response, registrySupplier.get())
 
     override fun createRootObject(request: Optional<HttpServletRequest>, response: Optional<HttpServletResponse>): Any = rootObjectBuilder.build(request, response)
 

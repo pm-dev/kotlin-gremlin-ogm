@@ -38,8 +38,6 @@ compileTestKotlin {
     }
 }
 
-kotlin { experimental { coroutines 'enable' } }
-
 repositories {
     mavenCentral()
 }
@@ -50,19 +48,16 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.boot:spring-boot-starter-web')
 
-    // Kotlin
-    compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:0.23.4")
-
     // GraphQL
-    compile project(':graphql-servlet-batched')
     compile('com.graphql-java:graphql-java-tools:5.2.0')
 
     // Guava
     compile('com.google.guava:guava:25.1-jre')
 
     // JanusGraph
-    compile("org.janusgraph:janusgraph-lucene:0.2.0")
+    compile("org.janusgraph:janusgraph-lucene:0.2.1")
 
     // OGM
     compile project(':kotlin-janusgraph-ogm')
+    compile project(':kotlin-gremlin-graphql')
 }

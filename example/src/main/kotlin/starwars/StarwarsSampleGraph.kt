@@ -1,6 +1,5 @@
 package starwars
 
-import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
 import org.springframework.boot.context.event.ApplicationReadyEvent
@@ -12,11 +11,13 @@ import java.time.Instant
 import java.util.*
 
 @Component
-internal open class StarwarsGraphLoader(
-        private val graph: GraphMapper
+internal open class StarwarsSampleGraph(
+        private val graphFactory: StarwarsGraphMapperFactory
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
+
+        val graph = graphFactory()
 
         val now = Instant.now()
 
@@ -67,7 +68,7 @@ internal open class StarwarsGraphLoader(
         graph.saveE(friends from c3po to aretoo)
         graph.saveE(friends from hanSolo to listOf(leiaOrgana, aretoo))
         graph.saveE(Sibling(from = lukeSkywalker, to = leiaOrgana, twins = true))
-        graph.g.tx().commit()
+        graph.traversal.tx().commit()
         println("Loaded Starwars Graph")
     }
 }

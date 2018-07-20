@@ -20,7 +20,7 @@ internal class MutableMapsTest {
 
     @Test
     fun `test toMultiMap`() {
-        val multiMap = sequenceOf(1 to "a", 1 to "b", 2 to "c", 2 to "d", 3 to "e", 4 to "f", 5 to "g").toMultiMap()
+        val multiMap = sequenceOf(1 to "a", 1 to "b", 2 to "c", 2 to "d", 3 to "e", 4 to "f", 5 to "traversal").toMultiMap()
         assertThat(multiMap).hasSize(5)
         assertThat(multiMap[1]).hasSize(2)
         assertThat(multiMap[2]).hasSize(2)

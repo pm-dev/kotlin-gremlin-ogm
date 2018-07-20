@@ -1,1 +1,1 @@
-Extension to graphql-java-servlet that supports batched data-loading
+Extension to graphql-java-servlet that supports request-scoped batched data-loading

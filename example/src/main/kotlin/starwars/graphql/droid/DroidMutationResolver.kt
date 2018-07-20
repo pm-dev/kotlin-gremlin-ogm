@@ -1,7 +1,8 @@
 package starwars.graphql.droid
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
-import org.apache.tinkerpop.gremlin.ogm.GraphMapper
+import graphql.schema.DataFetchingEnvironment
+import graphql.servlet.batched.graphMapper
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
 import org.springframework.stereotype.Component
@@ -12,23 +13,22 @@ import starwars.models.Name
 import java.time.Instant
 
 @Component
-internal class DroidMutationResolver(
-        private val graph: GraphMapper
-) : GraphQLMutationResolver {
+internal class DroidMutationResolver : GraphQLMutationResolver {
     
     fun createDroid(
             name: String,
             primaryFunction: String,
             friendIds: Set<Long>,
-            appearsIn: Set<Episode>): Droid {
-        val friends = graph.V<Character>(friendIds).fetch()
-        val droid = graph.saveV(Droid(
+            appearsIn: Set<Episode>,
+            env: DataFetchingEnvironment): Droid {
+        val friends = env.graphMapper.V<Character>(friendIds).fetch()
+        val droid = env.graphMapper.saveV(Droid(
                 name = Name.parse(name),
                 appearsIn = appearsIn,
                 createdAt = Instant.now(),
                 primaryFunction = primaryFunction))
-        graph.saveE(Character.friends from droid to friends)
-//        graph.g.tx().commit() // Uncomment to save the droid
+        env.graphMapper.saveE(Character.friends from droid to friends)
+//        graph.traversal.tx().commit() // Uncomment to save the droid
         return droid
     }
 }

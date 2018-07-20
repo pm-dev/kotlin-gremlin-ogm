@@ -3,7 +3,7 @@ package starwars.graphql.human
 import com.coxautodev.graphql.tools.GraphQLResolver
 import graphql.schema.DataFetchingEnvironment
 import org.springframework.stereotype.Component
-import starwars.graphql.StarwarsPath
+import starwars.graphql.DataLoaderKey
 import starwars.graphql.character.CharacterTypeResolver
 import starwars.graphql.dataLoader
 import starwars.models.Human
@@ -15,7 +15,7 @@ internal class HumanTypeResolver : CharacterTypeResolver, GraphQLResolver<Human>
     fun getHomePlanet(human: Human): String? = human.homePlanet
 
     fun getTwinSiblings(human: Human, env: DataFetchingEnvironment): CompletableFuture<List<Human>> =
-            env.dataLoader<Human, List<Human>>(StarwarsPath.TWINS).load(human)
+            env.dataLoader<Human, List<Human>>(DataLoaderKey.TWINS).load(human)
 
     // These redundant overrides are necessary for graphql.tools
     fun getId(node: Human) = super.getId(node)
