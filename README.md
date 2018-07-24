@@ -54,14 +54,14 @@ Then load `http://localhost:5000/graphiql.html`
 
 - Gradle
         
-        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.13.1'
+        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.14.0'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kotlin-gremlin-ogm</artifactId>
-            <version>0.13.1</version>
+            <version>0.14.0</version>
         </dependency>
         
         
