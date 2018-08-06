@@ -2,7 +2,7 @@ package starwars.graphql.human
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import graphql.schema.DataFetchingEnvironment
-import graphql.servlet.batched.graphMapper
+import graphql.servlet.ogm.graphMapper
 import org.apache.tinkerpop.gremlin.ogm.allV
 import org.springframework.stereotype.Component
 import starwars.models.Human

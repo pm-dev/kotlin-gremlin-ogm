@@ -50,12 +50,12 @@ which exposes a graph database through a GraphQL endpoint.
 
 - Gradle
         
-        compile 'com.github.pm-dev:kotlin-janusgraph-ogm:0.15.0'
+        compile 'com.github.pm-dev:kotlin-janusgraph-ogm:0.16.0'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kotlin-janusgraph-ogm</artifactId>
-            <version>0.15.0</version>
+            <version>0.16.0</version>
         </dependency>

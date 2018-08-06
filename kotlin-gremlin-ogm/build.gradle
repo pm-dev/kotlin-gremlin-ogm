@@ -1,7 +1,7 @@
 buildscript {
 	ext {
-		kotlinVersion = '1.2.51'
-		// the password can be specified via command line: gradlew :kotlin-gremlin-ogm:publish -P repoPassword=
+		kotlinVersion = '1.2.60'
+		// the password can be specified via command line: ./gradlew :kotlin-gremlin-graphql:publish -P repoPassword=
 		repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
 	}
 	repositories {
@@ -21,7 +21,7 @@ apply plugin: 'signing'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'jacoco'
 
-version = '0.15.0'
+version = '0.16.0'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions {
@@ -55,7 +55,7 @@ dependencies {
 	// Test
 	testCompile("org.assertj:assertj-core:3.10.0")
 	testCompile("junit:junit:4.12")
-	testCompile("com.google.guava:guava:25.1-jre")
+	testCompile("com.google.guava:guava:26.0-jre")
 	testCompile("org.apache.tinkerpop:tinkergraph-gremlin:3.3.3")
 	testCompile("org.slf4j:slf4j-log4j12:1.7.25")
 }
@@ -87,7 +87,7 @@ publishing {
 			customizePom(pom)
 			groupId 'com.github.pm-dev'
 			artifactId 'kotlin-gremlin-ogm'
-			version '0.15.0'
+			version '0.16.0'
 
 			from components.java
 

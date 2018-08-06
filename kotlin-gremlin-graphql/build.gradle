@@ -1,7 +1,7 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.51'
-        // the password can be specified via command line: gradlew :kotlin-gremlin-graphql:publish -P repoPassword=
+        kotlinVersion = '1.2.60'
+        // the password can be specified via command line: ./gradlew :kotlin-gremlin-graphql:publish -P repoPassword=
         repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
     }
     repositories {
@@ -20,7 +20,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'com.github.ben-manes.versions'
 
-version = '0.14.0'
+version = '0.16.0'
 sourceCompatibility = 1.8
 compileKotlin {
     kotlinOptions {
@@ -44,13 +44,13 @@ kotlin { experimental { coroutines 'enable' } }
 dependencies {
 
     // Kotlin
-    compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:0.23.4")
+    compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:0.24.0")
 
     // Gremlin
     compile project(':kotlin-gremlin-ogm')
 
     // GraphQL
-    compile project(':graphql-servlet-batched')
+    compile('com.graphql-java:graphql-java-servlet:6.1.2')
 
     // Logging
     compile("org.slf4j:slf4j-api:1.7.25")
@@ -83,7 +83,7 @@ publishing {
             customizePom(pom)
             groupId 'com.github.pm-dev'
             artifactId 'kotlin-gremlin-graphql'
-            version '0.14.0'
+            version '0.16.0'
 
             from components.java
 

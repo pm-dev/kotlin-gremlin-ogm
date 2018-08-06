@@ -2,7 +2,7 @@ package starwars.graphql.droid
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import graphql.schema.DataFetchingEnvironment
-import graphql.servlet.batched.graphMapper
+import graphql.servlet.ogm.graphMapper
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
 import org.springframework.stereotype.Component

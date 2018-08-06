@@ -1,7 +1,7 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.51'
-        // the password can be specified via command line: gradlew :kotlin-janusgraph-ogm:publish -P repoPassword=
+        kotlinVersion = '1.2.60'
+        // the password can be specified via command line: ./gradlew :kotlin-janusgraph-ogm:publish -P repoPassword=
         repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
     }
     repositories {
@@ -21,7 +21,7 @@ apply plugin: 'signing'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'jacoco'
 
-version = '0.15.0'
+version = '0.16.0'
 sourceCompatibility = 1.8
 compileKotlin {
     kotlinOptions {
@@ -82,7 +82,7 @@ publishing {
             customizePom(pom)
             groupId 'com.github.pm-dev'
             artifactId 'kotlin-janusgraph-ogm'
-            version '0.15.0'
+            version '0.16.0'
 
             from components.java
 

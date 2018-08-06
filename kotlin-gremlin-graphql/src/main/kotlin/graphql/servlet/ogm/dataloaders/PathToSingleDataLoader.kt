@@ -1,4 +1,4 @@
-package graphql.servlet.batched.dataloaders
+package graphql.servlet.ogm.dataloaders
 
 import kotlinx.coroutines.experimental.DefaultDispatcher
 import kotlinx.coroutines.experimental.future.future

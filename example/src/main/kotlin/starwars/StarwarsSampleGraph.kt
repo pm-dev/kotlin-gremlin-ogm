@@ -12,12 +12,12 @@ import java.util.*
 
 @Component
 internal open class StarwarsSampleGraph(
-        private val graphFactory: StarwarsGraphMapperFactory
+        private val graphSupplier: StarwarsGraphMapperSupplier
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
 
-        val graph = graphFactory()
+        val graph = graphSupplier.get()
 
         val now = Instant.now()
 

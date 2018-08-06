@@ -45,7 +45,7 @@ Traverse an Edge
 More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example), which
 can be explored interactively using GraphiQL. From this directory, run:
 
-    gradlew :example:run
+    ./gradlew :example:run
 
 Then load `http://localhost:5000/graphiql.html`
 
@@ -54,14 +54,14 @@ Then load `http://localhost:5000/graphiql.html`
 
 - Gradle
         
-        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.15.0'
+        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.16.0'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kotlin-gremlin-ogm</artifactId>
-            <version>0.15.0</version>
+            <version>0.16.0</version>
         </dependency>
         
         
