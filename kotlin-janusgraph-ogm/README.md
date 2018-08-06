@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/pm-dev/kotlin-gremlin-ogm.svg?branch=master)](https://travis-ci.org/pm-dev/kotlin-gremlin-ogm)
 [![Latest Release](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/com/github/pm-dev/kotlin-janusgraph-ogm/maven-metadata.xml.svg)](http://central.maven.org/maven2/com/github/pm-dev/kotlin-janusgraph-ogm/)
-[![Kotlin Version](https://img.shields.io/badge/kotlin-1.2.51-blue.svg)](http://kotlinlang.org/)
+[![Kotlin Version](https://img.shields.io/badge/kotlin-1.2.60-blue.svg)](http://kotlinlang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 This library is an extension of [kotlin-gremlin-ogm](https://github.com/pm-dev/kotlin-gremlin-ogm) that provides the
