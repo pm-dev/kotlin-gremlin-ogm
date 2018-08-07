@@ -13,6 +13,7 @@ import starwars.graphql.droid.DroidQueryResolver
 import starwars.graphql.droid.DroidTypeResolver
 import starwars.graphql.human.HumanQueryResolver
 import starwars.graphql.human.HumanTypeResolver
+import starwars.graphql.scalars.GraphQLTimestamp
 
 @Component
 internal class StarwarsGraphQLServletRegistrationBean(
@@ -36,6 +37,7 @@ internal class StarwarsGraphQLServletRegistrationBean(
                                         droidTypeResolver,
                                         droidQueryResolver,
                                         droidMutationResolver)
+                                .scalars(GraphQLTimestamp)
                                 .build()
                                 .makeExecutableSchema())
                         .withGraphQLContextBuilder(GraphMapperGQLContextBuilder(graphMapperSupplier, dataLoaderRegisterySupplier))

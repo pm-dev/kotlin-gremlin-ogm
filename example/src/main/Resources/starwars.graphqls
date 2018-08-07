@@ -23,6 +23,9 @@ interface Node {
 
     # The id of the node
     id: ID!
+
+    # The timestamp this node was created
+    createdAt: Timestamp!
 }
 
 # A character in the Star Wars Trilogy
@@ -30,6 +33,9 @@ interface Character {
 
     # The id of the character
     id: ID!
+
+    # The timestamp this character was created
+    createdAt: Timestamp!
 
     # The name of the character
     name: Name!
@@ -63,6 +69,9 @@ type Human implements Node, Character {
     # The name of the human
     name: Name!
 
+    # The moment this human was created
+    createdAt: Timestamp!
+
     # The friends of the human, or an empty list if they have none
     friends: [Character!]!
 
@@ -84,6 +93,9 @@ type Droid implements Node, Character {
 
     # The id of the droid
     id: ID!
+
+    # The moment this droid was created
+    createdAt: Timestamp!
 
     # The name of the droid
     name: Name!
@@ -110,3 +122,6 @@ type Name {
     full: String!
 }
 
+# A single instantaneous point on the time-line. This timestamp counts in seconds from the unix epoch.
+# Accurate to the nearest millisecond.
+scalar Timestamp

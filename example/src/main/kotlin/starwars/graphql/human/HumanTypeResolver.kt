@@ -20,8 +20,6 @@ internal class HumanTypeResolver : CharacterTypeResolver, GraphQLResolver<Human>
     // These redundant overrides are necessary for graphql.tools
     fun getId(node: Human) = super.getId(node)
 
-    fun getName(character: Human) = super.getName(character)
-
     fun getAppearsIn(character: Human) = super.getAppearsIn(character)
 
     fun getFriends(character: Human, env: DataFetchingEnvironment) = super.getFriends(character, env)
