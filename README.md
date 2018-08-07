@@ -109,7 +109,7 @@ that call back into the library, thus, your graph implementation must be running
 - `String`
 
 If your Gremlin implementation does not support one of these native types, make sure to register a 
-property mapper for it with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L39) 
+property mapper for it with `GraphMapper` using the `scalarMappers` param
 or declare a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
 
@@ -118,7 +118,7 @@ or declare a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/maste
 - [`Instant` -> `String`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/InstantPropertyMapper.kt)
 - [`UUID` -> `String`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/UUIDPropertyMapper.kt)
 
-To use other property types, register your custom property mapper with `GraphMapper` using the [`scalarMappers` param](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/GraphMapper.kt#L39) or declare
+To use other property types, register your custom property mapper with `GraphMapper` using the `scalarMappers` param or declare
 a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
 
@@ -192,7 +192,3 @@ If you wanted to add a non-nullable property to a vertex, you would first have t
 migrate all vertices in the graph to have a value for that property, then change the property to non-nullable.
 However, if migrating all vertices is too costly in terms of time or cpu, this could potentially be avoided by
 specifying a value (or function producing a value) to use when null is loaded from the graph for a non-nullable property.
-
-- [Coroutine](https://kotlinlang.org/docs/reference/coroutines.html) support:
-For `GraphMapper` functions that execute a traversal, it might be useful to make them a `suspend` function.
-Coroutines are still experimental in Kotlin so I'll likely hold off on this for a bit.

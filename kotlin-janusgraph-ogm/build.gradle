@@ -43,12 +43,12 @@ repositories {
 dependencies {
 
     // JanusGraph
-    compile("org.janusgraph:janusgraph-core:0.2.1")
+    compile("org.janusgraph:janusgraph-core:0.3.0")
 
     // OGM
     compile project(':kotlin-gremlin-ogm')
 
-    testCompile("org.janusgraph:janusgraph-lucene:0.2.1")
+    testCompile("org.janusgraph:janusgraph-lucene:0.3.0")
     testCompile("org.assertj:assertj-core:3.10.0")
     testCompile("junit:junit:4.12")
     testCompile("org.slf4j:slf4j-log4j12:1.7.25")

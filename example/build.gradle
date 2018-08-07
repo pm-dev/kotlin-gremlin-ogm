@@ -55,7 +55,7 @@ dependencies {
     compile('com.google.guava:guava:26.0-jre')
 
     // JanusGraph
-    compile("org.janusgraph:janusgraph-lucene:0.2.1")
+    compile("org.janusgraph:janusgraph-lucene:0.3.0")
 
     // OGM
     compile project(':kotlin-janusgraph-ogm')
