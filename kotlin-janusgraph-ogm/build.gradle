@@ -21,7 +21,7 @@ apply plugin: 'signing'
 apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'jacoco'
 
-version = '0.16.0'
+version = '0.17.0'
 sourceCompatibility = 1.8
 compileKotlin {
     kotlinOptions {
@@ -82,7 +82,7 @@ publishing {
             customizePom(pom)
             groupId 'com.github.pm-dev'
             artifactId 'kotlin-janusgraph-ogm'
-            version '0.16.0'
+            version '0.17.0'
 
             from components.java
 
