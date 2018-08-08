@@ -1,5 +1,8 @@
 package org.apache.tinkerpop.gremlin.ogm.caching
 
+import org.apache.tinkerpop.gremlin.ogm.GraphEdge
+import org.apache.tinkerpop.gremlin.ogm.GraphMapper
+import org.apache.tinkerpop.gremlin.ogm.GraphVertex
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 
@@ -10,34 +13,24 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 interface GraphMapperCache {
 
     /**
-     * Requests that the vertex be cached for the given id as its key.
-     * This is called after a vertex is read (aka fetched, aka deserialized) from the graph.
+     * Requests that the vertex be explicitly cached using its serialized graph form as the key.
      */
-    fun <V : Vertex> putV(id: Any, vertex: V)
+    fun <V : Vertex> put(serialized: GraphVertex, deserialized: V)
 
     /**
-     * Checks to see if there is a cached vertex for a given id.
+     * Requests a vertex from the cache for a given serialized vertex. If there is a cache miss, implementors
+     * should call CachedGraphMapper#load
      */
-    fun <V : Vertex> getV(id: Any): V?
+    fun <V : Vertex> get(serialized: GraphVertex): V
 
     /**
-     * Removes the vertex from the cache for a given id, if it exists.
+     * Requests that the edge be explicitly cached using its serialized graph form as the key.
      */
-    fun invalidateV(id: Any)
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> put(serialized: GraphEdge, deserialized: E)
 
     /**
-     * Requests that the edge be cached for the given id as its key.
-     * This is called after an edge is read (aka fetched, aka deserialized) from the graph.
+     * Requests an edge from the cache for a given serialized edge. If there is a cache miss, implementors
+     * should call CachedGraphMapper#load
      */
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> putE(id: Any, edge: E)
-
-    /**
-     * Checks to see if there is a cached edge for a given id.
-     */
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getE(id: Any): E?
-
-    /**
-     * Removes the edge from the cache for a given id, if it exists.
-     */
-    fun invalidateE(id: Any)
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> get(serialized: GraphEdge): E
 }

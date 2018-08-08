@@ -5,6 +5,7 @@ import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.apache.tinkerpop.gremlin.ogm.GraphVertex
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
+import org.slf4j.LoggerFactory
 
 /**
  * A version of [GraphMapper] which supports caching of vertices and edges. The [GraphMapperCache] will be
@@ -17,27 +18,37 @@ interface CachedGraphMapper : GraphMapper {
 
     val cache: GraphMapperCache
 
-    override fun <V : Vertex> serializeV(vertex: V): GraphVertex =
-        cache.invalidateV(vertex).run {
-            super.serializeV(vertex)
+    fun <V : Vertex> load(graphVertex: GraphVertex) : V =
+            super.deserialize<V>(graphVertex).apply {
+                logger.debug("Deserialized vertex with id ${graphVertex.id()}")
+            }
+
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> load(graphEdge: GraphEdge): E =
+            super.deserialize<FROM, TO, E>(graphEdge).apply {
+                logger.debug("Deserialized edge with id ${graphEdge.id()}")
+            }
+
+    override fun <V : Vertex> serialize(vertex: V): GraphVertex =
+            super.serialize(vertex).also { serialized ->
+                logger.debug("Serialized vertex with id ${serialized.id()}, will update cache.")
+                val deserialized = if (vertexID(vertex) == null) super.deserialize(serialized) else vertex
+                cache.put(serialized, deserialized)
+            }
+
+    override fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serialize(edge: E): GraphEdge =
+        super.serialize(edge).also { serialized ->
+            logger.debug("Serialized edge with id ${serialized.id()}, will update cache.")
+            val deserialized = if (edgeID(edge) == null) super.deserialize(serialized) else edge
+            cache.put(serialized, deserialized)
         }
 
-    override fun <V : Vertex> deserializeV(graphVertex: GraphVertex): V =
-            cache.getV(graphVertex.id()) ?: run {
-                val deserialized = super.deserializeV<V>(graphVertex)
-                cache.putV(graphVertex.id(), deserialized)
-                deserialized
-            }
+    override fun <V : Vertex> deserialize(graphVertex: GraphVertex): V =
+            cache.get(graphVertex)
 
-    override fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serializeE(edge: E): GraphEdge =
-            cache.invalidateE(edge).run {
-                super.serializeE(edge)
-            }
+    override fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserialize(graphEdge: GraphEdge): E =
+            cache.get(graphEdge)
 
-    override fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(graphEdge: GraphEdge): E =
-            cache.getE(graphEdge.id()) ?: run {
-                val deserialized = super.deserializeE<FROM, TO, E>(graphEdge)
-                cache.putE(graphEdge.id(), deserialized)
-                deserialized
-            }
+    companion object {
+        private val logger = LoggerFactory.getLogger(CachedGraphMapper::class.java)
+    }
 }

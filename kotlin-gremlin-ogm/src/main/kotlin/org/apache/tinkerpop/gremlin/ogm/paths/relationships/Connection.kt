@@ -5,6 +5,7 @@ package org.apache.tinkerpop.gremlin.ogm.paths.relationships
 import org.apache.tinkerpop.gremlin.ogm.GraphVertex
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.MissingEdge
+import org.apache.tinkerpop.gremlin.ogm.exceptions.ObjectNotSaved
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepTraverser
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal
@@ -31,7 +32,8 @@ interface Connection<FROM : Vertex, TO : Vertex> : Path<FROM, TO> {
 
     override fun invoke(from: StepTraverser<FROM>): GraphTraversal<*, TO> {
         val serialized = from.traversal.map { fromObject ->
-            from.graphMapper.serializeV(fromObject.get())
+            val id = from.graphMapper.vertexID(fromObject.get()) ?: throw ObjectNotSaved(fromObject.get())
+            from.graphMapper.traversal.V(id).next()
         }
         val traversed = relationships().fold(initial = serialized) { traversal, relationship ->
             if (relationship is Relationship.ToSingle) {
@@ -40,7 +42,7 @@ interface Connection<FROM : Vertex, TO : Vertex> : Path<FROM, TO> {
                 traversal.to(relationship)
             }
         }
-        return traversed.map { toVertex -> from.graphMapper.deserializeV<TO>(toVertex.get()) }
+        return traversed.map { toVertex -> from.graphMapper.deserialize<TO>(toVertex.get()) }
     }
 
     interface FromOne<FROM : Vertex, TO : Vertex> : Connection<FROM, TO> {

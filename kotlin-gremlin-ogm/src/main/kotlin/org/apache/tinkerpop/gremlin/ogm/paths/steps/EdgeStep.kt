@@ -13,9 +13,9 @@ interface EdgeStep<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> : Step<FROM, E
     ) : Step.ToSingle<FROM, E>({ traverser ->
 
         traverser.traversal.map {
-            traverser.graphMapper.serializeV(it.get())
+            traverser.graphMapper.serialize(it.get())
         }.outE(relationship.name).map {
-            traverser.graphMapper.deserializeE<FROM, TO, E>(it.get())
+            traverser.graphMapper.deserialize<FROM, TO, E>(it.get())
         }
     })
 
@@ -24,9 +24,9 @@ interface EdgeStep<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> : Step<FROM, E
     ) : Step.ToOptional<FROM, E>({ traverser ->
 
         traverser.traversal.map {
-            traverser.graphMapper.serializeV(it.get())
+            traverser.graphMapper.serialize(it.get())
         }.outE(relationship.name).map {
-            traverser.graphMapper.deserializeE<FROM, TO, E>(it.get())
+            traverser.graphMapper.deserialize<FROM, TO, E>(it.get())
         }
     })
 
@@ -35,9 +35,9 @@ interface EdgeStep<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> : Step<FROM, E
     ) : Step.ToMany<FROM, E>({ traverser ->
 
         traverser.traversal.map {
-            traverser.graphMapper.serializeV(it.get())
+            traverser.graphMapper.serialize(it.get())
         }.outE(relationship.name).map {
-            traverser.graphMapper.deserializeE<FROM, TO, E>(it.get())
+            traverser.graphMapper.deserialize<FROM, TO, E>(it.get())
         }
     })
 }

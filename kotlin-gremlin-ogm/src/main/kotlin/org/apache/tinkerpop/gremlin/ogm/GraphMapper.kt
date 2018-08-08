@@ -62,7 +62,7 @@ interface GraphMapper {
             traversal.inject<V>()
         } else {
             traversal.V(*ids.toTypedArray()).map { vertex ->
-                deserializeV<V>(vertex.get())
+                deserialize<V>(vertex.get())
             }
         }.toMany()
     }
@@ -85,7 +85,7 @@ interface GraphMapper {
         }.reduce { traversal1, traversal2 ->
             traversal.V().union(traversal1, traversal2)
         }.then().map { vertex ->
-            deserializeV<V>(vertex.get())
+            deserialize<V>(vertex.get())
         }.toMany()
     }
 
@@ -112,9 +112,9 @@ interface GraphMapper {
      * but the vertex cannot be found, an exception is thrown.
      */
     fun <V : Vertex> saveV(deserialized: V): V {
-        val serialized = serializeV(deserialized)
+        val serialized = serialize(deserialized)
         logger.debug("Saved ${serialized.label()} vertex with id: ${serialized.id()}\n")
-        return deserializeV(serialized)
+        return deserialize(serialized)
     }
 
     /**
@@ -145,7 +145,7 @@ interface GraphMapper {
             traversal.inject<E>()
         } else {
             traversal.E(*ids.toTypedArray()).map { edge ->
-                deserializeE<FROM, TO, E>(edge.get())
+                deserialize<FROM, TO, E>(edge.get())
             }
         }.toMany()
     }
@@ -170,7 +170,7 @@ interface GraphMapper {
         }.reduce { traversal1, traversal2 ->
             traversal.E().union(traversal1, traversal2)
         }.then().map { edge ->
-            deserializeE<FROM, TO, E>(edge.get())
+            deserialize<FROM, TO, E>(edge.get())
         }.toMany()
     }
 
@@ -194,9 +194,9 @@ interface GraphMapper {
      * The returned object will always have a non-null @ID.
      */
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> saveE(edge: E): E {
-        val serialized = serializeE(edge)
+        val serialized = serialize(edge)
         logger.debug("Saved ${serialized.label()} edge with id ${serialized.id()}")
-        return deserializeE(serialized)
+        return deserialize(serialized)
     }
 
     /**
@@ -268,17 +268,33 @@ interface GraphMapper {
         }.toMany()
     }
 
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serializeE(edge: E): GraphEdge =
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serialize(edge: E): GraphEdge =
             EdgeSerializer(graphDescription, traversal)(edge)
 
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserializeE(graphEdge: GraphEdge): E =
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserialize(graphEdge: GraphEdge): E =
             EdgeDeserializer(graphDescription)(graphEdge)
 
-    fun <V : Vertex> serializeV(vertex: V): GraphVertex =
+    fun <V : Vertex> serialize(vertex: V): GraphVertex =
             VertexSerializer(graphDescription, traversal)(vertex)
 
-    fun <V : Vertex> deserializeV(graphVertex: GraphVertex): V =
+    fun <V : Vertex> deserialize(graphVertex: GraphVertex): V =
             VertexDeserializer(graphDescription)(graphVertex)
+
+    fun <V : Vertex> vertexID(vertex: V): Any? {
+        if (graphDescription.vertexClasses.contains(vertex::class)) {
+            val vertexDescription = graphDescription.getVertexDescription(vertex::class)
+            return vertexDescription.id.property.get(vertex)
+        }
+        return null
+    }
+
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> edgeID(edge: E): Any? {
+        if (graphDescription.edgeClasses.contains(edge::class)) {
+            val edgeDescription = graphDescription.getEdgeDescription(edge::class)
+            return edgeDescription.id.property.get(edge)
+        }
+        return null
+    }
 
     companion object {
 
