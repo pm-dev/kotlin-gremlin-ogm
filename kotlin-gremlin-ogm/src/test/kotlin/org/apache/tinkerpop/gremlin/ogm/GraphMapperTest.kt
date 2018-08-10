@@ -795,11 +795,11 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricOptionalToMany from c to listOf(x, y))
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf(x, y, a, b))
-        traverse(from = b, path = manyToManyConnection, expecting = listOf(x, y, a, b))
+        traverse(from = a, path = manyToManyConnection, expecting = listOf(a, b, x, y))
+        traverse(from = b, path = manyToManyConnection, expecting = listOf(a, b, x, y))
         traverse(from = c, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf(x, y, a, b))
-        traverse(from = y, path = manyToManyConnection, expecting = listOf(x, y, a, b))
+        traverse(from = x, path = manyToManyConnection, expecting = listOf(a, b, x, y))
+        traverse(from = y, path = manyToManyConnection, expecting = listOf(a, b, x, y))
     }
 
     @Test
