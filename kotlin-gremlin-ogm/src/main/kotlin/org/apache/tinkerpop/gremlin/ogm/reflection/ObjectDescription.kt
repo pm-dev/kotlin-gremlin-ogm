@@ -2,6 +2,7 @@ package org.apache.tinkerpop.gremlin.ogm.reflection
 
 
 import org.apache.tinkerpop.gremlin.ogm.annotations.*
+import org.apache.tinkerpop.gremlin.ogm.annotations.defaults.*
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Element
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
@@ -12,6 +13,7 @@ import org.apache.tinkerpop.gremlin.ogm.mappers.EdgeDeserializer.Companion.idTag
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
+import java.util.function.Supplier
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 
@@ -140,8 +142,9 @@ private fun <T : Any> KClass<T>.idPropertyDescription(constructor: KFunction<T>)
     if (annotatedIDParam.findAnnotation<Property>() != null) throw ConflictingAnnotations(this, annotatedIDParam)
     if (annotatedIDParam.findAnnotation<ToVertex>() != null) throw ConflictingAnnotations(this, annotatedIDParam)
     if (annotatedIDParam.findAnnotation<FromVertex>() != null) throw ConflictingAnnotations(this, annotatedIDParam)
+    if (annotatedIDParam.findAnnotation<DefaultValue>() != null) throw ConflictingAnnotations(this, annotatedIDParam)
     if (!annotatedIDParam.type.isMarkedNullable) throw NonNullableID(this, annotatedIDParam)
-    return PropertyDescription(annotatedIDParam, idProperty, null)
+    return PropertyDescription(annotatedIDParam, idProperty, null, null)
 }
 
 internal fun KParameter.findMapper(): PropertyBiMapper<Any, SerializedProperty>? {
@@ -155,6 +158,62 @@ internal fun KParameter.findMapper(): PropertyBiMapper<Any, SerializedProperty>?
     return mapperAnnotation.kClass.createInstance() as? PropertyBiMapper<Any, SerializedProperty>
 }
 
+internal fun KParameter.findDefault(): Supplier<out Any>? {
+    findAnnotation<DefaultBoolean>()?.let {
+        verifyClassifiersAreCompatible(type.classifier, Boolean::class)
+        if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
+        return Supplier { it.value }
+    }
+    findAnnotation<DefaultByte>()?.let {
+        verifyClassifiersAreCompatible(type.classifier, Byte::class)
+        if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
+        return Supplier { it.value }
+    }
+    findAnnotation<DefaultChar>()?.let {
+        verifyClassifiersAreCompatible(type.classifier, Char::class)
+        if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
+        return Supplier { it.value }
+    }
+    findAnnotation<DefaultDouble>()?.let {
+        verifyClassifiersAreCompatible(type.classifier, Double::class)
+        if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
+        return Supplier { it.value }
+    }
+    findAnnotation<DefaultFloat>()?.let {
+        verifyClassifiersAreCompatible(type.classifier, Float::class)
+        if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
+        return Supplier { it.value }
+    }
+    findAnnotation<DefaultInt>()?.let {
+        verifyClassifiersAreCompatible(type.classifier, Int::class)
+        if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
+        return Supplier { it.value }
+    }
+    findAnnotation<DefaultLong>()?.let {
+        verifyClassifiersAreCompatible(type.classifier, Long::class)
+        if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
+        return Supplier { it.value }
+    }
+    findAnnotation<DefaultShort>()?.let {
+        verifyClassifiersAreCompatible(type.classifier, Short::class)
+        if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
+        return Supplier { it.value }
+    }
+    findAnnotation<DefaultString>()?.let {
+        verifyClassifiersAreCompatible(type.classifier, String::class)
+        if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
+        return Supplier { it.value }
+    }
+    val annotation = findAnnotation<DefaultValue>() ?: return null
+    val suppliedType = annotation.supplier.supertypes.single {
+        val annotationSuperClass = it.classifier as? KClass<*>
+        annotationSuperClass != null && annotationSuperClass.isSubclassOf(Supplier::class)
+    }.arguments.single().type
+    verifyClassifiersAreCompatible(type.classifier, suppliedType?.classifier)
+    if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
+    return annotation.supplier.createInstance()
+}
+
 private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T, *>> {
     val memberProperties = memberProperties
     val annotatedMemberProperties = memberProperties
@@ -164,8 +223,7 @@ private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T,
     if (memberPropertiesByKey.size != annotatedMemberProperties.size) throw DuplicatePropertyName(this)
     val memberPropertiesByName = memberProperties.associateBy { property -> property.name }
 
-    val constructor = primaryConstructor ?: throw PrimaryConstructorMissing(this)
-    val parameters = constructor.parameters
+    val parameters = constructor().parameters
     val parametersToAnnotation = parameters.associate { param -> param to param.findAnnotation<Property>() }.filterNullValues()
     val propertyDescriptionsByKey = parametersToAnnotation.map { (param, annotation) ->
         val property = memberPropertiesByKey[annotation.key] ?: memberPropertiesByName[param.name]
@@ -176,7 +234,7 @@ private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T,
         if (annotation.key == idTag) throw ReservedIDName(this)
         if (annotation.key.contains(nestedPropertyDelimiter)) throw ReservedNestedPropertyDelimiter(this, annotation.key)
         if (annotation.key.toIntOrNull() != null) throw ReservedNumberKey(this, annotation.key)
-        annotation.key to PropertyDescription(param, property, param.findMapper())
+        annotation.key to PropertyDescription(param, property, param.findMapper(), param.findDefault())
     }.associate { it }
     if (propertyDescriptionsByKey.size != parametersToAnnotation.size) throw DuplicatePropertyName(this)
     return propertyDescriptionsByKey

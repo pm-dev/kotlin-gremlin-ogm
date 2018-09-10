@@ -14,6 +14,9 @@ internal class PropertyDeserializer<out T>(
 ) : Mapper<SerializedProperty?, Any?> {
 
     override fun invoke(from: SerializedProperty?): Any? {
+        if (from == null && propertyDescription.default != null) {
+            return propertyDescription.default.get()
+        }
         if (propertyDescription.mapper != null && from != null) {
             return propertyDescription.mapper.inverseMap(from)
         }

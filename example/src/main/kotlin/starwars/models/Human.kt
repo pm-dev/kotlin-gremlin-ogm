@@ -1,9 +1,11 @@
 package starwars.models
 
+import org.apache.tinkerpop.gremlin.ogm.annotations.defaults.DefaultValue
 import org.apache.tinkerpop.gremlin.ogm.annotations.Element
 import org.apache.tinkerpop.gremlin.ogm.annotations.ID
 import org.apache.tinkerpop.gremlin.ogm.annotations.Property
 import java.time.Instant
+import java.util.function.Supplier
 
 @Element(label = "Human")
 internal class Human(
@@ -15,6 +17,7 @@ internal class Human(
         createdAt: Instant,
 
         @Property(key = "name")
+        @DefaultValue(DefaultName::class)
         name: Name,
 
         @Property(key = "appearsIn")
@@ -28,6 +31,11 @@ internal class Human(
         name = name,
         appearsIn = appearsIn
 ) {
-        companion object
+        companion object {
+
+                class DefaultName: Supplier<Name> {
+                        override fun get() = Name(first = "Unknown", last = "Name")
+                }
+        }
 }
 

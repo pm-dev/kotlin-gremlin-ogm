@@ -3,6 +3,7 @@
 package org.apache.tinkerpop.gremlin.ogm.reflection
 
 import org.apache.tinkerpop.gremlin.ogm.annotations.*
+import org.apache.tinkerpop.gremlin.ogm.annotations.defaults.DefaultValue
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.*
@@ -12,6 +13,7 @@ import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import util.example.Base64Mapper
+import util.example.DefaultStringSupplier
 import util.example.asymmetricManyToMany
 
 internal class ElementDescriptionTest {
@@ -136,6 +138,28 @@ internal class ElementDescriptionTest {
         VertexDescription(Vert::class)
     }
 
+    @Test(expected = ClassInheritanceMismatch::class)
+    fun `test default type incompatible`() {
+        @Element("test")
+        class Vert(
+                @ID val id: String?,
+                @Property("a") val a: String,
+                @Property("b") @DefaultValue(DefaultStringSupplier::class) val b: Long
+        )
+        VertexDescription(Vert::class)
+    }
+
+    @Test(expected = NullablePropertyWithDefault::class)
+    fun `test parameter with default is nullable`() {
+        @Element("test")
+        class Vert(
+                @ID val id: String?,
+                @Property("a") val a: String,
+                @Property("b") @DefaultValue(DefaultStringSupplier::class) val b: String?
+        )
+        VertexDescription(Vert::class)
+    }
+
     @Test(expected = NonNullableNonOptionalParameter::class)
     fun `test non nullable non optional parameter annotated`() {
         @Element("test") class Vert(@ID val id: String?, val a: String)
@@ -153,7 +177,11 @@ internal class ElementDescriptionTest {
                 @Mapper(LongToStringMapper::class)
                 val a: Long,
 
-                b: String?
+                @Property("b")
+                @DefaultValue(DefaultStringSupplier::class)
+                val b: String,
+
+                c: String?
         )
         val description = VertexDescription(Vert::class)
 
@@ -164,18 +192,27 @@ internal class ElementDescriptionTest {
         assertThat(description.id.parameter.name).isEqualTo("id")
 
         val properties = description.properties
-        assertThat(properties).hasSize(1)
+        assertThat(properties).hasSize(2)
 
-        val property = properties.entries.single()
+        val property = properties.entries.first()
         assertThat(property.key).isEqualTo("a")
         assertThat(property.value.parameter.name).isEqualTo("a")
         assertThat(property.value.property.name).isEqualTo("a")
         assertThat(property.value.kClass).isEqualTo(Long::class)
         assertThat(property.value.mapper).isNotNull
+        assertThat(property.value.default).isNull()
+
+        val property2 = properties.entries.last()
+        assertThat(property2.key).isEqualTo("b")
+        assertThat(property2.value.parameter.name).isEqualTo("b")
+        assertThat(property2.value.property.name).isEqualTo("b")
+        assertThat(property2.value.kClass).isEqualTo(String::class)
+        assertThat(property2.value.mapper).isNull()
+        assertThat(property2.value.default).isNotNull
 
         assertThat(description.nullConstructorParameters).hasSize(1)
         val nullParam = description.nullConstructorParameters.single()
-        assertThat(nullParam.name).isEqualTo("b")
+        assertThat(nullParam.name).isEqualTo("c")
     }
 
     @Test

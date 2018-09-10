@@ -3,7 +3,7 @@ package starwars.models
 import org.apache.tinkerpop.gremlin.ogm.annotations.Element
 import org.apache.tinkerpop.gremlin.ogm.annotations.ID
 import org.apache.tinkerpop.gremlin.ogm.annotations.Property
-import org.janusgraph.ogm.annotations.Indexed
+import org.apache.tinkerpop.gremlin.ogm.annotations.defaults.DefaultString
 import java.time.Instant
 
 @Element(label = "Droid")
@@ -22,6 +22,7 @@ internal class Droid(
         appearsIn: Set<Episode>,
 
         @Property(key = "primaryFunction")
+        @DefaultString("Unknown Function")
         val primaryFunction: String
 ) : Character(
         id = id,

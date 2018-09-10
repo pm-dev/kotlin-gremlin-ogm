@@ -1,5 +1,9 @@
 package org.apache.tinkerpop.gremlin.ogm
 
+import org.apache.tinkerpop.gremlin.ogm.annotations.defaults.DefaultValue
+import org.apache.tinkerpop.gremlin.ogm.annotations.Element
+import org.apache.tinkerpop.gremlin.ogm.annotations.ID
+import org.apache.tinkerpop.gremlin.ogm.annotations.Property
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ConflictingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.MissingEdge
@@ -11,6 +15,9 @@ import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Connection
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.link
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.*
+import org.apache.tinkerpop.gremlin.ogm.reflection.CachedGraphDescription
+import org.apache.tinkerpop.gremlin.ogm.reflection.GraphDescription
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.internal.bytebuddy.utility.RandomString
 import org.junit.Before
@@ -146,6 +153,51 @@ internal class GraphMapperTest {
     @Test
     fun `test save and load VertexWithUUID`() {
         saveAndLoadVertex(VertexWithUUID.sample())
+    }
+
+    @Test
+    fun `test save and load vertex with default value supplier`() {
+
+        @Element(label = "VertexWithDefaultValue")
+        class VertexWithNullable(
+                @ID
+                id: Long? = null,
+
+                @Property(key = "a")
+                string: String?
+        ): BaseVertex<String?>(id = id, a = string)
+
+        @Element(label = "VertexWithDefaultValue")
+        class VertexWithDefault(
+                @ID
+                id: Long? = null,
+
+                @Property(key = "a")
+                @DefaultValue(DefaultStringSupplier::class)
+                string: String
+        ): BaseVertex<String>(id = id, a = string)
+
+        val gm1 = object : GraphMapper {
+            override val graphDescription: GraphDescription get() = CachedGraphDescription(vertices = setOf(VertexWithNullable::class))
+            override val traversal: GraphTraversalSource get() = gm.traversal
+        }
+
+        val gm2 = object : GraphMapper {
+            override val graphDescription: GraphDescription get() = CachedGraphDescription(vertices = setOf(VertexWithDefault::class))
+            override val traversal: GraphTraversalSource get() = gm.traversal
+        }
+
+        val defaultStringSupplier = DefaultStringSupplier()
+
+        val vertexWithNull = VertexWithNullable(string = null)
+        val saved = gm1.saveV(vertexWithNull)
+        assertThat(saved.id).isNotNull()
+        assertThat(saved.a).isNull()
+
+        val loaded = gm2.V<VertexWithDefault>(saved.id!!).fetch()
+        assertThat(loaded).isNotNull
+        assertThat(loaded!!.id).isEqualTo(saved.id)
+        assertThat(loaded.a).isEqualTo(defaultStringSupplier.get())
     }
 
     @Test

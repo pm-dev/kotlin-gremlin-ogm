@@ -5,10 +5,19 @@
 [![Kotlin Version](https://img.shields.io/badge/kotlin-1.2.60-blue.svg)](http://kotlinlang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
+An interactive example can be run using the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example).
+From the repo root directory, run:
+
+    ./gradlew :example:run
+
+Then load GraphiQL at `http://localhost:5000/graphiql.html` to explore the data mapped with this library.
+
+
+
 Gremlin is the graph traversal language for the Apache TinkerPop graph framework and is
 supported by most graph database implementations. 
 Check out [kotlin-janusgraph-ogm](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/kotlin-janusgraph-ogm)
-for additional JanusGraph specific features.
+for additional JanusGraph specific features and [kotlin-gremlin-graphql](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/kotlin-gremlin-graphql)
 
 
 #### Basic Usage:
@@ -42,26 +51,19 @@ Traverse an Edge
         graphMapper.traverse(friends from michael).fetch() // returns list: [ dwight ]
         graphMapper.traverse(friends from dwight).fetch() // returns list: [ michael ]        
 
-More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example), which
-can be explored interactively using GraphiQL. From this directory, run:
-
-    ./gradlew :example:run
-
-Then load `http://localhost:5000/graphiql.html`
-
 
 #### Installation:
 
 - Gradle
         
-        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.17.0'
+        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.18.0'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kotlin-gremlin-ogm</artifactId>
-            <version>0.17.0</version>
+            <version>0.18.0</version>
         </dependency>
         
         
@@ -178,17 +180,3 @@ a special `UUID` token. For example if the names `Set` was empty:
 
 Licensed under the Apache Software License 2.0. 
 This code is in no way affiliated with, authorized, maintained, sponsored or endorsed by the Apache Software Foundation.
-
-
-#### Future improvements to consider:
-
-- Deleting edges & vertices:
-Gremlin supports removing edges and vertices, however, I haven't built this yet because removing data
-from the graph is not typically a good idea. It's a better pattern to introduce properties that can be used
-in filtering. This could still be useful however, when doing a migration.
-
-- Default property values:
-If you wanted to add a non-nullable property to a vertex, you would first have to add the property as nullable,
-migrate all vertices in the graph to have a value for that property, then change the property to non-nullable.
-However, if migrating all vertices is too costly in terms of time or cpu, this could potentially be avoided by
-specifying a value (or function producing a value) to use when null is loaded from the graph for a non-nullable property.
