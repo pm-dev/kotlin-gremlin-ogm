@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.60'
+        kotlinVersion = '1.2.61'
         // the password can be specified via command line: ./gradlew :kotlin-gremlin-graphql:publish -P repoPassword=
         repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
     }
@@ -44,13 +44,13 @@ kotlin { experimental { coroutines 'enable' } }
 dependencies {
 
     // Kotlin
-    compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:0.24.0")
+    compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:0.25.3")
 
     // Gremlin
     compile project(':kotlin-gremlin-ogm')
 
     // GraphQL
-    compile('com.graphql-java:graphql-java-servlet:6.1.2')
+    compile('com.graphql-java:graphql-java-servlet:6.1.3')
 
     // Logging
     compile("org.slf4j:slf4j-api:1.7.25")

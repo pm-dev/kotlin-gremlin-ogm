@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		kotlinVersion = '1.2.60'
+		kotlinVersion = '1.2.61'
 		// the password can be specified via command line: ./gradlew :kotlin-gremlin-graphql:publish -P repoPassword=
 		repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
 	}
@@ -53,7 +53,7 @@ dependencies {
 	compile("org.slf4j:slf4j-api:1.7.25")
 
 	// Test
-	testCompile("org.assertj:assertj-core:3.10.0")
+	testCompile("org.assertj:assertj-core:3.11.1")
 	testCompile("junit:junit:4.12")
 	testCompile("com.google.guava:guava:26.0-jre")
 	testCompile("org.apache.tinkerpop:tinkergraph-gremlin:3.3.3")

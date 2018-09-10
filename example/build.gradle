@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.60'
+        kotlinVersion = '1.2.61'
         springBootVersion = '2.0.4.RELEASE'
     }
     repositories {
@@ -49,7 +49,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
 
     // GraphQL
-    compile('com.graphql-java:graphql-java-tools:5.2.3')
+    compile('com.graphql-java:graphql-java-tools:5.2.4')
 
     // Guava
     compile('com.google.guava:guava:26.0-jre')

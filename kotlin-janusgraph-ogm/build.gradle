@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.60'
+        kotlinVersion = '1.2.61'
         // the password can be specified via command line: ./gradlew :kotlin-janusgraph-ogm:publish -P repoPassword=
         repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
     }
@@ -49,7 +49,7 @@ dependencies {
     compile project(':kotlin-gremlin-ogm')
 
     testCompile("org.janusgraph:janusgraph-lucene:0.3.0")
-    testCompile("org.assertj:assertj-core:3.10.0")
+    testCompile("org.assertj:assertj-core:3.11.1")
     testCompile("junit:junit:4.12")
     testCompile("org.slf4j:slf4j-log4j12:1.7.25")
 }
