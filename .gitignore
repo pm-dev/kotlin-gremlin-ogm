@@ -4,6 +4,7 @@
 *.zip
 *.tar.gz
 *.rar
+*.pyc
 
 .gradle
 /build/
