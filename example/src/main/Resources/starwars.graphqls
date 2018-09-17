@@ -123,5 +123,5 @@ type Name {
 }
 
 # A single instantaneous point on the time-line. This timestamp counts in seconds from the unix epoch.
-# Accurate to the nearest millisecond.
+# Accurate to the nearest millisecond. Formatted as a json number.
 scalar Timestamp
