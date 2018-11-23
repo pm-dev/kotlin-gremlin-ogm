@@ -129,7 +129,7 @@ private fun <FROM : Vertex, TO : Vertex, T : Edge<FROM, TO>> KClass<T>.fromVerte
 
 private fun <T : Any> KClass<T>.idPropertyDescription(constructor: KFunction<T>): PropertyDescription<T, *> {
     val memberProperties = memberProperties
-    val memberPropertiesByName = memberProperties.associateBy { property -> property.name }
+    val memberPropertiesByName = memberProperties.associateBy(KProperty1<T, *>::name)
     val annotatedIDProperties = memberProperties.filter { property -> property.findAnnotation<ID>() != null }
     if (annotatedIDProperties.size > 1) throw DuplicateIDProperty(this)
     val annotatedIDParams = constructor.parameters.filter { param -> param.findAnnotation<ID>() != null }
@@ -162,47 +162,47 @@ internal fun KParameter.findDefault(): Supplier<out Any>? {
     findAnnotation<DefaultBoolean>()?.let {
         verifyClassifiersAreCompatible(type.classifier, Boolean::class)
         if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
-        return Supplier { it.value }
+        return Supplier(it::value)
     }
     findAnnotation<DefaultByte>()?.let {
         verifyClassifiersAreCompatible(type.classifier, Byte::class)
         if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
-        return Supplier { it.value }
+        return Supplier(it::value)
     }
     findAnnotation<DefaultChar>()?.let {
         verifyClassifiersAreCompatible(type.classifier, Char::class)
         if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
-        return Supplier { it.value }
+        return Supplier(it::value)
     }
     findAnnotation<DefaultDouble>()?.let {
         verifyClassifiersAreCompatible(type.classifier, Double::class)
         if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
-        return Supplier { it.value }
+        return Supplier(it::value)
     }
     findAnnotation<DefaultFloat>()?.let {
         verifyClassifiersAreCompatible(type.classifier, Float::class)
         if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
-        return Supplier { it.value }
+        return Supplier(it::value)
     }
     findAnnotation<DefaultInt>()?.let {
         verifyClassifiersAreCompatible(type.classifier, Int::class)
         if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
-        return Supplier { it.value }
+        return Supplier(it::value)
     }
     findAnnotation<DefaultLong>()?.let {
         verifyClassifiersAreCompatible(type.classifier, Long::class)
         if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
-        return Supplier { it.value }
+        return Supplier(it::value)
     }
     findAnnotation<DefaultShort>()?.let {
         verifyClassifiersAreCompatible(type.classifier, Short::class)
         if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
-        return Supplier { it.value }
+        return Supplier(it::value)
     }
     findAnnotation<DefaultString>()?.let {
         verifyClassifiersAreCompatible(type.classifier, String::class)
         if (type.isMarkedNullable) throw NullablePropertyWithDefault(this)
-        return Supplier { it.value }
+        return Supplier(it::value)
     }
     val annotation = findAnnotation<DefaultValue>() ?: return null
     val suppliedType = annotation.supplier.supertypes.single {
@@ -221,7 +221,7 @@ private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T,
             .filterNullValues()
     val memberPropertiesByKey = annotatedMemberProperties.entries.associate { it.value.key to it.key }
     if (memberPropertiesByKey.size != annotatedMemberProperties.size) throw DuplicatePropertyName(this)
-    val memberPropertiesByName = memberProperties.associateBy { property -> property.name }
+    val memberPropertiesByName = memberProperties.associateBy(KProperty1<T, *>::name)
 
     val parameters = constructor().parameters
     val parametersToAnnotation = parameters.associate { param -> param to param.findAnnotation<Property>() }.filterNullValues()

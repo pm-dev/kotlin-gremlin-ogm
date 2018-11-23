@@ -24,11 +24,11 @@ interface JanusGraphIndicesBuilder {
 
     operator fun invoke(graph: JanusGraph): List<JanusGraphIndex> {
         val mgmt = graph.openManagement()
-        val indices = indexDescriptions(graphDescription).filter {
+        val indices = indexDescriptions(graphDescription).asSequence().filter {
             !mgmt.containsGraphIndex(it.indexName)
         }.map {
             buildIndex(it, mgmt)
-        }
+        }.toList()
         mgmt.commit()
         return indices
     }

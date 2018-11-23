@@ -1,6 +1,6 @@
 package framework
 
-internal abstract class BaseElement<ID>(
+internal abstract class BaseElement<out ID>(
         val id: ID?
 ) {
 

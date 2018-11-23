@@ -18,7 +18,7 @@ interface CachedGraphMapper : GraphMapper {
 
     val cache: GraphMapperCache
 
-    fun <V : Vertex> load(graphVertex: GraphVertex) : V =
+    fun <V : Vertex> load(graphVertex: GraphVertex): V =
             super.deserialize<V>(graphVertex).apply {
                 logger.debug("Deserialized vertex with id ${graphVertex.id()}")
             }
@@ -36,11 +36,11 @@ interface CachedGraphMapper : GraphMapper {
             }
 
     override fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serialize(edge: E): GraphEdge =
-        super.serialize(edge).also { serialized ->
-            logger.debug("Serialized edge with id ${serialized.id()}, will update cache.")
-            val deserialized = if (edgeID(edge) == null) super.deserialize(serialized) else edge
-            cache.put(serialized, deserialized)
-        }
+            super.serialize(edge).also { serialized ->
+                logger.debug("Serialized edge with id ${serialized.id()}, will update cache.")
+                val deserialized = if (edgeID(edge) == null) super.deserialize(serialized) else edge
+                cache.put(serialized, deserialized)
+            }
 
     override fun <V : Vertex> deserialize(graphVertex: GraphVertex): V =
             cache.get(graphVertex)

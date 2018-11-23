@@ -1,11 +1,9 @@
 package org.apache.tinkerpop.gremlin.ogm.extensions
 
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal.Symbols.map
-
 internal fun <K, V> MutableMap<K, V>.mapValuesInPlace(transform: (Map.Entry<K, V>) -> V) =
-    entries.forEach { entry ->
-        entry.setValue(transform(entry))
-    }
+        entries.forEach { entry ->
+            entry.setValue(transform(entry))
+        }
 
 internal fun <K, V> Sequence<Pair<K, V>>.toMultiMap(requireKeys: Iterable<K> = emptyList()): Map<K, List<V>> {
     val remainingRequiredKeys = requireKeys.toMutableSet()

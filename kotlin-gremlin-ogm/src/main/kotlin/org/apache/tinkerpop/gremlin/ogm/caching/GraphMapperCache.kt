@@ -1,7 +1,6 @@
 package org.apache.tinkerpop.gremlin.ogm.caching
 
 import org.apache.tinkerpop.gremlin.ogm.GraphEdge
-import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.apache.tinkerpop.gremlin.ogm.GraphVertex
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex

@@ -5,10 +5,11 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 
 /**
  * The 'add' function on a [BoundPath] allows callers to append an additional object to start
- * the [Path]'s traversal from.
+ * the [BoundPath]'s traversal from.
  */
 
 fun <FROM : Vertex, TO> BoundPathToMany<FROM, TO>.add(from: FROM) = BoundPathToMany(froms.plus(from), path)
+
 fun <FROM : Vertex, TO> BoundPathToMany<FROM, TO>.add(vararg from: FROM) = BoundPathToMany(froms.plus(from), path)
 fun <FROM : Vertex, TO> BoundPathToMany<FROM, TO>.add(from: Iterable<FROM>) = BoundPathToMany(froms.plus(from), path)
 

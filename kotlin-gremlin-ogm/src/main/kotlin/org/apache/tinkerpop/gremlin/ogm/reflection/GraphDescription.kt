@@ -4,12 +4,7 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
-import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.InstantPropertyMapper
-import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.UUIDPropertyMapper
-import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.identity.*
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
-import java.time.Instant
-import java.util.*
 import kotlin.reflect.KClass
 
 /**
@@ -24,11 +19,11 @@ interface GraphDescription {
 
     val vertexClasses: Set<KClass<out Vertex>>
 
-    fun <T: Vertex> getVertexDescription(vertexClass: KClass<out T>): VertexDescription<T>
+    fun <T : Vertex> getVertexDescription(vertexClass: KClass<out T>): VertexDescription<T>
 
     val vertexLabels: Set<String>
 
-    fun <T: Vertex> getVertexDescription(vertexLabel: String): VertexDescription<T>
+    fun <T : Vertex> getVertexDescription(vertexLabel: String): VertexDescription<T>
 
     /**
      * Edges
@@ -36,13 +31,13 @@ interface GraphDescription {
 
     val edgeClasses: Set<KClass<out Edge<Vertex, Vertex>>>
 
-    fun <FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> getEdgeDescription(edgeClass: KClass<out E>): EdgeDescription<FROM, TO, E>
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getEdgeDescription(edgeClass: KClass<out E>): EdgeDescription<FROM, TO, E>
 
     val edgeLabels: Set<String>
 
     fun <FROM : Vertex, TO : Vertex> getEdgeRelationship(edgeLabel: String): Relationship<FROM, TO>
 
-    fun <FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> getEdgeDescription(edgeLabel: String): EdgeDescription<FROM, TO, E>?
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getEdgeDescription(edgeLabel: String): EdgeDescription<FROM, TO, E>?
 
     /**
      * Nested Objects

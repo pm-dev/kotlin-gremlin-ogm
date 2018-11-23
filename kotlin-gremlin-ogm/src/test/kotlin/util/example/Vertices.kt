@@ -309,7 +309,7 @@ internal class VertexWithCustomMapper(
         @Mapper(Base64Mapper::class)
         string: String
 
-): BaseVertex<String>(id = id, a = string) {
+) : BaseVertex<String>(id = id, a = string) {
     companion object {
         fun sample() = VertexWithCustomMapper(string = RandomString.make())
     }

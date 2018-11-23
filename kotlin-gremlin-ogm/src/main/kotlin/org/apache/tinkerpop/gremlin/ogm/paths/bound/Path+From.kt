@@ -10,6 +10,7 @@ import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
  */
 
 infix fun <FROM : Vertex, TO> Path.ToMany<FROM, TO>.from(from: FROM) = SingleBoundPathToMany(from, this)
+
 infix fun <FROM : Vertex, TO> Path.ToMany<FROM, TO>.from(froms: Iterable<FROM>) = BoundPathToMany(froms, this)
 fun <FROM : Vertex, TO> Path.ToMany<FROM, TO>.from(vararg froms: FROM) = BoundPathToMany(froms.toList(), this)
 

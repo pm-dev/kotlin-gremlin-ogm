@@ -10,6 +10,7 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
  */
 
 infix fun <FROM : Vertex, TO : Vertex> SingleBoundRelationshipToSingle<FROM, TO>.to(to: TO): Edge<FROM, TO> = BasicEdge(from = from, to = to, relationship = path)
+
 infix fun <FROM : Vertex, TO : Vertex> SingleBoundRelationshipToOptional<FROM, TO>.to(to: TO): Edge<FROM, TO> = BasicEdge(from = from, to = to, relationship = path)
 infix fun <FROM : Vertex, TO : Vertex> SingleBoundRelationshipToMany<FROM, TO>.to(to: TO): Edge<FROM, TO> = BasicEdge(from = from, to = to, relationship = path)
 infix fun <FROM : Vertex, TO : Vertex> SingleBoundRelationshipToMany<FROM, TO>.to(tos: Iterable<TO>): List<Edge<FROM, TO>> = tos.map { BasicEdge(from = from, to = it, relationship = path) }

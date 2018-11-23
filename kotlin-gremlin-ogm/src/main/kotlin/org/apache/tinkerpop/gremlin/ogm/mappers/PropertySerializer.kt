@@ -27,7 +27,7 @@ internal class PropertySerializer<in T>(
                 }
             }
             is Map<*, *> -> {
-                val mapTypeParameters by lazy { propertyDescription.property.returnType.arguments }
+                val mapTypeParameters by lazy(propertyDescription.property.returnType::arguments)
                 val keyClass by lazy {
                     mapTypeParameters.first().type?.classifier as? KClass<out Any>
                             ?: throw IncompatibleMap(propertyDescription)

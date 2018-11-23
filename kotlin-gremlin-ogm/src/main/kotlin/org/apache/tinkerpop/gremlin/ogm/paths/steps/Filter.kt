@@ -7,7 +7,7 @@ import org.apache.tinkerpop.gremlin.ogm.paths.Path
  * a predicate.
  */
 class Filter<TYPE>(private val predicate: (TYPE) -> Boolean) : Step.ToOptional<TYPE, TYPE>({
-    it.traversal.filter { predicate(it.get()) }
+    it.traversal.filter { traverser -> predicate(traverser.get()) }
 })
 
 fun <FROM, TO> Path.ToMany<FROM, TO>.filter(predicate: (TO) -> Boolean): Path.ToMany<FROM, TO> = to(Filter(predicate))

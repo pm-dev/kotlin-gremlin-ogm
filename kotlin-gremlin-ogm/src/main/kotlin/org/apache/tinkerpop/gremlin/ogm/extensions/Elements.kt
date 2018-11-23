@@ -4,6 +4,7 @@ import org.apache.tinkerpop.gremlin.ogm.exceptions.EmptyListTokenIsReserved
 import org.apache.tinkerpop.gremlin.ogm.exceptions.EmptyMapTokenIsReserved
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
 import org.apache.tinkerpop.gremlin.structure.Element
+import org.apache.tinkerpop.gremlin.structure.Property
 
 
 internal fun Element.getProperties(): Map<String, SerializedProperty> {
@@ -20,9 +21,7 @@ internal fun Element.getProperties(): Map<String, SerializedProperty> {
 internal fun <T : Element> T.setProperties(
         newProperties: Map<String, SerializedProperty?>
 ): T {
-    properties<Any>().forEach {
-        it.remove()
-    }
+    properties<Any>().forEach(Property<Any>::remove)
     newProperties.forEach { key, value ->
         when (value) {
             emptyListToken -> throw EmptyListTokenIsReserved(emptyListToken)
@@ -94,17 +93,14 @@ private fun SerializedProperty.listify(): SerializedProperty =
  */
 private fun Map<String, SerializedProperty>.toList(): List<SerializedProperty>? {
     data class IndexAndValue(val index: Int, val value: SerializedProperty)
+
     val indexToValue = mutableListOf<IndexAndValue>()
-    for (entry in entries) {
+    entries.forEach { entry ->
         val index = entry.key.toIntOrNull() ?: return null
         indexToValue.add(IndexAndValue(index, entry.value))
     }
-    indexToValue.sortBy {
-        it.index
-    }
-    return indexToValue.map {
-        it.value
-    }
+    indexToValue.sortBy(IndexAndValue::index)
+    return indexToValue.map(IndexAndValue::value)
 }
 
 
@@ -146,12 +142,11 @@ private fun Element.setProperty(
             } else {
                 value.mapKeys { entry ->
                     key + nestedPropertyDelimiter + entry.key
-                }.forEach { k, v ->
-                    setProperty(k, v)
-                }
+                }.forEach(::setProperty)
             }
         }
-        null -> {}
+        null -> {
+        }
         else -> property(key, value)
     }
 }

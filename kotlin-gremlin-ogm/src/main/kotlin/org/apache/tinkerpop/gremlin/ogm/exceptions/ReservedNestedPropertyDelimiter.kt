@@ -8,5 +8,5 @@ internal class ReservedNestedPropertyDelimiter(
         key: String
 ) : AnnotationException(
         description = "@Property.name may not contain '$nestedPropertyDelimiter' as this string is used " +
-        "as a delimiter for nested properties. '$key' on class $kClass"
+                "as a delimiter for nested properties. '$key' on class $kClass"
 )

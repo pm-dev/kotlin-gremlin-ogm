@@ -10,6 +10,7 @@ internal enum class Sport {
     BASEBALL,
     TENNIS,
     ;
+
     companion object : EnumBiMapper<Sport>, StaticBiMapper<Sport, String> {
         override val map: ImmutableBiMap<Sport, String> = ImmutableBiMap.of(
                 BASKETBALL, "BASKETBALL",

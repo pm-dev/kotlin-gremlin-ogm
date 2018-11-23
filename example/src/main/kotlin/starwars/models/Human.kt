@@ -31,11 +31,11 @@ internal class Human(
         name = name,
         appearsIn = appearsIn
 ) {
-        companion object {
+    companion object {
 
-                class DefaultName: Supplier<Name> {
-                        override fun get() = Name(first = "Unknown", last = "Name")
-                }
+        class DefaultName : Supplier<Name> {
+            override fun get() = Name(first = "Unknown", last = "Name")
         }
+    }
 }
 

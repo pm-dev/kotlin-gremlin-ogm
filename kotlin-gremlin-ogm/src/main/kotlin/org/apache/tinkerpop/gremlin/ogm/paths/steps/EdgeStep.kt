@@ -6,9 +6,9 @@ import org.apache.tinkerpop.gremlin.ogm.paths.Path
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.*
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
 
-interface EdgeStep<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> : Step<FROM, E> {
+interface EdgeStep<FROM : Vertex, out TO : Vertex, E : Edge<FROM, TO>> : Step<FROM, E> {
 
-    open class ToSingle<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>>(
+    open class ToSingle<FROM : Vertex, out TO : Vertex, E : Edge<FROM, TO>>(
             private val relationship: Relationship.ToSingle<FROM, TO>
     ) : Step.ToSingle<FROM, E>({ traverser ->
 
@@ -19,7 +19,7 @@ interface EdgeStep<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> : Step<FROM, E
         }
     })
 
-    open class ToOptional<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>>(
+    open class ToOptional<FROM : Vertex, out TO : Vertex, E : Edge<FROM, TO>>(
             private val relationship: Relationship.ToOptional<FROM, TO>
     ) : Step.ToOptional<FROM, E>({ traverser ->
 
@@ -30,7 +30,7 @@ interface EdgeStep<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> : Step<FROM, E
         }
     })
 
-    open class ToMany<FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>>(
+    open class ToMany<FROM : Vertex, out TO : Vertex, E : Edge<FROM, TO>>(
             private val relationship: Relationship.ToMany<FROM, TO>
     ) : Step.ToMany<FROM, E>({ traverser ->
 

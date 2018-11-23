@@ -11,5 +11,5 @@ import starwars.models.Sibling.Companion.siblings
 internal val Human.Companion.twinSiblings
     get() : Path.ToMany<Human, Human> =
         EdgeStep.ToMany<Human, Human, Sibling>(siblings)
-                .filter { it.twins }
-                .map { it.to }
+                .filter(Sibling::twins)
+                .map(Sibling::to)

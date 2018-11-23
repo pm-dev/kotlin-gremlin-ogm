@@ -116,7 +116,7 @@ interface Relationship<FROM : Vertex, TO : Vertex> : Connection<FROM, TO> {
 
     data class AsymmetricOptionalToMany<FROM : Vertex, TO : Vertex>(
             override val name: String
-    ) :  OptionalToMany<FROM, TO>, AsymmetricOneToMany<FROM, TO> {
+    ) : OptionalToMany<FROM, TO>, AsymmetricOneToMany<FROM, TO> {
 
         override val inverse: AsymmetricManyToOptional<TO, FROM>
             get() = AsymmetricManyToOptional(

@@ -37,7 +37,7 @@ private val saveCharacter = Step.ToSingle<Character, Character> {
  * This step removes any characters that are first degree friends. It is a 'ToOptional' step because it may reduce
  * the result count of the traversal.
  */
-private val filterFirstDegreeFriends = Step.ToOptional<Character, Character> {
+private val filterFirstDegreeFriends = Step.ToOptional<Character, Character> { it ->
     it.traversal.`as`(secondDegreeFriendKey).select<Any>(firstDegreeFriendsKey, secondDegreeFriendKey).flatMap {
         val map = it.get()
         @Suppress("UNCHECKED_CAST")
@@ -47,8 +47,8 @@ private val filterFirstDegreeFriends = Step.ToOptional<Character, Character> {
     }
 }
 
-private val filterCharacter = Step.ToOptional<Character, Character> {
-    it.traversal.`as`(secondDegreeFriendKey).select<Any>(characterKey, secondDegreeFriendKey).flatMap {
+private val filterCharacter = Step.ToOptional<Character, Character> { traverser ->
+    traverser.traversal.`as`(secondDegreeFriendKey).select<Any>(characterKey, secondDegreeFriendKey).flatMap {
         val map = it.get()
         @Suppress("UNCHECKED_CAST")
         val first = map[characterKey] as Set<Character>

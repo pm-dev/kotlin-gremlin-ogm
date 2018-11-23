@@ -22,31 +22,31 @@ internal open class StarwarsSampleGraph(
         val now = Instant.now()
 
         val lukeSkywalker = graph.saveV(Human(
-                name = Name(first = "Luke", last ="Skywalker"),
+                name = Name(first = "Luke", last = "Skywalker"),
                 homePlanet = "Tatooine",
                 appearsIn = EnumSet.of(Episode.NEW_HOPE, Episode.JEDI, Episode.EMPIRE),
                 createdAt = now))
 
         val darthVader = graph.saveV(Human(
-                name = Name(first = "Darth", last ="Vader"),
+                name = Name(first = "Darth", last = "Vader"),
                 homePlanet = "Tatooine",
                 appearsIn = EnumSet.of(Episode.NEW_HOPE, Episode.JEDI, Episode.EMPIRE),
                 createdAt = now))
 
         val hanSolo = graph.saveV(Human(
-                name = Name(first = "Han", last ="Solo"),
+                name = Name(first = "Han", last = "Solo"),
                 appearsIn = EnumSet.of(Episode.NEW_HOPE, Episode.JEDI, Episode.EMPIRE),
                 homePlanet = null,
                 createdAt = now))
 
         val leiaOrgana = graph.saveV(Human(
-                name = Name(first = "Leia", last ="Organa"),
+                name = Name(first = "Leia", last = "Organa"),
                 homePlanet = "Alderaan",
                 appearsIn = EnumSet.of(Episode.NEW_HOPE, Episode.JEDI, Episode.EMPIRE),
                 createdAt = now))
 
         val wilhuffTarkin = graph.saveV(Human(
-                name = Name(first = "Wilhuff", last ="Tarkin"),
+                name = Name(first = "Wilhuff", last = "Tarkin"),
                 appearsIn = EnumSet.of(Episode.NEW_HOPE),
                 homePlanet = null,
                 createdAt = now))

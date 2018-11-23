@@ -73,14 +73,14 @@ interface GraphMapper {
      * V may be a superclass of classes registered as a vertex.
      */
     fun <V : Vertex> V(kClass: KClass<V>, then: GraphTraversal<*, GraphVertex>.() -> GraphTraversal<*, GraphVertex> = { this }): GraphTraversalToMany<*, V> {
-        val labels = graphDescription.vertexClasses.filter { vertexKClass ->
+        val labels = graphDescription.vertexClasses.asSequence().filter { vertexKClass ->
             vertexKClass.isSubclassOf(kClass)
         }.map { vertexClass ->
             graphDescription.getVertexDescription(vertexClass).label
-        }
+        }.toList()
         if (labels.isEmpty()) throw UnregisteredClass(kClass)
         logger.debug("Will get all vertices with labels $labels")
-        return labels.map { label ->
+        return labels.asSequence().map { label ->
             traversal.V().hasLabel(label)
         }.reduce { traversal1, traversal2 ->
             traversal.V().union(traversal1, traversal2)
@@ -158,14 +158,14 @@ interface GraphMapper {
             kClass: KClass<E>,
             then: GraphTraversal<*, GraphEdge>.() -> GraphTraversal<*, GraphEdge> = { this }
     ): GraphTraversalToMany<*, E> {
-        val labels = graphDescription.edgeClasses.filter { edgeKClass ->
+        val labels = graphDescription.edgeClasses.asSequence().filter { edgeKClass ->
             edgeKClass.isSubclassOf(kClass)
         }.map { vertexClass ->
             graphDescription.getEdgeDescription(vertexClass).label
-        }
+        }.toList()
         if (labels.isEmpty()) throw UnregisteredClass(kClass)
         logger.debug("Will get all edges with labels $labels")
-        return labels.map { label ->
+        return labels.asSequence().map { label ->
             traversal.E().hasLabel(label)
         }.reduce { traversal1, traversal2 ->
             traversal.E().union(traversal1, traversal2)

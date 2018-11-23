@@ -7,5 +7,5 @@ internal class ReservedNumberKey(
         key: String
 ) : AnnotationException(
         description = "@Property.name may not be a number, since number indexes are used " +
-        "as index keys for collection properties. '$key' on class $kClass"
+                "as index keys for collection properties. '$key' on class $kClass"
 )

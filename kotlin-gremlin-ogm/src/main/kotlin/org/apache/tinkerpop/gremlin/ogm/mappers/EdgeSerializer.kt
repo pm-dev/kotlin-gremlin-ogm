@@ -23,7 +23,7 @@ internal class EdgeSerializer(
     operator fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> invoke(from: E): org.apache.tinkerpop.gremlin.structure.Edge {
         val edgeClass = from::class
         val edgeDescription: EdgeDescription<FROM, TO, E>? = if (graphDescription.edgeClasses.contains(edgeClass)) graphDescription.getEdgeDescription(edgeClass) else null
-        val fromVertexDescription: VertexDescription<FROM> =  graphDescription.getVertexDescription(from.from::class)
+        val fromVertexDescription: VertexDescription<FROM> = graphDescription.getVertexDescription(from.from::class)
         val toVertexDescription: VertexDescription<TO> = graphDescription.getVertexDescription(from.to::class)
         val objectSerializer = edgeDescription?.let { ObjectSerializer(graphDescription, it) }
         val fromVertex = from.from

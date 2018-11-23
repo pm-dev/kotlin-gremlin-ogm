@@ -9,6 +9,7 @@ internal enum class Episode {
     EMPIRE,
     JEDI,
     ;
+
     companion object : EnumBiMapper<Episode>, StaticBiMapper<Episode, String> {
         override val map: ImmutableBiMap<Episode, String> = ImmutableBiMap.of(
                 NEW_HOPE, "NEW_HOPE",

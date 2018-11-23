@@ -8,7 +8,7 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 interface SingleBoundPath<FROM : Vertex, TO> : BoundPath<FROM, TO> {
 
     /**
-     * The object to start the [Path]'s traversal with
+     * The object to start the [SingleBoundPath]'s traversal with
      */
     val from: FROM
 

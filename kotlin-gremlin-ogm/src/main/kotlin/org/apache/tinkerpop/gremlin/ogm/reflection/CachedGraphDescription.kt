@@ -17,7 +17,7 @@ import java.time.Instant
 import java.util.*
 import kotlin.reflect.KClass
 
-open class CachedGraphDescription (
+open class CachedGraphDescription(
         vertices: Set<KClass<out Vertex>>,
         relationships: Map<Relationship<out Vertex, out Vertex>, KClass<out Edge<Vertex, Vertex>>?> = mapOf(),
         objectProperties: Set<KClass<*>> = setOf(),
@@ -53,11 +53,7 @@ open class CachedGraphDescription (
                 objectPropertyClass to ObjectPropertyDescription(objectPropertyClass)
             }
 
-    private val relationshipsByLabel = relationships
-            .keys
-            .associateBy { relationship ->
-                relationship.name
-            }
+    private val relationshipsByLabel = relationships.keys.associateBy(Relationship<out Vertex, out Vertex>::name)
 
     override val vertexClasses get() = vertexDescriptionsByClass.keys
 
@@ -72,15 +68,15 @@ open class CachedGraphDescription (
     override val scalarPropertyClasses get() = scalarMappers.keys
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T: Vertex> getVertexDescription(vertexClass: KClass<out T>): VertexDescription<T> =
+    override fun <T : Vertex> getVertexDescription(vertexClass: KClass<out T>): VertexDescription<T> =
             vertexDescriptionsByClass[vertexClass] as? VertexDescription<T> ?: throw UnregisteredClass(vertexClass)
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T: Vertex> getVertexDescription(vertexLabel: String): VertexDescription<T> =
+    override fun <T : Vertex> getVertexDescription(vertexLabel: String): VertexDescription<T> =
             vertexDescriptionsByLabel[vertexLabel] as? VertexDescription<T> ?: throw UnregisteredLabel(vertexLabel)
 
     @Suppress("UNCHECKED_CAST")
-    override fun <FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> getEdgeDescription(edgeClass: KClass<out E>): EdgeDescription<FROM, TO, E> =
+    override fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getEdgeDescription(edgeClass: KClass<out E>): EdgeDescription<FROM, TO, E> =
             edgeDescriptionsByClass[edgeClass] as? EdgeDescription<FROM, TO, E> ?: throw UnregisteredClass(edgeClass)
 
     @Suppress("UNCHECKED_CAST")
@@ -88,17 +84,18 @@ open class CachedGraphDescription (
             relationshipsByLabel[edgeLabel] as? Relationship<FROM, TO> ?: throw UnregisteredLabel(edgeLabel)
 
     @Suppress("UNCHECKED_CAST")
-    override fun <FROM : Vertex, TO : Vertex, E: Edge<FROM, TO>> getEdgeDescription(edgeLabel: String): EdgeDescription<FROM, TO, E>? =
+    override fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getEdgeDescription(edgeLabel: String): EdgeDescription<FROM, TO, E>? =
             edgeDescriptionsByLabel[edgeLabel] as? EdgeDescription<FROM, TO, E>
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> getObjectPropertyDescription(objectPropertyClass: KClass<out T>): ObjectDescription<T> =
-            objectPropertyDescriptionsByClass[objectPropertyClass] as? ObjectDescription<T> ?: throw ObjectDescriptionMissing(objectPropertyClass)
+            objectPropertyDescriptionsByClass[objectPropertyClass] as? ObjectDescription<T>
+                    ?: throw ObjectDescriptionMissing(objectPropertyClass)
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> getScalarPropertyMapper(scalarClass: KClass<out T>): PropertyBiMapper<T, SerializedProperty> =
-            scalarMappers[scalarClass] as? PropertyBiMapper<T, SerializedProperty> ?:
-            throw PropertyMapperMissing(scalarClass)
+            scalarMappers[scalarClass] as? PropertyBiMapper<T, SerializedProperty>
+                    ?: throw PropertyMapperMissing(scalarClass)
 
     companion object {
 

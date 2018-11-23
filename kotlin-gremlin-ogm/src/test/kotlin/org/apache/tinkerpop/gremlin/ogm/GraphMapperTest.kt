@@ -165,7 +165,7 @@ internal class GraphMapperTest {
 
                 @Property(key = "a")
                 string: String?
-        ): BaseVertex<String?>(id = id, a = string)
+        ) : BaseVertex<String?>(id = id, a = string)
 
         @Element(label = "VertexWithDefaultValue")
         class VertexWithDefault(
@@ -175,7 +175,7 @@ internal class GraphMapperTest {
                 @Property(key = "a")
                 @DefaultValue(DefaultStringSupplier::class)
                 string: String
-        ): BaseVertex<String>(id = id, a = string)
+        ) : BaseVertex<String>(id = id, a = string)
 
         val gm1 = object : GraphMapper {
             override val graphDescription: GraphDescription get() = CachedGraphDescription(vertices = setOf(VertexWithNullable::class))
@@ -796,10 +796,10 @@ internal class GraphMapperTest {
     }
 
     private fun <FROM : Vertex, TO : Any> traverse(from: FROM, path: Path.ToSingle<FROM, TO>, expecting: TO) =
-        assertThat(gm.traverse(path from from).fetch()).isEqualTo(expecting)
+            assertThat(gm.traverse(path from from).fetch()).isEqualTo(expecting)
 
     private fun <FROM : Vertex, TO : Any> traverse(from: FROM, path: Path.ToMany<FROM, TO>, expecting: List<TO>) =
-        assertThat( gm.traverse(path from from).fetch()).isEqualTo(expecting)
+            assertThat(gm.traverse(path from from).fetch()).isEqualTo(expecting)
 
     private fun <FROM : Vertex, TO : Any> traverse(from: FROM, path: Path.ToOptional<FROM, TO>, expecting: TO?) =
             assertThat(gm.traverse(path from from).fetch()).isEqualTo(expecting)
@@ -1303,9 +1303,7 @@ internal class GraphMapperTest {
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         gm.saveE(asymmetricSingleToSingle from a to b)
-        val traversalWithMap = asymmetricSingleToSingle.map { vertexWithInt ->
-            vertexWithInt.a
-        }
+        val traversalWithMap = asymmetricSingleToSingle.map(VertexWithInt::a)
         traverse(from = a, path = traversalWithMap, expecting = b.a)
     }
 
@@ -1328,14 +1326,10 @@ internal class GraphMapperTest {
         val b = gm.saveV(VertexWithInt.sample())
         gm.saveE(asymmetricSingleToSingle from a to b)
 
-        val traversalWithFilterAll = asymmetricSingleToSingle.filter { _ ->
-            false
-        }
+        val traversalWithFilterAll = asymmetricSingleToSingle.filter { false }
         traverse(from = a, path = traversalWithFilterAll, expecting = null)
 
-        val traversalWithFilterNone = asymmetricSingleToSingle.filter { _ ->
-            true
-        }
+        val traversalWithFilterNone = asymmetricSingleToSingle.filter { true }
         traverse(from = a, path = traversalWithFilterNone, expecting = b)
     }
 
@@ -1370,7 +1364,7 @@ internal class GraphMapperTest {
         val d = gm.saveV(VertexWithInt(int = 3))
         val e = gm.saveV(VertexWithInt(int = 2))
         gm.saveE(asymmetricSingleToMany from a to listOf(b, c, d, e))
-        val traversalWithSort = asymmetricSingleToMany.sort(Comparator.comparingInt { it.a })
+        val traversalWithSort = asymmetricSingleToMany.sort(Comparator.comparingInt(VertexWithInt::a))
         traverse(from = a, path = traversalWithSort, expecting = listOf(e, d, c, b))
     }
 
@@ -1386,7 +1380,7 @@ internal class GraphMapperTest {
         val connection = asymmetricSingleToMany link asymmetricManyToMany.inverse
         traverse(from = a, path = connection, expecting = listOf(d, d))
         traverse(from = a, path = connection.dedup(), expecting = listOf(d))
-        traverse(from = a, path = connection.map { it.a }.dedup(), expecting = listOf(d.a))
+        traverse(from = a, path = connection.map(VertexWithInt::a).dedup(), expecting = listOf(d.a))
     }
 
     @Test

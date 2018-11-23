@@ -7,5 +7,5 @@ internal class ReservedIDName(
         kClass: KClass<*>
 ) : AnnotationException(
         description = "@Property.name may not equal $idTag. " +
-        "This name is reserved by the library. Class: $kClass"
+                "This name is reserved by the library. Class: $kClass"
 )

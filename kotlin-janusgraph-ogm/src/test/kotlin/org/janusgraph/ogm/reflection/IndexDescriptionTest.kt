@@ -34,7 +34,8 @@ internal class IndexDescriptionTest {
 
     @Test
     fun `test index string vertex property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: String)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: String)
         verify(
                 graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)),
                 expectedIndicies = 1)
@@ -42,7 +43,8 @@ internal class IndexDescriptionTest {
 
     @Test
     fun `test index boolean vertex property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: Boolean)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: Boolean)
         verify(
                 graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)),
                 expectedIndicies = 1)
@@ -50,7 +52,8 @@ internal class IndexDescriptionTest {
 
     @Test
     fun `test index byte vertex property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: Byte)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: Byte)
         verify(
                 graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)),
                 expectedIndicies = 1)
@@ -58,7 +61,8 @@ internal class IndexDescriptionTest {
 
     @Test
     fun `test index double vertex property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: Double)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: Double)
         verify(
                 graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)),
                 expectedIndicies = 1)
@@ -66,7 +70,8 @@ internal class IndexDescriptionTest {
 
     @Test
     fun `test index float vertex property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: Float)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: Float)
         verify(
                 graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)),
                 expectedIndicies = 1)
@@ -74,7 +79,8 @@ internal class IndexDescriptionTest {
 
     @Test
     fun `test index integer vertex property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: Int)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: Int)
         verify(
                 graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)),
                 expectedIndicies = 1)
@@ -82,7 +88,8 @@ internal class IndexDescriptionTest {
 
     @Test
     fun `test index long vertex property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: Long)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: Long)
         verify(
                 graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)),
                 expectedIndicies = 1)
@@ -90,7 +97,8 @@ internal class IndexDescriptionTest {
 
     @Test
     fun `test index instant vertex property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: Instant)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: Instant)
         verify(
                 graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)),
                 expectedIndicies = 1)
@@ -98,7 +106,8 @@ internal class IndexDescriptionTest {
 
     @Test
     fun `test index uuid vertex property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: UUID)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: UUID)
         verify(
                 graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)),
                 expectedIndicies = 1)
@@ -114,9 +123,12 @@ internal class IndexDescriptionTest {
                 val zoneId = parts[1]
                 return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMili), ZoneId.of(zoneId))
             }
+
             override val serializedClass get() = String::class
         }
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: ZonedDateTime)
+
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: ZonedDateTime)
         verify(
                 graphDescription = CachedGraphDescription(
                         vertices = setOf(Vert::class),
@@ -127,7 +139,8 @@ internal class IndexDescriptionTest {
     @Test
     fun `test index nested vertex property`() {
         data class Nested(@Property(key = "a") val a: Int, @Property(key = "b") val b: Int)
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: Nested)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: Nested)
         verify(
                 graphDescription = CachedGraphDescription(vertices = setOf(Vert::class), objectProperties = setOf(Nested::class)),
                 expectedIndicies = 2)
@@ -148,26 +161,30 @@ internal class IndexDescriptionTest {
 
     @Test(expected = MapIndexUnsupported::class)
     fun `test index map property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: Map<String, String>)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: Map<String, String>)
         verify(graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)))
     }
 
     @Test(expected = IterableIndexUnsupported::class)
     fun `test index collection property`() {
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: List<String>)
-       verify(graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)))
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: List<String>)
+        verify(graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)))
     }
 
     @Test(expected = NestedIndexUnsupported::class)
     fun `test indexed nested object property`() {
         data class Nested(@Property(key = "a") val a: Int, @Indexed @Property(key = "b") val b: Int)
-        @Element("test") class Vert(@ID val id: String?, @Indexed @Property("a") val a: Nested)
+        @Element("test")
+        class Vert(@ID val id: String?, @Indexed @Property("a") val a: Nested)
         verify(graphDescription = CachedGraphDescription(vertices = setOf(Vert::class), objectProperties = setOf(Nested::class)))
     }
 
     @Test(expected = IndexNotOnProperty::class)
     fun `test index not on property`() {
-        @Element("test") class Vert(@Indexed @ID val id: String?, @Property("a") val a: String)
+        @Element("test")
+        class Vert(@Indexed @ID val id: String?, @Property("a") val a: String)
         verify(graphDescription = CachedGraphDescription(vertices = setOf(Vert::class)))
     }
 

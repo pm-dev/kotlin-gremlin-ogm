@@ -21,15 +21,15 @@ internal class DroidMutationResolver : GraphQLMutationResolver {
             friendIds: Set<Long>,
             appearsIn: Set<Episode>,
             env: DataFetchingEnvironment): Droid {
-      return env.mutate {
-        val friends = V<Character>(friendIds).fetch()
-        val droid = saveV(Droid(
-            name = Name.parse(name),
-            appearsIn = appearsIn,
-            createdAt = Instant.now(),
-            primaryFunction = primaryFunction))
-        saveE(Character.friends from droid to friends)
-        droid
-      }
+        return env.mutate {
+            val friends = V<Character>(friendIds).fetch()
+            val droid = saveV(Droid(
+                    name = Name.parse(name),
+                    appearsIn = appearsIn,
+                    createdAt = Instant.now(),
+                    primaryFunction = primaryFunction))
+            saveE(Character.friends from droid to friends)
+            droid
+        }
     }
 }

@@ -5,7 +5,7 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 /**
  * Links two [Connection]s as one.
  */
-internal interface Link<FROM : Vertex, MIDDLE : Vertex, TO : Vertex>: Connection<FROM, TO> {
+internal interface Link<FROM : Vertex, MIDDLE : Vertex, TO : Vertex> : Connection<FROM, TO> {
 
     /**
      * The first half of the linked connection.
