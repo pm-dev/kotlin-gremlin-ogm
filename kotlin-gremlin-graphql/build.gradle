@@ -24,13 +24,13 @@ version = '0.19.0'
 sourceCompatibility = 1.8
 compileKotlin {
     kotlinOptions {
-        freeCompilerArgs = ["-Xjsr305=strict", "-Xprogressive"]
+        freeCompilerArgs = ["-Xjsr305=strict", "-progressive"]
         jvmTarget = "1.8"
     }
 }
 compileTestKotlin {
     kotlinOptions {
-        freeCompilerArgs = ["-Xjsr305=strict", "-Xprogressive"]
+        freeCompilerArgs = ["-Xjsr305=strict", "-progressive"]
         jvmTarget = "1.8"
     }
 }
