@@ -1,8 +1,7 @@
 package graphql.servlet.ogm.dataloaders
 
-import kotlinx.coroutines.experimental.DefaultDispatcher
-import kotlinx.coroutines.experimental.future.future
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.future.future
 import org.apache.tinkerpop.gremlin.ogm.GraphMapper
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
@@ -14,12 +13,10 @@ class PathToSingleDataLoader<FROM : Vertex, TO, P : Path.ToSingle<FROM, TO>>(
         private val path: P,
         private val graphMapper: GraphMapper
 ) : DataLoader<FROM, TO>({ froms ->
-    future {
-        withContext(DefaultDispatcher) {
-            logger.debug("Loading to-single path $path from $froms")
-            val result = graphMapper.traverse(path from froms)
-            froms.map { result[it] }
-        }
+    GlobalScope.future {
+        graphql.servlet.ogm.dataloaders.PathToSingleDataLoader.logger.debug("Loading to-single path $path from $froms")
+        val result = graphMapper.traverse(path from froms)
+        froms.map { result[it] }
     }
 }) {
     companion object {

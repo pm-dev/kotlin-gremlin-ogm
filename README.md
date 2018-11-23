@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/pm-dev/kotlin-gremlin-ogm.svg?branch=master)](https://travis-ci.org/pm-dev/kotlin-gremlin-ogm)
 [![Latest Release](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/com/github/pm-dev/kotlin-gremlin-ogm/maven-metadata.xml.svg)](http://central.maven.org/maven2/com/github/pm-dev/kotlin-gremlin-ogm/)
-[![Kotlin Version](https://img.shields.io/badge/kotlin-1.2.60-blue.svg)](http://kotlinlang.org/)
+[![Kotlin Version](https://img.shields.io/badge/kotlin-1.3.10-blue.svg)](http://kotlinlang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 An interactive example can be run using the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example).
@@ -56,14 +56,14 @@ Traverse an Edge
 
 - Gradle
         
-        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.18.0'
+        compile 'com.github.pm-dev:kotlin-gremlin-ogm:0.19.0'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kotlin-gremlin-ogm</artifactId>
-            <version>0.18.0</version>
+            <version>0.19.0</version>
         </dependency>
         
         

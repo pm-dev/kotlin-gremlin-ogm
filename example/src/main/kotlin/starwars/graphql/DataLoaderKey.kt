@@ -1,2 +1,0 @@
-package starwars.graphql
-

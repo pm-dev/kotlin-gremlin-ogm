@@ -8,6 +8,8 @@ import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 import java.util.function.Supplier
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+import javax.websocket.Session
 import javax.websocket.server.HandshakeRequest
 
 open class GraphMapperGQLContextBuilder(
@@ -19,14 +21,14 @@ open class GraphMapperGQLContextBuilder(
             GraphMapperGQLContext(graphMapper.get()).apply {
                 setDataLoaderRegistry(dataLoaderRegistrySupplier.get())
             }
-
-    override fun build(handshakeRequest: HandshakeRequest?): GraphQLContext =
-            GraphMapperGQLContext(graphMapper.get(), null, handshakeRequest, null).apply {
+    
+    override fun build(session: Session, handshakeRequest: HandshakeRequest): GraphQLContext =
+            GraphMapperGQLContext(graphMapper.get(), null, null, session, handshakeRequest, null).apply {
                 setDataLoaderRegistry(dataLoaderRegistrySupplier.get())
             }
 
-    override fun build(httpServletRequest: HttpServletRequest?): GraphQLContext =
-            GraphMapperGQLContext(graphMapper.get(), httpServletRequest).apply {
+    override fun build(httpServletRequest: HttpServletRequest, httpServletResponse: HttpServletResponse): GraphQLContext =
+            GraphMapperGQLContext(graphMapper.get(), httpServletRequest, httpServletResponse).apply {
                 setDataLoaderRegistry(dataLoaderRegistrySupplier.get())
             }
 }

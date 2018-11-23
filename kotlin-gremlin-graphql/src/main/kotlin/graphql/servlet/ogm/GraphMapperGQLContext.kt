@@ -8,14 +8,18 @@ import org.apache.tinkerpop.gremlin.structure.util.TransactionException
 import java.util.*
 import javax.security.auth.Subject
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+import javax.websocket.Session
 import javax.websocket.server.HandshakeRequest
 
 open class GraphMapperGQLContext(
         val graphMapper: GraphMapper,
         httpServletRequest: HttpServletRequest? = null,
+        httpServletResponse: HttpServletResponse? = null,
+        session: Session? = null,
         handshakeRequest: HandshakeRequest? = null,
         subject: Subject? = null
-) : GraphQLContext(httpServletRequest, handshakeRequest, subject)
+) : GraphQLContext(httpServletRequest, httpServletResponse, session, handshakeRequest, subject)
 
 val DataFetchingEnvironment.graphMapper: GraphMapper
     get() = kotlin.run {
