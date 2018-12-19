@@ -34,7 +34,7 @@ internal class Human(
     companion object {
 
         class DefaultName : Supplier<Name> {
-            override fun get() = Name(first = "Unknown", last = "Name")
+            override fun get() = Name(given = "Unknown", surname = "Name")
         }
     }
 }

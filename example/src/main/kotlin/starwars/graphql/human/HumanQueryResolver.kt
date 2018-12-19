@@ -14,8 +14,8 @@ internal class HumanQueryResolver : GraphQLQueryResolver {
     fun human(rawName: String, env: DataFetchingEnvironment): Human? {
         val name = Name.parse(rawName)
         return env.graphMapper.allV<Human> {
-            has("name.first", name.first).apply {
-                if (name.last != null) has("name.last", name.last)
+            has("name.given", name.given).apply {
+                if (name.surname != null) has("name.surname", name.surname)
             }
         }.toOptional().fetch()
     }

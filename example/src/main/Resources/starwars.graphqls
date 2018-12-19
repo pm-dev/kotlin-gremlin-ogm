@@ -115,9 +115,9 @@ type Droid implements Node, Character {
 
 type Name {
 
-    first: String!
+    given: String!
 
-    last: String
+    surname: String
 
     full: String!
 }

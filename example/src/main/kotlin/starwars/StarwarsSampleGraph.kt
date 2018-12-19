@@ -22,43 +22,43 @@ internal open class StarwarsSampleGraph(
         val now = Instant.now()
 
         val lukeSkywalker = graph.saveV(Human(
-                name = Name(first = "Luke", last = "Skywalker"),
+                name = Name(given = "Luke", surname = "Skywalker"),
                 homePlanet = "Tatooine",
                 appearsIn = EnumSet.of(Episode.NEW_HOPE, Episode.JEDI, Episode.EMPIRE),
                 createdAt = now))
 
         val darthVader = graph.saveV(Human(
-                name = Name(first = "Darth", last = "Vader"),
+                name = Name(given = "Darth", surname = "Vader"),
                 homePlanet = "Tatooine",
                 appearsIn = EnumSet.of(Episode.NEW_HOPE, Episode.JEDI, Episode.EMPIRE),
                 createdAt = now))
 
         val hanSolo = graph.saveV(Human(
-                name = Name(first = "Han", last = "Solo"),
+                name = Name(given = "Han", surname = "Solo"),
                 appearsIn = EnumSet.of(Episode.NEW_HOPE, Episode.JEDI, Episode.EMPIRE),
                 homePlanet = null,
                 createdAt = now))
 
         val leiaOrgana = graph.saveV(Human(
-                name = Name(first = "Leia", last = "Organa"),
+                name = Name(given = "Leia", surname = "Organa"),
                 homePlanet = "Alderaan",
                 appearsIn = EnumSet.of(Episode.NEW_HOPE, Episode.JEDI, Episode.EMPIRE),
                 createdAt = now))
 
         val wilhuffTarkin = graph.saveV(Human(
-                name = Name(first = "Wilhuff", last = "Tarkin"),
+                name = Name(given = "Wilhuff", surname = "Tarkin"),
                 appearsIn = EnumSet.of(Episode.NEW_HOPE),
                 homePlanet = null,
                 createdAt = now))
 
         val c3po = graph.saveV(Droid(
-                name = Name(first = "C-3PO"),
+                name = Name(given = "C-3PO"),
                 appearsIn = EnumSet.of(Episode.NEW_HOPE, Episode.JEDI, Episode.EMPIRE),
                 primaryFunction = "Protocol",
                 createdAt = now))
 
         val aretoo = graph.saveV(Droid(
-                name = Name(first = "R2-D2"),
+                name = Name(given = "R2-D2"),
                 appearsIn = EnumSet.of(Episode.NEW_HOPE, Episode.JEDI, Episode.EMPIRE),
                 primaryFunction = "Astromech",
                 createdAt = now))

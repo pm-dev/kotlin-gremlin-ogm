@@ -1,0 +1,30 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "apollo-boost": "^0.1.22",
+    "graphql": "^14.0.2",
+    "react": "^16.6.3",
+    "react-apollo": "^2.3.2",
+    "react-dom": "^16.6.3",
+    "react-scripts-ts": "3.1.0"
+  },
+  "scripts": {
+    "start": "react-scripts-ts start",
+    "build": "react-scripts-ts build",
+    "test": "react-scripts-ts test --env=jsdom",
+    "eject": "react-scripts-ts eject",
+    "generate-gql-types": "./generate-gql-types.sh"
+  },
+  "devDependencies": {
+    "@types/graphql": "^14.0.3",
+    "@types/jest": "^23.3.10",
+    "@types/node": "^10.12.12",
+    "@types/react": "^16.7.13",
+    "@types/react-dom": "^16.0.11",
+    "apollo": "^2.1.8",
+    "babel-plugin-import-graphql": "^2.6.2",
+    "typescript": "^3.2.2"
+  }
+}
