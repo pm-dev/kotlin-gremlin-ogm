@@ -3,6 +3,9 @@
 # Exit on error; error on use of unassigned variable; propagate failed status codes through pipes
 set -euo pipefail
 
+find . -prune -type d -name __generated__ -exec rm -rf \;
+echo "  ✔ Deleted __generated__ directories"
+
 # It would be nice to use the backend local
 # schema file so that the backend wouldn't need to
 # be running, however it seems apollo codegen doesn't
@@ -14,6 +17,7 @@ $(npm bin)/apollo client:codegen \
   --queries=src/**/*.graphql \
   --target=typescript \
   --passthroughCustomScalars \
+  --mergeInFieldsFromFragmentSpreads \
   --addTypename;
 
 # Replace the first line of every file with '// @gen3rated' (misspelled intentionally here) which indicates to code
@@ -29,3 +33,5 @@ done
 for f in src/**/__generated__/*; do
 	prepend "$f";
 done
+
+echo "  ✔ Added // @""generated to the top of generated files"

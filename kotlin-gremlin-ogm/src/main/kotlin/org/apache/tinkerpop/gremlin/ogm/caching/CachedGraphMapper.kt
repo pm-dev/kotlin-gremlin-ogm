@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory
  * invalidated for a Vertex or Edge whenever that Vertex or Edge is written (aka saved, aka serialized) to the graph.
  * Similarly, Edges/Vertices are written to the cache whenever they're read (aka fetched, aka deserialized) from the graph.
  *
- * **IMPORTANT** If a GraphMapper instance is shared across threads, the cache should be thread-safe.
+ * **IMPORTANT** If a GraphMapper instance is shared across threads, the cache should be thread-safe. A single
+ * CachedGraphMapper instance should not be used across more than one transaction/request unless all transactions/requests
+ * are using the same CachedGraphMapper, otherwise it could get out of date. Most likely,
+ * you'll want CachedGraphMapper to be scoped to a single request, so you can safely scale horizontally.
  */
 interface CachedGraphMapper : GraphMapper {
 

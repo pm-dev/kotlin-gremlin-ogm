@@ -1,9 +1,0 @@
-query Hero {
-    hero {
-        createdAt
-        appearsIn
-        name {
-            full
-        }
-    }
-}

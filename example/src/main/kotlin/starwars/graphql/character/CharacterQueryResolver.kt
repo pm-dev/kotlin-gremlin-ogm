@@ -18,7 +18,6 @@ internal class CharacterQueryResolver : GraphQLQueryResolver {
         // This is because abstract Vertex classes are queried by union-ing queries of their base classes
         // Need to find a fix for this.
         val name = Name.parse(rawName)
-        env.graphMapper.V<Character>(rawName).fetch()
         return env.graphMapper.allV<Character> {
             has("name.given", name.given).apply {
                 if (name.surname != null) has("name.surname", name.surname)

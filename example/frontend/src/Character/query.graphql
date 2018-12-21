@@ -1,0 +1,28 @@
+query Character($name: String!) {
+    character(name: $name) {
+        id
+        createdAt
+        appearsIn
+        name {
+            full
+        }
+        ...on Human {
+            homePlanet
+        }
+        ...on Droid {
+            primaryFunction
+        }
+        friends {
+            id
+            name {
+                full
+            }
+        }
+        secondDegreeFriends {
+            id
+            name {
+                full
+            }
+        }
+    }
+}

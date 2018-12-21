@@ -7,5 +7,11 @@
       "node_modules/**/*.ts",
       "coverage/lcov-report/*.js"
     ]
+  },
+  "rules": {
+    "interface-name": false,
+    "no-empty-interface": false,
+    "max-classes-per-file": [true, 1, "exclude-class-expressions"],
+    "object-literal-sort-keys": [true, "match-declaration-order"]
   }
 }
