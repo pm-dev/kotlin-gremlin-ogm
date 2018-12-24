@@ -351,7 +351,7 @@ interface Relationship<FROM : Vertex, TO : Vertex> : Connection<FROM, TO> {
 
         /**
          * Creates a [Relationship] that is uni-directional. When traversed from a 'FROM' object,
-         * there will be exactly 1 'TO' object. When the [inverse] is traversed from a 'TO' object,
+         * there will be 0 or more 'TO' objects. When the [inverse] is traversed from a 'TO' object,
          * there will be exactly 1 'FROM' object.
          */
         inline fun <reified FROM : Vertex, reified TO : Vertex> asymmetricSingleToMany(

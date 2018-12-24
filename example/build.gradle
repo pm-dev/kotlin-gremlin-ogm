@@ -49,7 +49,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
 
     // GraphQL
-    compile('com.graphql-java-kickstart:graphql-java-tools:5.4.0')
+    compile('com.graphql-java-kickstart:graphql-java-tools:5.4.1')
 
     // Guava
     compile('com.google.guava:guava:27.0.1-jre')
