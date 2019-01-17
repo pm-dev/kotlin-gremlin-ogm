@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package org.apache.tinkerpop.gremlin.ogm.paths.steps
 
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
@@ -43,13 +45,13 @@ interface EdgeStep<FROM : Vertex, out TO : Vertex, E : Edge<FROM, TO>> : Step<FR
 }
 
 infix fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> FROM.outE(relationship: Relationship.ToSingle<FROM, TO>) = SingleBoundPathToSingle<FROM, E>(from = this, path = EdgeStep.ToSingle(relationship))
-infix fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> Iterable<FROM>.outE(relationship: Relationship.ToSingle<FROM, TO>) = BoundPathToSingle<FROM, E>(froms = this, path = EdgeStep.ToSingle(relationship))
+infix fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> Collection<FROM>.outE(relationship: Relationship.ToSingle<FROM, TO>) = BoundPathToSingle<FROM, E>(froms = this.toList(), path = EdgeStep.ToSingle(relationship))
 
 infix fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> FROM.outE(relationship: Relationship.ToOptional<FROM, TO>) = SingleBoundPathToOptional<FROM, E>(from = this, path = EdgeStep.ToOptional(relationship))
-infix fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> Iterable<FROM>.outE(relationship: Relationship.ToOptional<FROM, TO>) = BoundPathToOptional<FROM, E>(froms = this, path = EdgeStep.ToOptional(relationship))
+infix fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> Collection<FROM>.outE(relationship: Relationship.ToOptional<FROM, TO>) = BoundPathToOptional<FROM, E>(froms = this.toList(), path = EdgeStep.ToOptional(relationship))
 
 infix fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> FROM.outE(relationship: Relationship.ToMany<FROM, TO>) = SingleBoundPathToMany<FROM, E>(from = this, path = EdgeStep.ToMany(relationship))
-infix fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> Iterable<FROM>.outE(relationship: Relationship.ToMany<FROM, TO>) = BoundPathToMany<FROM, E>(froms = this, path = EdgeStep.ToMany(relationship))
+infix fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> Collection<FROM>.outE(relationship: Relationship.ToMany<FROM, TO>) = BoundPathToMany<FROM, E>(froms = this.toList(), path = EdgeStep.ToMany(relationship))
 
 infix fun <FROM, TO : Vertex, NEXT : Vertex, E : Edge<TO, NEXT>> Path.ToSingle<FROM, TO>.outE(relationship: Relationship.ToSingle<TO, NEXT>): Path.ToSingle<FROM, E> = to(EdgeStep.ToSingle<TO, NEXT, E>(relationship))
 infix fun <FROM, TO : Vertex, NEXT : Vertex, E : Edge<TO, NEXT>> Path.ToSingle<FROM, TO>.outE(relationship: Relationship.ToOptional<TO, NEXT>): Path.ToOptional<FROM, E> = to(EdgeStep.ToOptional<TO, NEXT, E>(relationship))

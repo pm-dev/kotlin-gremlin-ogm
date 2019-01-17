@@ -11,7 +11,8 @@ import java.time.Instant
 
 object GraphQLTimestamp : GraphQLScalarType(
         "Timestamp",
-        null,
+        "A single instantaneous point on the time-line. This timestamp counts in seconds from the unix epoch. " +
+                "Accurate to the nearest millisecond. Formatted as a json number.",
         object : Coercing<Instant, Double> {
 
             override fun serialize(dataFetcherResult: Any?): Double = when (dataFetcherResult) {

@@ -12,4 +12,3 @@ class FlatMap<FROM, TO>(private val map: (FROM) -> Iterable<TO>) : Step.ToMany<F
 fun <FROM, TO, NEXT> Path.ToMany<FROM, TO>.flatMap(map: (TO) -> Iterable<NEXT>): Path.ToMany<FROM, NEXT> = to(FlatMap(map))
 fun <FROM, TO, NEXT> Path.ToOptional<FROM, TO>.flatMap(map: (TO) -> Iterable<NEXT>): Path.ToMany<FROM, NEXT> = to(FlatMap(map))
 fun <FROM, TO, NEXT> Path.ToSingle<FROM, TO>.flatMap(map: (TO) -> Iterable<NEXT>): Path.ToMany<FROM, NEXT> = to(FlatMap(map))
-

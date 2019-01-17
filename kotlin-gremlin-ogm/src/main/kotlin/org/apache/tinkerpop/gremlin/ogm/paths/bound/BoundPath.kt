@@ -11,7 +11,7 @@ interface BoundPath<FROM : Vertex, TO> {
     /**
      * The objects to start traversing [path] with.
      */
-    val froms: Iterable<FROM>
+    val froms: List<FROM>
 
     /**
      * A path through the graph to traverse through using the [from] objects

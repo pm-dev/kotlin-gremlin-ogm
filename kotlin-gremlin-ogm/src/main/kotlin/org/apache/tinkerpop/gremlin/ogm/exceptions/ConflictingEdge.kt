@@ -8,5 +8,6 @@ internal class ConflictingEdge(
         description = "Unable to create edge $relationshipName from $from to $to. " +
                 "This means at least one of the following conditions was true:\n" +
                 "\t1) The relationship is a 'FromOne' and the 'to' object already has an edge with this name." +
-                "\t2) The relationship is a 'ToOne' and the 'from' object already has an edge with this name."
+                "\t2) The relationship is a 'ToOne' and the 'from' object already has an edge with this name." +
+                "\t3) The relationship name is being used on a different relationship."
 )

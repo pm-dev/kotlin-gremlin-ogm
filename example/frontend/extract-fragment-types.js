@@ -2,9 +2,9 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 
 fetch(`http://localhost:5000/graphql`, {
+  headers: {'Content-Type': 'application/json'},
+  method: 'POST',
   body: JSON.stringify({
-    headers: {'Content-Type': 'application/json'},
-    method: 'POST',
     query: `
       {
         __schema {

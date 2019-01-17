@@ -1,0 +1,192 @@
+buildscript {
+    ext {
+        kotlinVersion = '1.3.11'
+        // the password can be specified via command line: ./gradlew :kotlin-janusgraph-ogm:publish -P repoPassword=
+        repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : ''
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("com.github.ben-manes:gradle-versions-plugin:0.20.0")
+    }
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'idea'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'jacoco'
+
+version = '0.20.0'
+sourceCompatibility = 1.8
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xjsr305=strict", "-progressive"]
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xjsr305=strict", "-progressive"]
+        jvmTarget = "1.8"
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    // RX
+    compile("io.reactivex.rxjava2:rxjava:2.2.5")
+
+    // OGM
+    compile project(':kotlin-gremlin-ogm')
+}
+
+
+task sourceJar(type: Jar) {
+    dependsOn classes
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
+    archives javadocJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            customizePom(pom)
+            groupId 'com.github.pm-dev'
+            artifactId 'kotlin-rx-ogm'
+            version '0.20.0'
+
+            from components.java
+
+            // create the sign pom artifact
+            pom.withXml {
+                def pomFile = file("${project.buildDir}/generated-pom.xml")
+                writeTo(pomFile)
+                def pomAscFile = signing.sign(pomFile).signatureFiles[0]
+                artifact(pomAscFile) {
+                    classifier = null
+                    extension = 'pom.asc'
+                }
+            }
+
+            artifact(sourceJar) {
+                classifier = 'sources'
+            }
+            artifact(javadocJar) {
+                classifier = 'javadoc'
+            }
+
+            // create the signed artifacts
+            project.tasks.signArchives.signatureFiles.each {
+                artifact(it) {
+                    def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
+                    if (matcher.find()) {
+                        classifier = matcher.group(1)
+                    } else {
+                        classifier = null
+                    }
+                    extension = 'jar.asc'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username 'pm-dev'
+                password project.repoPassword
+            }
+        }
+    }
+}
+
+def customizePom(pom) {
+    pom.withXml {
+        def root = asNode()
+
+        // eliminate test-scoped dependencies (no need in maven central POMs)
+        root.dependencies.removeAll { dep ->
+            dep.scope == "test"
+        }
+
+        // add all items necessary for maven central publication
+        root.children().last() + {
+            resolveStrategy = DELEGATE_FIRST
+
+            description 'The Object Graph Mapping Library for Kotlin and Gremlin using ReactiveX'
+            name 'kotlin-janusgraph-ogm'
+            url 'https://github.com/pm-dev/kotlin-gremlin-ogm'
+            organization {
+                name 'Peter Meyers'
+                url 'https://www.excusethedisruption.com'
+            }
+            issueManagement {
+                system 'GitHub'
+                url 'https://github.com/pm-dev/kotlin-gremlin-ogm/issues'
+            }
+            licenses {
+                license {
+                    name 'Apache License 2.0'
+                    url 'https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/LICENSE'
+                    distribution 'repo'
+                }
+            }
+            scm {
+                url 'https://github.com/pm-dev/kotlin-gremlin-ogm'
+                connection 'scm:git:git://github.com/pm-dev/kotlin-gremlin-ogm.git'
+                developerConnection 'scm:git:ssh://git@github.com:pm-dev/kotlin-gremlin-ogm.git'
+            }
+            developers {
+                developer {
+                    name 'pm-dev'
+                }
+            }
+        }
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+        csv.enabled false
+    }
+}
+
+check.dependsOn jacocoTestReport
+
+model {
+    tasks.generatePomFileForMavenJavaPublication {
+        destination = file("$buildDir/generated-pom.xml")
+    }
+    tasks.publishMavenJavaPublicationToMavenLocal {
+        dependsOn project.tasks.signArchives
+    }
+    tasks.publishMavenJavaPublicationToMavenRepository {
+        dependsOn project.tasks.signArchives
+    }
+}

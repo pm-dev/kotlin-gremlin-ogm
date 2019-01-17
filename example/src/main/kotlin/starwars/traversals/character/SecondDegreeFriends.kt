@@ -2,6 +2,7 @@ package starwars.traversals.character
 
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.Step
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepTraverser
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.dedup
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.to
 import starwars.models.Character

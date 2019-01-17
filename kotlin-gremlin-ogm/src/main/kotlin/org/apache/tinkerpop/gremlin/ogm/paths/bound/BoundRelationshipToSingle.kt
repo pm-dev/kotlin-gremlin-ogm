@@ -8,6 +8,6 @@ import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
  * the traversed path starts with.
  */
 class BoundRelationshipToSingle<FROM : Vertex, TO : Vertex>(
-        override val froms: Iterable<FROM>,
+        override val froms: List<FROM>,
         override val path: Relationship.ToSingle<FROM, TO>
 ) : BoundRelationship.ToSingle<FROM, TO>

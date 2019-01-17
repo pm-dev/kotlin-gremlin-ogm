@@ -12,7 +12,7 @@ interface SingleBoundPath<FROM : Vertex, TO> : BoundPath<FROM, TO> {
      */
     val from: FROM
 
-    override val froms: Iterable<FROM> get() = listOf(from)
+    override val froms: List<FROM> get() = listOf(from)
 
     /**
      * A [SingleBoundPath] that results to 0 or more 'TO' objects for each 'FROM' object

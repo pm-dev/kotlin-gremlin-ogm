@@ -11,12 +11,13 @@ import starwars.models.Name
 @Component
 internal class DroidQueryResolver : GraphQLQueryResolver {
 
+    @Suppress("unused")
     fun droid(rawName: String, env: DataFetchingEnvironment): Droid? {
         val name = Name.parse(rawName)
         return env.graphMapper.allV<Droid> {
             has("name.given", name.given).apply {
                 if (name.surname != null) has("name.surname", name.surname)
             }
-        }.toOptional().fetch()
+        }.asToOptional().traverse()
     }
 }

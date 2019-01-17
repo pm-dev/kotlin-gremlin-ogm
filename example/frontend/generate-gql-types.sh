@@ -3,7 +3,7 @@
 # Exit on error; error on use of unassigned variable; propagate failed status codes through pipes
 set -euo pipefail
 
-find . -prune -type d -name __generated__ -exec rm -rf \;
+find . -prune -type d -name '__generated__' -exec rm -rf {} +;
 echo "  ✔ Deleted __generated__ directories"
 
 # It would be nice to use the backend local

@@ -45,7 +45,10 @@ dependencies {
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.0.1")
 
     // Gremlin
-    compile project(':kotlin-gremlin-ogm')
+    compile project(':kotlin-rx-ogm')
+    
+    // RX
+    compile("org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.1.0") // adds Observable.await() suspending function
 
     // GraphQL
     compile('com.graphql-java-kickstart:graphql-java-servlet:7.1.0')

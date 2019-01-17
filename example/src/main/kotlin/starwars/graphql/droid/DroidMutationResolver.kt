@@ -22,7 +22,7 @@ internal class DroidMutationResolver : GraphQLMutationResolver {
             appearsIn: Set<Episode>,
             env: DataFetchingEnvironment): Droid {
         return env.mutate {
-            val friends = V<Character>(friendIds).fetch()
+            val friends = V<Character>(friendIds).traverse()
             val droid = saveV(Droid(
                     name = Name.parse(name),
                     appearsIn = appearsIn,

@@ -5,7 +5,7 @@ internal fun <K, V> MutableMap<K, V>.mapValuesInPlace(transform: (Map.Entry<K, V
             entry.setValue(transform(entry))
         }
 
-internal fun <K, V> Sequence<Pair<K, V>>.toMultiMap(requireKeys: Iterable<K> = emptyList()): Map<K, List<V>> {
+internal fun <K, V> Iterable<Pair<K, V>>.toMultiMap(requireKeys: Iterable<K> = emptyList()): Map<K, List<V>> {
     val remainingRequiredKeys = requireKeys.toMutableSet()
     val map = mutableMapOf<K, MutableList<V>>()
     forEach {
@@ -20,26 +20,34 @@ internal fun <K, V> Sequence<Pair<K, V>>.toMultiMap(requireKeys: Iterable<K> = e
     return map
 }
 
-internal fun <K, V> Sequence<Pair<K, V>>.toOptionalMap(requireKeys: Iterable<K> = emptyList()): Map<K, V?> {
+internal fun <K, V> Iterable<Pair<K, V>>.toOptionalMap(requireKeys: Iterable<K> = emptyList()): Map<K, V?> {
     val remainingRequiredKeys = requireKeys.toMutableSet()
-    val map = associateTo(mutableMapOf<K, V?>()) {
-        remainingRequiredKeys.remove(it.first)
-        it
+    val finalMap = mutableMapOf<K, V?>()
+    forEach { pair ->
+        if (finalMap[pair.first] != null) {
+            throw IllegalArgumentException("Two pairs have the same key which shouldn't be possible in an optional map")
+        }
+        remainingRequiredKeys.remove(pair.first)
+        finalMap[pair.first] = pair.second
     }
     remainingRequiredKeys.forEach {
-        map[it] = null
+        finalMap[it] = null
     }
-    return map
+    return finalMap
 }
 
-internal fun <K, V> Sequence<Pair<K, V>>.toSingleMap(requireKeys: Iterable<K> = emptyList()): Map<K, V> {
+internal fun <K, V> Iterable<Pair<K, V>>.toSingleMap(requireKeys: Iterable<K> = emptyList()): Map<K, V> {
     val remainingRequiredKeys = requireKeys.toMutableSet()
-    val map = associateTo(mutableMapOf()) {
-        remainingRequiredKeys.remove(it.first)
-        it
+    val finalMap = mutableMapOf<K, V>()
+    forEach { pair ->
+        if (finalMap[pair.first] != null) {
+            throw IllegalArgumentException("Two pairs have the same key which shouldn't be possible in a single map")
+        }
+        remainingRequiredKeys.remove(pair.first)
+        finalMap[pair.first] = pair.second
     }
     if (remainingRequiredKeys.isNotEmpty()) {
         throw NoSuchElementException("Sequence is missing pair for keys $remainingRequiredKeys")
     }
-    return map
+    return finalMap
 }

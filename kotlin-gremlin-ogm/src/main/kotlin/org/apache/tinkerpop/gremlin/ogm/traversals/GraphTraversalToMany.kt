@@ -2,15 +2,15 @@ package org.apache.tinkerpop.gremlin.ogm.traversals
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 
-class GraphTraversalToMany<FROM, TO> internal constructor(val traversal: GraphTraversal<FROM, TO>) : Sequence<TO> {
+class GraphTraversalToMany<TO> internal constructor(
+        val traversal: GraphTraversal<*, TO>
+) : Iterable<TO> {
 
     override fun iterator() = traversal
 
-    fun fetch(): List<TO> = toList()
+    fun traverse(): List<TO> = traversal.toList()
 
-    fun toSingle() = GraphTraversalToSingle(traversal)
+    fun asToSingle() = GraphTraversalToSingle(traversal)
 
-    fun toOptional() = GraphTraversalToOptional(traversal)
+    fun asToOptional() = GraphTraversalToOptional(traversal)
 }
-
-fun <FROM, TO> GraphTraversal<FROM, TO>.toMany() = GraphTraversalToMany(this)

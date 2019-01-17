@@ -3,7 +3,7 @@ package org.apache.tinkerpop.gremlin.ogm.paths.steps
 import org.apache.tinkerpop.gremlin.ogm.paths.Path
 
 /**
- * A step that maps the current object to zero or more new objects.
+ * A step that maps the current object to a new object.
  */
 class Map<FROM, TO>(private val map: (FROM) -> TO) : Step.ToSingle<FROM, TO>({ traverser ->
     traverser.traversal.map { map(it.get()) }

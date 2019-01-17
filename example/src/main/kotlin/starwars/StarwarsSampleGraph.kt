@@ -2,6 +2,7 @@ package starwars
 
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
+import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component
@@ -10,6 +11,7 @@ import starwars.models.Character.Companion.friends
 import java.time.Instant
 import java.util.*
 
+@Suppress("unused")
 @Component
 internal open class StarwarsSampleGraph(
         private val graphSupplier: StarwarsGraphMapperSupplier
@@ -69,6 +71,10 @@ internal open class StarwarsSampleGraph(
         graph.saveE(friends from hanSolo to listOf(leiaOrgana, aretoo))
         graph.saveE(Sibling(from = lukeSkywalker, to = leiaOrgana, twins = true))
         graph.traversal.tx().commit()
-        println("Loaded Starwars Graph")
+        logger.info("Loaded Starwars Graph")
+    }
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(StarwarsSampleGraph::class.java)
     }
 }

@@ -22,7 +22,7 @@ internal class CharacterQueryResolver : GraphQLQueryResolver {
             has("name.given", name.given).apply {
                 if (name.surname != null) has("name.surname", name.surname)
             }
-        }.toOptional().fetch()
+        }.asToOptional().traverse()
     }
 }
 

@@ -8,6 +8,6 @@ import org.apache.tinkerpop.gremlin.ogm.paths.Path
  * the traversed path starts with.
  */
 class BoundPathToMany<FROM : Vertex, TO>(
-        override val froms: Iterable<FROM>,
+        override val froms: List<FROM>,
         override val path: Path.ToMany<FROM, TO>
 ) : BoundPath.ToMany<FROM, TO>

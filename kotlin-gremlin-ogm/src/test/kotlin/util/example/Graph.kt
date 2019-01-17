@@ -30,6 +30,7 @@ internal fun exampleGraphMapper() = object : GraphMapper {
                     VertexWithString::class,
                     VertexWithInstant::class,
                     VertexWithUUID::class,
+                    VertexWithURL::class,
                     VertexWithLong::class,
                     VertexWithDoubleNested::class,
                     VertexWithObjectList::class,

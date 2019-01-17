@@ -1,1 +1,1 @@
-include ':kotlin-gremlin-ogm', ':example', ':kotlin-janusgraph-ogm', ':kotlin-gremlin-graphql'
+include ':kotlin-gremlin-ogm', ':example', ':kotlin-janusgraph-ogm', ':kotlin-gremlin-graphql', ':kotlin-rx-ogm'

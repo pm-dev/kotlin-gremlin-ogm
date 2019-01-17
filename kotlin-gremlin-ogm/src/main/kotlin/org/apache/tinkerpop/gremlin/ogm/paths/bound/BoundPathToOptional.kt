@@ -8,6 +8,6 @@ import org.apache.tinkerpop.gremlin.ogm.paths.Path
  * the traversed path starts with.
  */
 class BoundPathToOptional<FROM : Vertex, TO>(
-        override val froms: Iterable<FROM>,
+        override val froms: List<FROM>,
         override val path: Path.ToOptional<FROM, TO>
 ) : BoundPath.ToOptional<FROM, TO>

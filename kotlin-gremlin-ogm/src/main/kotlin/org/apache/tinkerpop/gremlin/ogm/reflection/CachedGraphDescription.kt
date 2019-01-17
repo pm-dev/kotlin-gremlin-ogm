@@ -2,17 +2,18 @@ package org.apache.tinkerpop.gremlin.ogm.reflection
 
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
-import org.apache.tinkerpop.gremlin.ogm.exceptions.ObjectDescriptionMissing
-import org.apache.tinkerpop.gremlin.ogm.exceptions.PropertyMapperMissing
-import org.apache.tinkerpop.gremlin.ogm.exceptions.UnregisteredClass
-import org.apache.tinkerpop.gremlin.ogm.exceptions.UnregisteredLabel
+import org.apache.tinkerpop.gremlin.ogm.exceptions.*
 import org.apache.tinkerpop.gremlin.ogm.extensions.filterNullValues
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
+import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.BigDecimalPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.InstantPropertyMapper
+import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.URLPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.UUIDPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.identity.*
 import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
+import java.math.BigDecimal
+import java.net.URL
 import java.time.Instant
 import java.util.*
 import kotlin.reflect.KClass
@@ -53,7 +54,12 @@ open class CachedGraphDescription(
                 objectPropertyClass to ObjectPropertyDescription(objectPropertyClass)
             }
 
-    private val relationshipsByLabel = relationships.keys.associateBy(Relationship<out Vertex, out Vertex>::name)
+    private val relationshipsByLabel = relationships.keys
+            .groupBy(Relationship<out Vertex, out Vertex>::name)
+            .mapValues { (name, relationships) ->
+                if (relationships.size > 1) throw DuplicateRelationshipName(name = name)
+                relationships.single()
+            }
 
     override val vertexClasses get() = vertexDescriptionsByClass.keys
 
@@ -108,6 +114,8 @@ open class CachedGraphDescription(
                 Int::class to IntegerPropertyMapper,
                 Boolean::class to BooleanPropertyMapper,
                 Instant::class to InstantPropertyMapper,
-                UUID::class to UUIDPropertyMapper)
+                UUID::class to UUIDPropertyMapper,
+                URL::class to URLPropertyMapper,
+                BigDecimal::class to BigDecimalPropertyMapper)
     }
 }

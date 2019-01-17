@@ -2,6 +2,7 @@ package util.example
 
 import org.apache.tinkerpop.gremlin.ogm.annotations.*
 import org.assertj.core.internal.bytebuddy.utility.RandomString
+import java.net.URL
 import java.time.Instant
 import java.util.*
 import kotlin.math.absoluteValue
@@ -133,6 +134,22 @@ internal class VertexWithInstant(
 
     companion object {
         fun sample() = VertexWithInstant(instant = Instant.now())
+    }
+}
+
+@Element(label = "VertexWithURL")
+internal class VertexWithURL(
+
+        @ID
+        id: Long? = null,
+
+        @Property(key = "a")
+        url: URL
+
+) : BaseVertex<URL>(id = id, a = url) {
+
+    companion object {
+        fun sample() = VertexWithURL(url = URL("http://example.com"))
     }
 }
 

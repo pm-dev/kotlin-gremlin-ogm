@@ -13,6 +13,8 @@ internal data class Name(
 ) {
     val full get() = if (surname == null) given else "$given $surname"
 
+    override fun toString() = full
+
     companion object {
         fun parse(raw: String): Name {
             val nameParts = raw.split(" ")
