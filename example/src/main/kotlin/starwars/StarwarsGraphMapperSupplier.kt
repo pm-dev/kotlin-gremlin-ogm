@@ -19,9 +19,9 @@ internal class StarwarsGraphMapperSupplier : Supplier<GraphMapper> {
                     Human::class,
                     Droid::class),
 
-            // 2) All relationships must be registered here. If the relationship
+            // 2) All relationships must be registered here. If the spec
             // has a corresponding Edge, add that as the map entry's value (otherwise, null).
-            relationships = mapOf(
+            edgeSpecs = mapOf(
                     Character.friends to null,
                     Sibling.siblings to Sibling::class
             ),

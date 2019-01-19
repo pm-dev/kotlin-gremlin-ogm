@@ -1,7 +1,6 @@
 package starwars
 
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
@@ -70,7 +69,7 @@ internal open class StarwarsSampleGraph(
         graph.saveE(friends from c3po to aretoo)
         graph.saveE(friends from hanSolo to listOf(leiaOrgana, aretoo))
         graph.saveE(Sibling(from = lukeSkywalker, to = leiaOrgana, twins = true))
-        graph.traversal.tx().commit()
+        graph.g.tx().commit()
         logger.info("Loaded Starwars Graph")
     }
 

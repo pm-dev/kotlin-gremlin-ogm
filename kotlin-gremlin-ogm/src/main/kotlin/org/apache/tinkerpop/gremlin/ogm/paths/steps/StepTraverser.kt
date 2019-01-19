@@ -5,17 +5,17 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 
 
 /**
- * This object is passed to the 'invoke' function of objects implementing the Path interface.
+ * This object is passed to the 'invoke' function of objects implementing the Step interface.
  */
 class StepTraverser<FROM>(
 
         /**
-         * The traversal that an implementor of a Path should use to advance the traversal.
+         * The g that an implementor of a Path should use to advance the g.
          */
         val traversal: GraphTraversal<*, FROM>,
 
         /**
-         * The graph mapper that is managing the traversal.
+         * The graph mapper that is managing the g.
          * Use this mapper to serialize/deserialize objects to/from their graph form
          */
         val graphMapper: GraphMapper

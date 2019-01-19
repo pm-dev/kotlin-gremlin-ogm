@@ -4,7 +4,7 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
 import kotlin.reflect.KClass
 
 /**
@@ -35,7 +35,7 @@ interface GraphDescription {
 
     val edgeLabels: Set<String>
 
-    fun <FROM : Vertex, TO : Vertex> getEdgeRelationship(edgeLabel: String): Relationship<FROM, TO>
+    fun <FROM : Vertex, TO : Vertex> getEdgeSpec(edgeLabel: String): EdgeSpec<FROM, TO>
 
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getEdgeDescription(edgeLabel: String): EdgeDescription<FROM, TO, E>?
 

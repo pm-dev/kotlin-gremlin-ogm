@@ -5,10 +5,10 @@ import io.reactivex.MaybeObserver
 import io.reactivex.disposables.Disposables
 import io.reactivex.exceptions.Exceptions
 import io.reactivex.plugins.RxJavaPlugins
-import org.apache.tinkerpop.gremlin.ogm.traversals.GraphTraversalToOptional
+import org.apache.tinkerpop.gremlin.ogm.traversals.SingleBoundGraphTraversalToOptional
 
 internal class GraphTraversalToOptionalRx<TO>(
-        private val traversal: GraphTraversalToOptional<TO>
+        private val traversal: SingleBoundGraphTraversalToOptional<TO>
 ) : Maybe<TO>() {
 
     override fun subscribeActual(observer: MaybeObserver<in TO>) {

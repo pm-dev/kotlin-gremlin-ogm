@@ -2,7 +2,8 @@ package util.example
 
 import org.apache.tinkerpop.gremlin.ogm.annotations.*
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.SingleToSingleAsymmetricEdgeSpec
 
 @Element(label = "fromIntToBool")
 internal class IntToBoolEdge(
@@ -26,6 +27,6 @@ internal class IntToBoolEdge(
     override fun equals(other: Any?): Boolean = id != null && other != null && other is IntToBoolEdge && id == other.id
 
     companion object {
-        val fromIntToBool = Relationship.asymmetricSingleToSingle<VertexWithInt, VertexWithBoolean>("fromIntToBool")
+        val fromIntToBool = SingleToSingleAsymmetricEdgeSpec<VertexWithInt, VertexWithBoolean>("fromIntToBool")
     }
 }

@@ -11,7 +11,7 @@ import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.InstantPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.URLPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.UUIDPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.identity.*
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
 import java.math.BigDecimal
 import java.net.URL
 import java.time.Instant
@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
 
 open class CachedGraphDescription(
         vertices: Set<KClass<out Vertex>>,
-        relationships: Map<Relationship<out Vertex, out Vertex>, KClass<out Edge<Vertex, Vertex>>?> = mapOf(),
+        edgeSpecs: Map<EdgeSpec<out Vertex, out Vertex>, KClass<out Edge<Vertex, Vertex>>?> = mapOf(),
         objectProperties: Set<KClass<*>> = setOf(),
         scalarProperties: Map<KClass<*>, PropertyBiMapper<*, *>> = emptyMap()
 ) : GraphDescription {
@@ -37,7 +37,7 @@ open class CachedGraphDescription(
                 it.value.label
             }
 
-    private val edgeDescriptionsByClass = relationships
+    private val edgeDescriptionsByClass = edgeSpecs
             .filterNullValues()
             .entries
             .associate { (relationship, edgeClass) ->
@@ -54,8 +54,8 @@ open class CachedGraphDescription(
                 objectPropertyClass to ObjectPropertyDescription(objectPropertyClass)
             }
 
-    private val relationshipsByLabel = relationships.keys
-            .groupBy(Relationship<out Vertex, out Vertex>::name)
+    private val edgeSpecsByLabel = edgeSpecs.keys
+            .groupBy(EdgeSpec<out Vertex, out Vertex>::name)
             .mapValues { (name, relationships) ->
                 if (relationships.size > 1) throw DuplicateRelationshipName(name = name)
                 relationships.single()
@@ -67,7 +67,7 @@ open class CachedGraphDescription(
 
     override val edgeClasses get() = edgeDescriptionsByClass.keys
 
-    override val edgeLabels get() = relationshipsByLabel.keys
+    override val edgeLabels get() = edgeSpecsByLabel.keys
 
     override val objectPropertyClasses get() = objectPropertyDescriptionsByClass.keys
 
@@ -86,8 +86,9 @@ open class CachedGraphDescription(
             edgeDescriptionsByClass[edgeClass] as? EdgeDescription<FROM, TO, E> ?: throw UnregisteredClass(edgeClass)
 
     @Suppress("UNCHECKED_CAST")
-    override fun <FROM : Vertex, TO : Vertex> getEdgeRelationship(edgeLabel: String): Relationship<FROM, TO> =
-            relationshipsByLabel[edgeLabel] as? Relationship<FROM, TO> ?: throw UnregisteredLabel(edgeLabel)
+    override fun <FROM : Vertex, TO : Vertex> getEdgeSpec(edgeLabel: String): EdgeSpec<FROM, TO> =
+            edgeSpecsByLabel[edgeLabel] as? EdgeSpec<FROM, TO>
+                    ?: throw UnregisteredLabel(edgeLabel)
 
     @Suppress("UNCHECKED_CAST")
     override fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> getEdgeDescription(edgeLabel: String): EdgeDescription<FROM, TO, E>? =

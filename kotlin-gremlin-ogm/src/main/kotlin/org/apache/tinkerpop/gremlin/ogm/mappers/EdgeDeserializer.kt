@@ -28,7 +28,7 @@ internal class EdgeDeserializer(private val graphDescription: GraphDescription) 
                     (fromVertexTag to fromVertex)
             return it(serializedProperties)
         } ?: kotlin.run {
-            val relationship = graphDescription.getEdgeRelationship<FROM, TO>(from.label())
+            val relationship = graphDescription.getEdgeSpec<FROM, TO>(from.label())
             @Suppress("UNCHECKED_CAST")
             BasicEdge(fromVertex, toVertex, relationship) as E
         }

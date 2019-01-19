@@ -1,20 +1,17 @@
 package org.apache.tinkerpop.gremlin.ogm
 
-import org.apache.tinkerpop.gremlin.ogm.annotations.defaults.DefaultValue
 import org.apache.tinkerpop.gremlin.ogm.annotations.Element
 import org.apache.tinkerpop.gremlin.ogm.annotations.ID
 import org.apache.tinkerpop.gremlin.ogm.annotations.Property
+import org.apache.tinkerpop.gremlin.ogm.annotations.defaults.DefaultValue
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ConflictingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.MissingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ObjectNotSaved
-import org.apache.tinkerpop.gremlin.ogm.paths.Path
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Connection
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.link
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.*
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
 import org.apache.tinkerpop.gremlin.ogm.reflection.CachedGraphDescription
 import org.apache.tinkerpop.gremlin.ogm.reflection.GraphDescription
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
@@ -184,12 +181,12 @@ internal class GraphMapperTest {
 
         val gm1 = object : GraphMapper {
             override val graphDescription: GraphDescription get() = CachedGraphDescription(vertices = setOf(VertexWithNullable::class))
-            override val traversal: GraphTraversalSource get() = gm.traversal
+            override val g: GraphTraversalSource get() = gm.g
         }
 
         val gm2 = object : GraphMapper {
             override val graphDescription: GraphDescription get() = CachedGraphDescription(vertices = setOf(VertexWithDefault::class))
-            override val traversal: GraphTraversalSource get() = gm.traversal
+            override val g: GraphTraversalSource get() = gm.g
         }
 
         val defaultStringSupplier = DefaultStringSupplier()
@@ -279,21 +276,21 @@ internal class GraphMapperTest {
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
 
-        traverse(from = a, path = asymmetricManyToMany, expecting = listOf())
-        traverse(from = b, path = asymmetricManyToMany, expecting = listOf())
-        traverse(from = b, path = asymmetricManyToMany.inverse, expecting = listOf())
-        traverse(from = c, path = asymmetricManyToMany.inverse, expecting = listOf())
+        traverse(from = a, step = asymmetricManyToMany, expecting = listOf())
+        traverse(from = b, step = asymmetricManyToMany, expecting = listOf())
+        traverse(from = b, step = asymmetricManyToMany.inverse, expecting = listOf())
+        traverse(from = c, step = asymmetricManyToMany.inverse, expecting = listOf())
 
         gm.saveE(asymmetricManyToMany from a to listOf(b, c))
         gm.saveE(asymmetricManyToMany from b to c)
 
-        traverse(from = a, path = asymmetricManyToMany, expecting = listOf(b, c))
-        traverse(from = b, path = asymmetricManyToMany, expecting = listOf(c))
-        traverse(from = c, path = asymmetricManyToMany, expecting = listOf())
+        traverse(from = a, step = asymmetricManyToMany, expecting = listOf(b, c))
+        traverse(from = b, step = asymmetricManyToMany, expecting = listOf(c))
+        traverse(from = c, step = asymmetricManyToMany, expecting = listOf())
 
-        traverse(from = a, path = asymmetricManyToMany.inverse, expecting = listOf())
-        traverse(from = b, path = asymmetricManyToMany.inverse, expecting = listOf(a))
-        traverse(from = c, path = asymmetricManyToMany.inverse, expecting = listOf(a, b))
+        traverse(from = a, step = asymmetricManyToMany.inverse, expecting = listOf())
+        traverse(from = b, step = asymmetricManyToMany.inverse, expecting = listOf(a))
+        traverse(from = c, step = asymmetricManyToMany.inverse, expecting = listOf(a, b))
     }
 
     @Test
@@ -304,7 +301,7 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricManyToMany from a to b)
         gm.saveE(asymmetricManyToMany from a to b)
 
-        traverse(from = a, path = asymmetricManyToMany, expecting = listOf(b))
+        traverse(from = a, step = asymmetricManyToMany, expecting = listOf(b))
     }
 
     @Test
@@ -313,13 +310,13 @@ internal class GraphMapperTest {
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
 
-        traverse(from = a, path = asymmetricOptionalToMany, expecting = listOf())
+        traverse(from = a, step = asymmetricOptionalToMany, expecting = listOf())
 
         gm.saveE(asymmetricOptionalToMany from a to listOf(b, c))
 
-        traverse(from = a, path = asymmetricOptionalToMany, expecting = listOf(b, c))
-        traverse(from = b, path = asymmetricOptionalToMany, expecting = listOf())
-        traverse(from = c, path = asymmetricOptionalToMany, expecting = listOf())
+        traverse(from = a, step = asymmetricOptionalToMany, expecting = listOf(b, c))
+        traverse(from = b, step = asymmetricOptionalToMany, expecting = listOf())
+        traverse(from = c, step = asymmetricOptionalToMany, expecting = listOf())
     }
 
     @Test(expected = ConflictingEdge::class)
@@ -341,30 +338,30 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricOptionalToMany from a to b)
         gm.saveE(asymmetricOptionalToMany from a to b)
 
-        traverse(from = a, path = asymmetricOptionalToMany, expecting = listOf(b))
+        traverse(from = a, step = asymmetricOptionalToMany, expecting = listOf(b))
     }
 
     @Test
     fun `test traverse AsymmetricManyToOptional relationship`() {
-        val asymmetricManyToOptional: Relationship.AsymmetricManyToOptional<VertexWithInt, VertexWithInt> =
+        val asymmetricManyToOptional: EdgeSpec.ManyToOptional<VertexWithInt, VertexWithInt> =
                 asymmetricOptionalToMany.inverse
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
 
-        traverse(from = a, path = asymmetricManyToOptional, expecting = null)
-        traverse(from = b, path = asymmetricManyToOptional, expecting = null)
+        traverse(from = a, step = asymmetricManyToOptional, expecting = null)
+        traverse(from = b, step = asymmetricManyToOptional, expecting = null)
 
         gm.saveE(asymmetricManyToOptional from listOf(a, b) to c)
 
-        traverse(from = a, path = asymmetricManyToOptional, expecting = c)
-        traverse(from = b, path = asymmetricManyToOptional, expecting = c)
-        traverse(from = c, path = asymmetricManyToOptional, expecting = null)
+        traverse(from = a, step = asymmetricManyToOptional, expecting = c)
+        traverse(from = b, step = asymmetricManyToOptional, expecting = c)
+        traverse(from = c, step = asymmetricManyToOptional, expecting = null)
     }
 
     @Test(expected = ConflictingEdge::class)
     fun `test save AsymmetricManyToOptional relationship conflicting edge to vertex`() {
-        val asymmetricManyToOptional: Relationship.AsymmetricManyToOptional<VertexWithInt, VertexWithInt> =
+        val asymmetricManyToOptional: EdgeSpec.ManyToOptional<VertexWithInt, VertexWithInt> =
                 asymmetricOptionalToMany.inverse
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
@@ -376,7 +373,7 @@ internal class GraphMapperTest {
 
     @Test
     fun `test duplicate AsymmetricManyToOptional relationship is no-op`() {
-        val asymmetricManyToOptional: Relationship.AsymmetricManyToOptional<VertexWithInt, VertexWithInt> =
+        val asymmetricManyToOptional: EdgeSpec.ManyToOptional<VertexWithInt, VertexWithInt> =
                 asymmetricOptionalToMany.inverse
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
@@ -384,7 +381,7 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricManyToOptional from a to b)
         gm.saveE(asymmetricManyToOptional from a to b)
 
-        traverse(from = a, path = asymmetricManyToOptional, expecting = b)
+        traverse(from = a, step = asymmetricManyToOptional, expecting = b)
     }
 
     @Test
@@ -395,9 +392,9 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricSingleToMany from a to listOf(b, c))
 
-        traverse(from = a, path = asymmetricSingleToMany, expecting = listOf(b, c))
-        traverse(from = b, path = asymmetricSingleToMany, expecting = listOf())
-        traverse(from = c, path = asymmetricSingleToMany, expecting = listOf())
+        traverse(from = a, step = asymmetricSingleToMany, expecting = listOf(b, c))
+        traverse(from = b, step = asymmetricSingleToMany, expecting = listOf())
+        traverse(from = c, step = asymmetricSingleToMany, expecting = listOf())
     }
 
     @Test(expected = ConflictingEdge::class)
@@ -418,12 +415,12 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToMany from a to b)
         gm.saveE(asymmetricSingleToMany from a to b)
 
-        traverse(from = a, path = asymmetricSingleToMany, expecting = listOf(b))
+        traverse(from = a, step = asymmetricSingleToMany, expecting = listOf(b))
     }
 
     @Test
     fun `test traverse AsymmetricManyToSingle relationship`() {
-        val asymmetricManyToSingle: Relationship.AsymmetricManyToSingle<VertexWithInt, VertexWithInt> =
+        val asymmetricManyToSingle: EdgeSpec.ManyToSingle<VertexWithInt, VertexWithInt> =
                 asymmetricSingleToMany.inverse
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
@@ -431,13 +428,13 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricManyToSingle from listOf(a, b) to c)
 
-        traverse(from = a, path = asymmetricManyToSingle, expecting = c)
-        traverse(from = b, path = asymmetricManyToSingle, expecting = c)
+        traverse(from = a, step = asymmetricManyToSingle, expecting = c)
+        traverse(from = b, step = asymmetricManyToSingle, expecting = c)
     }
 
     @Test(expected = ConflictingEdge::class)
     fun `test save AsymmetricManySingle relationship conflicting edge to vertex`() {
-        val asymmetricManyToSingle: Relationship.AsymmetricManyToSingle<VertexWithInt, VertexWithInt> =
+        val asymmetricManyToSingle: EdgeSpec.ManyToSingle<VertexWithInt, VertexWithInt> =
                 asymmetricSingleToMany.inverse
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
@@ -449,7 +446,7 @@ internal class GraphMapperTest {
 
     @Test(expected = MissingEdge::class)
     fun `test traverse AsymmetricManySingle relationship missing to vertex`() {
-        val asymmetricManyToSingle: Relationship.AsymmetricManyToSingle<VertexWithInt, VertexWithInt> =
+        val asymmetricManyToSingle: EdgeSpec.ManyToSingle<VertexWithInt, VertexWithInt> =
                 asymmetricSingleToMany.inverse
         val a = gm.saveV(VertexWithInt.sample())
         gm.traversal(asymmetricManyToSingle from a).traverse()
@@ -457,7 +454,7 @@ internal class GraphMapperTest {
 
     @Test
     fun `test duplicate AsymmetricManySingle relationship is no-op`() {
-        val asymmetricManyToSingle: Relationship.AsymmetricManyToSingle<VertexWithInt, VertexWithInt> =
+        val asymmetricManyToSingle: EdgeSpec.ManyToSingle<VertexWithInt, VertexWithInt> =
                 asymmetricSingleToMany.inverse
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
@@ -465,7 +462,7 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricManyToSingle from a to b)
         gm.saveE(asymmetricManyToSingle from a to b)
 
-        traverse(from = a, path = asymmetricManyToSingle, expecting = b)
+        traverse(from = a, step = asymmetricManyToSingle, expecting = b)
     }
 
     @Test
@@ -478,13 +475,13 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToSingle from b to c)
         gm.saveE(asymmetricSingleToSingle from c to a)
 
-        traverse(from = a, path = asymmetricSingleToSingle, expecting = b)
-        traverse(from = b, path = asymmetricSingleToSingle, expecting = c)
-        traverse(from = c, path = asymmetricSingleToSingle, expecting = a)
+        traverse(from = a, step = asymmetricSingleToSingle, expecting = b)
+        traverse(from = b, step = asymmetricSingleToSingle, expecting = c)
+        traverse(from = c, step = asymmetricSingleToSingle, expecting = a)
 
-        traverse(from = a, path = asymmetricSingleToSingle.inverse, expecting = c)
-        traverse(from = b, path = asymmetricSingleToSingle.inverse, expecting = a)
-        traverse(from = c, path = asymmetricSingleToSingle.inverse, expecting = b)
+        traverse(from = a, step = asymmetricSingleToSingle.inverse, expecting = c)
+        traverse(from = b, step = asymmetricSingleToSingle.inverse, expecting = a)
+        traverse(from = c, step = asymmetricSingleToSingle.inverse, expecting = b)
     }
 
     @Test(expected = ConflictingEdge::class)
@@ -521,7 +518,7 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToSingle from a to b)
         gm.saveE(asymmetricSingleToSingle from a to b)
 
-        traverse(from = a, path = asymmetricSingleToSingle, expecting = b)
+        traverse(from = a, step = asymmetricSingleToSingle, expecting = b)
     }
 
     @Test
@@ -529,11 +526,11 @@ internal class GraphMapperTest {
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
 
-        traverse(from = a, path = asymmetricSingleToOptional, expecting = null)
+        traverse(from = a, step = asymmetricSingleToOptional, expecting = null)
 
         gm.saveE(asymmetricSingleToOptional from a to b)
 
-        traverse(from = a, path = asymmetricSingleToOptional, expecting = b)
+        traverse(from = a, step = asymmetricSingleToOptional, expecting = b)
     }
 
     @Test(expected = ConflictingEdge::class)
@@ -564,7 +561,7 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToOptional from a to b)
         gm.saveE(asymmetricSingleToOptional from a to b)
 
-        traverse(from = a, path = asymmetricSingleToOptional, expecting = b)
+        traverse(from = a, step = asymmetricSingleToOptional, expecting = b)
     }
 
     @Test
@@ -574,7 +571,7 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricOptionalToSingle from a to b)
 
-        traverse(from = a, path = asymmetricOptionalToSingle, expecting = b)
+        traverse(from = a, step = asymmetricOptionalToSingle, expecting = b)
     }
 
     @Test(expected = ConflictingEdge::class)
@@ -611,7 +608,7 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricOptionalToSingle from a to b)
         gm.saveE(asymmetricOptionalToSingle from a to b)
 
-        traverse(from = a, path = asymmetricOptionalToSingle, expecting = b)
+        traverse(from = a, step = asymmetricOptionalToSingle, expecting = b)
     }
 
     @Test
@@ -619,11 +616,11 @@ internal class GraphMapperTest {
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
 
-        traverse(from = a, path = asymmetricOptionalToOptional, expecting = null)
+        traverse(from = a, step = asymmetricOptionalToOptional, expecting = null)
 
         gm.saveE(asymmetricOptionalToOptional from a to b)
 
-        traverse(from = a, path = asymmetricOptionalToOptional, expecting = b)
+        traverse(from = a, step = asymmetricOptionalToOptional, expecting = b)
     }
 
     @Test(expected = ConflictingEdge::class)
@@ -654,7 +651,7 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricOptionalToOptional from a to b)
         gm.saveE(asymmetricOptionalToOptional from a to b)
 
-        traverse(from = a, path = asymmetricOptionalToOptional, expecting = b)
+        traverse(from = a, step = asymmetricOptionalToOptional, expecting = b)
     }
 
     @Test
@@ -662,19 +659,19 @@ internal class GraphMapperTest {
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
 
-        traverse(from = a, path = symmetricOptionalToOptional, expecting = null)
-        traverse(from = b, path = symmetricOptionalToOptional, expecting = null)
+        traverse(from = a, step = symmetricOptionalToOptional, expecting = null)
+        traverse(from = b, step = symmetricOptionalToOptional, expecting = null)
 
-        traverse(from = a, path = symmetricOptionalToOptional.inverse, expecting = null)
-        traverse(from = b, path = symmetricOptionalToOptional.inverse, expecting = null)
+        traverse(from = a, step = symmetricOptionalToOptional.inverse, expecting = null)
+        traverse(from = b, step = symmetricOptionalToOptional.inverse, expecting = null)
 
         gm.saveE(symmetricOptionalToOptional from a to b)
 
-        traverse(from = a, path = symmetricOptionalToOptional, expecting = b)
-        traverse(from = b, path = symmetricOptionalToOptional, expecting = a)
+        traverse(from = a, step = symmetricOptionalToOptional, expecting = b)
+        traverse(from = b, step = symmetricOptionalToOptional, expecting = a)
 
-        traverse(from = a, path = symmetricOptionalToOptional.inverse, expecting = b)
-        traverse(from = b, path = symmetricOptionalToOptional.inverse, expecting = a)
+        traverse(from = a, step = symmetricOptionalToOptional.inverse, expecting = b)
+        traverse(from = b, step = symmetricOptionalToOptional.inverse, expecting = a)
     }
 
     @Test(expected = ConflictingEdge::class)
@@ -705,11 +702,11 @@ internal class GraphMapperTest {
         gm.saveE(symmetricOptionalToOptional from a to b)
         gm.saveE(symmetricOptionalToOptional from b to a)
 
-        traverse(from = a, path = symmetricOptionalToOptional, expecting = b)
-        traverse(from = b, path = symmetricOptionalToOptional, expecting = a)
+        traverse(from = a, step = symmetricOptionalToOptional, expecting = b)
+        traverse(from = b, step = symmetricOptionalToOptional, expecting = a)
 
-        traverse(from = a, path = symmetricOptionalToOptional.inverse, expecting = b)
-        traverse(from = b, path = symmetricOptionalToOptional.inverse, expecting = a)
+        traverse(from = a, step = symmetricOptionalToOptional.inverse, expecting = b)
+        traverse(from = b, step = symmetricOptionalToOptional.inverse, expecting = a)
     }
 
     @Test
@@ -719,11 +716,11 @@ internal class GraphMapperTest {
 
         gm.saveE(symmetricSingleToSingle from a to b)
 
-        traverse(from = a, path = symmetricSingleToSingle, expecting = b)
-        traverse(from = b, path = symmetricSingleToSingle, expecting = a)
+        traverse(from = a, step = symmetricSingleToSingle, expecting = b)
+        traverse(from = b, step = symmetricSingleToSingle, expecting = a)
 
-        traverse(from = a, path = symmetricSingleToSingle.inverse, expecting = b)
-        traverse(from = b, path = symmetricSingleToSingle.inverse, expecting = a)
+        traverse(from = a, step = symmetricSingleToSingle.inverse, expecting = b)
+        traverse(from = b, step = symmetricSingleToSingle.inverse, expecting = a)
     }
 
     @Test
@@ -734,11 +731,11 @@ internal class GraphMapperTest {
         gm.saveE(symmetricSingleToSingle from a to b)
         gm.saveE(symmetricSingleToSingle from b to a)
 
-        traverse(from = a, path = symmetricSingleToSingle, expecting = b)
-        traverse(from = b, path = symmetricSingleToSingle, expecting = a)
+        traverse(from = a, step = symmetricSingleToSingle, expecting = b)
+        traverse(from = b, step = symmetricSingleToSingle, expecting = a)
 
-        traverse(from = a, path = symmetricSingleToSingle.inverse, expecting = b)
-        traverse(from = b, path = symmetricSingleToSingle.inverse, expecting = a)
+        traverse(from = a, step = symmetricSingleToSingle.inverse, expecting = b)
+        traverse(from = b, step = symmetricSingleToSingle.inverse, expecting = a)
     }
 
     @Test(expected = ConflictingEdge::class)
@@ -776,13 +773,13 @@ internal class GraphMapperTest {
         gm.saveE(symmetricManyToMany from a to listOf(b, c))
         gm.saveE(symmetricManyToMany from b to c)
 
-        traverse(from = a, path = symmetricManyToMany, expecting = listOf(b, c))
-        traverse(from = b, path = symmetricManyToMany, expecting = listOf(c, a))
-        traverse(from = c, path = symmetricManyToMany, expecting = listOf(a, b))
+        traverse(from = a, step = symmetricManyToMany, expecting = listOf(b, c))
+        traverse(from = b, step = symmetricManyToMany, expecting = listOf(c, a))
+        traverse(from = c, step = symmetricManyToMany, expecting = listOf(a, b))
 
-        traverse(from = a, path = symmetricManyToMany.inverse, expecting = listOf(b, c))
-        traverse(from = b, path = symmetricManyToMany.inverse, expecting = listOf(c, a))
-        traverse(from = c, path = symmetricManyToMany.inverse, expecting = listOf(a, b))
+        traverse(from = a, step = symmetricManyToMany.inverse, expecting = listOf(b, c))
+        traverse(from = b, step = symmetricManyToMany.inverse, expecting = listOf(c, a))
+        traverse(from = c, step = symmetricManyToMany.inverse, expecting = listOf(a, b))
     }
 
     @Test
@@ -793,25 +790,25 @@ internal class GraphMapperTest {
         gm.saveE(symmetricManyToMany from a to b)
         gm.saveE(symmetricManyToMany from b to a)
 
-        traverse(from = a, path = symmetricManyToMany, expecting = listOf(b))
-        traverse(from = b, path = symmetricManyToMany, expecting = listOf(a))
+        traverse(from = a, step = symmetricManyToMany, expecting = listOf(b))
+        traverse(from = b, step = symmetricManyToMany, expecting = listOf(a))
 
-        traverse(from = a, path = symmetricManyToMany.inverse, expecting = listOf(b))
-        traverse(from = b, path = symmetricManyToMany.inverse, expecting = listOf(a))
+        traverse(from = a, step = symmetricManyToMany.inverse, expecting = listOf(b))
+        traverse(from = b, step = symmetricManyToMany.inverse, expecting = listOf(a))
     }
 
-    private fun <FROM : Vertex, TO : Any> traverse(from: FROM, path: Path.ToSingle<FROM, TO>, expecting: TO) =
-            assertThat(gm.traversal(path from from).traverse()).isEqualTo(expecting)
+    private fun <FROM : Vertex, TO : Any> traverse(from: FROM, step: Step.ToSingle<FROM, TO>, expecting: TO) =
+            assertThat(gm.traversal(step from from).traverse()).isEqualTo(expecting)
 
-    private fun <FROM : Vertex, TO : Any> traverse(from: FROM, path: Path.ToMany<FROM, TO>, expecting: List<TO>) =
-            assertThat(gm.traversal(path from from).traverse()).isEqualTo(expecting)
+    private fun <FROM : Vertex, TO : Any> traverse(from: FROM, step: Step.ToMany<FROM, TO>, expecting: List<TO>) =
+            assertThat(gm.traversal(step from from).traverse()).isEqualTo(expecting)
 
-    private fun <FROM : Vertex, TO : Any> traverse(from: FROM, path: Path.ToOptional<FROM, TO>, expecting: TO?) =
-            assertThat(gm.traversal(path from from).traverse()).isEqualTo(expecting)
+    private fun <FROM : Vertex, TO : Any> traverse(from: FROM, step: Step.ToOptional<FROM, TO>, expecting: TO?) =
+            assertThat(gm.traversal(step from from).traverse()).isEqualTo(expecting)
 
     @Test
     fun `test traverse ManyToMany to SingleToOptional connection (ManyToMany)`() {
-        val manyToManyConnection: Connection.ManyToMany<VertexWithInt, VertexWithInt> = asymmetricManyToMany link asymmetricSingleToOptional
+        val manyToManyConnection: Relationship.ManyToMany<VertexWithInt, VertexWithInt> = asymmetricManyToMany link asymmetricSingleToOptional
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -820,22 +817,22 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricManyToMany from a to listOf(b, c))
         gm.saveE(asymmetricManyToMany from b to c)
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf())
-        traverse(from = b, path = manyToManyConnection, expecting = listOf())
-        traverse(from = c, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf())
+        traverse(from = a, step = manyToManyConnection, expecting = listOf())
+        traverse(from = b, step = manyToManyConnection, expecting = listOf())
+        traverse(from = c, step = manyToManyConnection, expecting = listOf())
+        traverse(from = x, step = manyToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricSingleToOptional from b to x)
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf(x))
-        traverse(from = b, path = manyToManyConnection, expecting = listOf())
-        traverse(from = c, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf())
+        traverse(from = a, step = manyToManyConnection, expecting = listOf(x))
+        traverse(from = b, step = manyToManyConnection, expecting = listOf())
+        traverse(from = c, step = manyToManyConnection, expecting = listOf())
+        traverse(from = x, step = manyToManyConnection, expecting = listOf())
     }
 
     @Test
     fun `test traverse OptionalToMany to OptionalToMany connection (ManyToMany)`() {
-        val manyToManyConnection: Connection.ManyToMany<VertexWithInt, VertexWithInt> = asymmetricOptionalToMany.inverse link asymmetricOptionalToMany
+        val manyToManyConnection: Relationship.ManyToMany<VertexWithInt, VertexWithInt> = asymmetricOptionalToMany.inverse link asymmetricOptionalToMany
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -844,24 +841,24 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricOptionalToMany.inverse from listOf(a, b) to c)
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf(a, b))
-        traverse(from = b, path = manyToManyConnection, expecting = listOf(a, b))
-        traverse(from = c, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf())
-        traverse(from = y, path = manyToManyConnection, expecting = listOf())
+        traverse(from = a, step = manyToManyConnection, expecting = listOf(a, b))
+        traverse(from = b, step = manyToManyConnection, expecting = listOf(a, b))
+        traverse(from = c, step = manyToManyConnection, expecting = listOf())
+        traverse(from = x, step = manyToManyConnection, expecting = listOf())
+        traverse(from = y, step = manyToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricOptionalToMany from c to listOf(x, y))
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf(a, b, x, y))
-        traverse(from = b, path = manyToManyConnection, expecting = listOf(a, b, x, y))
-        traverse(from = c, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf(a, b, x, y))
-        traverse(from = y, path = manyToManyConnection, expecting = listOf(a, b, x, y))
+        traverse(from = a, step = manyToManyConnection, expecting = listOf(a, b, x, y))
+        traverse(from = b, step = manyToManyConnection, expecting = listOf(a, b, x, y))
+        traverse(from = c, step = manyToManyConnection, expecting = listOf())
+        traverse(from = x, step = manyToManyConnection, expecting = listOf(a, b, x, y))
+        traverse(from = y, step = manyToManyConnection, expecting = listOf(a, b, x, y))
     }
 
     @Test
     fun `test traverse OptionalToOptional to ManyToMany connection (ManyToMany)`() {
-        val manyToManyConnection: Connection.ManyToMany<VertexWithInt, VertexWithInt> = asymmetricOptionalToOptional link asymmetricManyToMany
+        val manyToManyConnection: Relationship.ManyToMany<VertexWithInt, VertexWithInt> = asymmetricOptionalToOptional link asymmetricManyToMany
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val x = gm.saveV(VertexWithInt.sample())
@@ -869,22 +866,22 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricOptionalToOptional from a to b)
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf())
-        traverse(from = b, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf())
-        traverse(from = y, path = manyToManyConnection, expecting = listOf())
+        traverse(from = a, step = manyToManyConnection, expecting = listOf())
+        traverse(from = b, step = manyToManyConnection, expecting = listOf())
+        traverse(from = x, step = manyToManyConnection, expecting = listOf())
+        traverse(from = y, step = manyToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricManyToMany from b to listOf(x, y))
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf(x, y))
-        traverse(from = b, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf())
-        traverse(from = y, path = manyToManyConnection, expecting = listOf())
+        traverse(from = a, step = manyToManyConnection, expecting = listOf(x, y))
+        traverse(from = b, step = manyToManyConnection, expecting = listOf())
+        traverse(from = x, step = manyToManyConnection, expecting = listOf())
+        traverse(from = y, step = manyToManyConnection, expecting = listOf())
     }
 
     @Test
     fun `test traverse ManyToMany to ManyToMany connection (ManyToMany)`() {
-        val manyToManyConnection: Connection.ManyToMany<VertexWithInt, VertexWithInt> = asymmetricManyToMany link asymmetricManyToMany
+        val manyToManyConnection: Relationship.ManyToMany<VertexWithInt, VertexWithInt> = asymmetricManyToMany link asymmetricManyToMany
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -893,40 +890,40 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricManyToMany from a to listOf(b, c))
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf())
-        traverse(from = b, path = manyToManyConnection, expecting = listOf())
-        traverse(from = c, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf())
-        traverse(from = y, path = manyToManyConnection, expecting = listOf())
+        traverse(from = a, step = manyToManyConnection, expecting = listOf())
+        traverse(from = b, step = manyToManyConnection, expecting = listOf())
+        traverse(from = c, step = manyToManyConnection, expecting = listOf())
+        traverse(from = x, step = manyToManyConnection, expecting = listOf())
+        traverse(from = y, step = manyToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricManyToMany from b to c)
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf(c))
-        traverse(from = b, path = manyToManyConnection, expecting = listOf())
-        traverse(from = c, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf())
-        traverse(from = y, path = manyToManyConnection, expecting = listOf())
+        traverse(from = a, step = manyToManyConnection, expecting = listOf(c))
+        traverse(from = b, step = manyToManyConnection, expecting = listOf())
+        traverse(from = c, step = manyToManyConnection, expecting = listOf())
+        traverse(from = x, step = manyToManyConnection, expecting = listOf())
+        traverse(from = y, step = manyToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricManyToMany from b to listOf(x, y))
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf(c, x, y))
-        traverse(from = b, path = manyToManyConnection, expecting = listOf())
-        traverse(from = c, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf())
-        traverse(from = y, path = manyToManyConnection, expecting = listOf())
+        traverse(from = a, step = manyToManyConnection, expecting = listOf(c, x, y))
+        traverse(from = b, step = manyToManyConnection, expecting = listOf())
+        traverse(from = c, step = manyToManyConnection, expecting = listOf())
+        traverse(from = x, step = manyToManyConnection, expecting = listOf())
+        traverse(from = y, step = manyToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricManyToMany from c to y)
 
-        traverse(from = a, path = manyToManyConnection, expecting = listOf(c, x, y, y))
-        traverse(from = b, path = manyToManyConnection, expecting = listOf(y))
-        traverse(from = c, path = manyToManyConnection, expecting = listOf())
-        traverse(from = x, path = manyToManyConnection, expecting = listOf())
-        traverse(from = y, path = manyToManyConnection, expecting = listOf())
+        traverse(from = a, step = manyToManyConnection, expecting = listOf(c, x, y, y))
+        traverse(from = b, step = manyToManyConnection, expecting = listOf(y))
+        traverse(from = c, step = manyToManyConnection, expecting = listOf())
+        traverse(from = x, step = manyToManyConnection, expecting = listOf())
+        traverse(from = y, step = manyToManyConnection, expecting = listOf())
     }
 
     @Test
     fun `test traverse ManyToOptional to OptionalToOptional connection (ManyToOptional)`() {
-        val manyToOptionalConnection: Connection.ManyToOptional<VertexWithInt, VertexWithInt> = asymmetricOptionalToMany.inverse link asymmetricOptionalToOptional
+        val manyToOptionalConnection: Relationship.ManyToOptional<VertexWithInt, VertexWithInt> = asymmetricOptionalToMany.inverse link asymmetricOptionalToOptional
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -934,22 +931,22 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricOptionalToMany.inverse from listOf(a, b) to c)
 
-        traverse(from = a, path = manyToOptionalConnection, expecting = null)
-        traverse(from = b, path = manyToOptionalConnection, expecting = null)
-        traverse(from = c, path = manyToOptionalConnection, expecting = null)
-        traverse(from = x, path = manyToOptionalConnection, expecting = null)
+        traverse(from = a, step = manyToOptionalConnection, expecting = null)
+        traverse(from = b, step = manyToOptionalConnection, expecting = null)
+        traverse(from = c, step = manyToOptionalConnection, expecting = null)
+        traverse(from = x, step = manyToOptionalConnection, expecting = null)
 
         gm.saveE(asymmetricOptionalToOptional from c to x)
 
-        traverse(from = a, path = manyToOptionalConnection, expecting = x)
-        traverse(from = b, path = manyToOptionalConnection, expecting = x)
-        traverse(from = c, path = manyToOptionalConnection, expecting = null)
-        traverse(from = x, path = manyToOptionalConnection, expecting = null)
+        traverse(from = a, step = manyToOptionalConnection, expecting = x)
+        traverse(from = b, step = manyToOptionalConnection, expecting = x)
+        traverse(from = c, step = manyToOptionalConnection, expecting = null)
+        traverse(from = x, step = manyToOptionalConnection, expecting = null)
     }
 
     @Test
     fun `test traverse ManyToSingle to SingleToOptional connection (ManyToOptional)`() {
-        val manyToOptionalConnection: Connection.ManyToOptional<VertexWithInt, VertexWithInt> = asymmetricSingleToMany.inverse link asymmetricSingleToOptional
+        val manyToOptionalConnection: Relationship.ManyToOptional<VertexWithInt, VertexWithInt> = asymmetricSingleToMany.inverse link asymmetricSingleToOptional
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -957,18 +954,18 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricSingleToMany.inverse from listOf(a, b) to c)
 
-        traverse(from = a, path = manyToOptionalConnection, expecting = null)
-        traverse(from = b, path = manyToOptionalConnection, expecting = null)
+        traverse(from = a, step = manyToOptionalConnection, expecting = null)
+        traverse(from = b, step = manyToOptionalConnection, expecting = null)
 
         gm.saveE(asymmetricSingleToOptional from c to x)
 
-        traverse(from = a, path = manyToOptionalConnection, expecting = x)
-        traverse(from = b, path = manyToOptionalConnection, expecting = x)
+        traverse(from = a, step = manyToOptionalConnection, expecting = x)
+        traverse(from = b, step = manyToOptionalConnection, expecting = x)
     }
 
     @Test
     fun `test traverse SingleToSingle to ManyToOptional connection (ManyToOptional)`() {
-        val manyToOptionalConnection: Connection.ManyToOptional<VertexWithInt, VertexWithInt> = asymmetricSingleToSingle link asymmetricOptionalToMany.inverse
+        val manyToOptionalConnection: Relationship.ManyToOptional<VertexWithInt, VertexWithInt> = asymmetricSingleToSingle link asymmetricOptionalToMany.inverse
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -978,20 +975,20 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToSingle from b to c)
         gm.saveE(asymmetricSingleToSingle from c to a)
 
-        traverse(from = a, path = manyToOptionalConnection, expecting = null)
-        traverse(from = b, path = manyToOptionalConnection, expecting = null)
-        traverse(from = c, path = manyToOptionalConnection, expecting = null)
+        traverse(from = a, step = manyToOptionalConnection, expecting = null)
+        traverse(from = b, step = manyToOptionalConnection, expecting = null)
+        traverse(from = c, step = manyToOptionalConnection, expecting = null)
 
         gm.saveE(asymmetricOptionalToMany.inverse from listOf(a, b) to x)
 
-        traverse(from = a, path = manyToOptionalConnection, expecting = x)
-        traverse(from = b, path = manyToOptionalConnection, expecting = null)
-        traverse(from = c, path = manyToOptionalConnection, expecting = x)
+        traverse(from = a, step = manyToOptionalConnection, expecting = x)
+        traverse(from = b, step = manyToOptionalConnection, expecting = null)
+        traverse(from = c, step = manyToOptionalConnection, expecting = x)
     }
 
     @Test
     fun `test traverse ManyToSingle to SingleToSingle connection (ManyToSingle)`() {
-        val manyToSingleConnection: Connection.ManyToSingle<VertexWithInt, VertexWithInt> = asymmetricSingleToMany.inverse link symmetricSingleToSingle
+        val manyToSingleConnection: Relationship.ManyToSingle<VertexWithInt, VertexWithInt> = asymmetricSingleToMany.inverse link symmetricSingleToSingle
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1000,13 +997,13 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToMany.inverse from listOf(a, b) to c)
         gm.saveE(symmetricSingleToSingle from c to x)
 
-        traverse(from = a, path = manyToSingleConnection, expecting = x)
-        traverse(from = b, path = manyToSingleConnection, expecting = x)
+        traverse(from = a, step = manyToSingleConnection, expecting = x)
+        traverse(from = b, step = manyToSingleConnection, expecting = x)
     }
 
     @Test
     fun `test traverse OptionalToSingle to ManyToSingle connection (ManyToSingle)`() {
-        val manyToSingleConnection: Connection.ManyToSingle<VertexWithInt, VertexWithInt> = asymmetricOptionalToSingle link asymmetricSingleToMany.inverse
+        val manyToSingleConnection: Relationship.ManyToSingle<VertexWithInt, VertexWithInt> = asymmetricOptionalToSingle link asymmetricSingleToMany.inverse
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1017,13 +1014,13 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricOptionalToSingle from c to d)
         gm.saveE(asymmetricSingleToMany.inverse from listOf(b, d) to x)
 
-        traverse(from = a, path = manyToSingleConnection, expecting = x)
-        traverse(from = c, path = manyToSingleConnection, expecting = x)
+        traverse(from = a, step = manyToSingleConnection, expecting = x)
+        traverse(from = c, step = manyToSingleConnection, expecting = x)
     }
 
     @Test
     fun `test traverse OptionalToMany to SingleToSingle connection (OptionalToMany)`() {
-        val optionalToManyConnection: Connection.OptionalToMany<VertexWithInt, VertexWithInt> = asymmetricOptionalToMany link asymmetricSingleToSingle
+        val optionalToManyConnection: Relationship.OptionalToMany<VertexWithInt, VertexWithInt> = asymmetricOptionalToMany link asymmetricSingleToSingle
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1032,22 +1029,22 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricOptionalToMany from a to listOf(b, c))
 
-        traverse(from = b, path = optionalToManyConnection, expecting = listOf())
-        traverse(from = x, path = optionalToManyConnection, expecting = listOf())
-        traverse(from = y, path = optionalToManyConnection, expecting = listOf())
+        traverse(from = b, step = optionalToManyConnection, expecting = listOf())
+        traverse(from = x, step = optionalToManyConnection, expecting = listOf())
+        traverse(from = y, step = optionalToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricSingleToSingle from b to x)
         gm.saveE(asymmetricSingleToSingle from c to y)
 
-        traverse(from = a, path = optionalToManyConnection, expecting = listOf(x, y))
-        traverse(from = b, path = optionalToManyConnection, expecting = listOf())
-        traverse(from = x, path = optionalToManyConnection, expecting = listOf())
-        traverse(from = y, path = optionalToManyConnection, expecting = listOf())
+        traverse(from = a, step = optionalToManyConnection, expecting = listOf(x, y))
+        traverse(from = b, step = optionalToManyConnection, expecting = listOf())
+        traverse(from = x, step = optionalToManyConnection, expecting = listOf())
+        traverse(from = y, step = optionalToManyConnection, expecting = listOf())
     }
 
     @Test
     fun `test traverse SingleToSingle to OptionalToMany connection (OptionalToMany)`() {
-        val optionalToManyConnection: Connection.OptionalToMany<VertexWithInt, VertexWithInt> = asymmetricSingleToSingle link asymmetricOptionalToMany
+        val optionalToManyConnection: Relationship.OptionalToMany<VertexWithInt, VertexWithInt> = asymmetricSingleToSingle link asymmetricOptionalToMany
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1058,20 +1055,20 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToSingle from b to c)
         gm.saveE(asymmetricSingleToSingle from c to a)
 
-        traverse(from = a, path = optionalToManyConnection, expecting = listOf())
-        traverse(from = b, path = optionalToManyConnection, expecting = listOf())
-        traverse(from = c, path = optionalToManyConnection, expecting = listOf())
+        traverse(from = a, step = optionalToManyConnection, expecting = listOf())
+        traverse(from = b, step = optionalToManyConnection, expecting = listOf())
+        traverse(from = c, step = optionalToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricOptionalToMany from a to listOf(x, y))
 
-        traverse(from = a, path = optionalToManyConnection, expecting = listOf())
-        traverse(from = b, path = optionalToManyConnection, expecting = listOf())
-        traverse(from = c, path = optionalToManyConnection, expecting = listOf(x, y))
+        traverse(from = a, step = optionalToManyConnection, expecting = listOf())
+        traverse(from = b, step = optionalToManyConnection, expecting = listOf())
+        traverse(from = c, step = optionalToManyConnection, expecting = listOf(x, y))
     }
 
     @Test
     fun `test traverse OptionalToSingle to SingleToMany connection (OptionalToMany)`() {
-        val optionalToManyConnection: Connection.OptionalToMany<VertexWithInt, VertexWithInt> = asymmetricOptionalToSingle link asymmetricSingleToMany
+        val optionalToManyConnection: Relationship.OptionalToMany<VertexWithInt, VertexWithInt> = asymmetricOptionalToSingle link asymmetricSingleToMany
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val x = gm.saveV(VertexWithInt.sample())
@@ -1079,16 +1076,16 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricOptionalToSingle from a to b)
 
-        traverse(from = a, path = optionalToManyConnection, expecting = listOf())
+        traverse(from = a, step = optionalToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricSingleToMany from b to listOf(x, y))
 
-        traverse(from = a, path = optionalToManyConnection, expecting = listOf(x, y))
+        traverse(from = a, step = optionalToManyConnection, expecting = listOf(x, y))
     }
 
     @Test
     fun `test traverse SingleToOptional to SingleToMany connection (SingleToMany)`() {
-        val singleToManyConnection: Connection.SingleToMany<VertexWithInt, VertexWithInt> = asymmetricSingleToOptional link asymmetricSingleToMany
+        val singleToManyConnection: Relationship.SingleToMany<VertexWithInt, VertexWithInt> = asymmetricSingleToOptional link asymmetricSingleToMany
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val x = gm.saveV(VertexWithInt.sample())
@@ -1096,22 +1093,22 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricSingleToOptional from a to b)
 
-        traverse(from = a, path = singleToManyConnection, expecting = listOf())
-        traverse(from = b, path = singleToManyConnection, expecting = listOf())
-        traverse(from = x, path = singleToManyConnection, expecting = listOf())
-        traverse(from = y, path = singleToManyConnection, expecting = listOf())
+        traverse(from = a, step = singleToManyConnection, expecting = listOf())
+        traverse(from = b, step = singleToManyConnection, expecting = listOf())
+        traverse(from = x, step = singleToManyConnection, expecting = listOf())
+        traverse(from = y, step = singleToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricSingleToMany from b to listOf(x, y))
 
-        traverse(from = a, path = singleToManyConnection, expecting = listOf(x, y))
-        traverse(from = b, path = singleToManyConnection, expecting = listOf())
-        traverse(from = x, path = singleToManyConnection, expecting = listOf())
-        traverse(from = y, path = singleToManyConnection, expecting = listOf())
+        traverse(from = a, step = singleToManyConnection, expecting = listOf(x, y))
+        traverse(from = b, step = singleToManyConnection, expecting = listOf())
+        traverse(from = x, step = singleToManyConnection, expecting = listOf())
+        traverse(from = y, step = singleToManyConnection, expecting = listOf())
     }
 
     @Test
     fun `test traverse SingleToMany to SingleToOptional connection (SingleToMany)`() {
-        val singleToManyConnection: Connection.SingleToMany<VertexWithInt, VertexWithInt> = asymmetricSingleToMany link asymmetricSingleToOptional
+        val singleToManyConnection: Relationship.SingleToMany<VertexWithInt, VertexWithInt> = asymmetricSingleToMany link asymmetricSingleToOptional
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1120,25 +1117,25 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricSingleToMany from a to listOf(b, c))
 
-        traverse(from = a, path = singleToManyConnection, expecting = listOf())
-        traverse(from = b, path = singleToManyConnection, expecting = listOf())
-        traverse(from = c, path = singleToManyConnection, expecting = listOf())
-        traverse(from = x, path = singleToManyConnection, expecting = listOf())
-        traverse(from = y, path = singleToManyConnection, expecting = listOf())
+        traverse(from = a, step = singleToManyConnection, expecting = listOf())
+        traverse(from = b, step = singleToManyConnection, expecting = listOf())
+        traverse(from = c, step = singleToManyConnection, expecting = listOf())
+        traverse(from = x, step = singleToManyConnection, expecting = listOf())
+        traverse(from = y, step = singleToManyConnection, expecting = listOf())
 
         gm.saveE(asymmetricSingleToOptional from b to x)
         gm.saveE(asymmetricSingleToOptional from c to y)
 
-        traverse(from = a, path = singleToManyConnection, expecting = listOf(x, y))
-        traverse(from = b, path = singleToManyConnection, expecting = listOf())
-        traverse(from = c, path = singleToManyConnection, expecting = listOf())
-        traverse(from = x, path = singleToManyConnection, expecting = listOf())
-        traverse(from = y, path = singleToManyConnection, expecting = listOf())
+        traverse(from = a, step = singleToManyConnection, expecting = listOf(x, y))
+        traverse(from = b, step = singleToManyConnection, expecting = listOf())
+        traverse(from = c, step = singleToManyConnection, expecting = listOf())
+        traverse(from = x, step = singleToManyConnection, expecting = listOf())
+        traverse(from = y, step = singleToManyConnection, expecting = listOf())
     }
 
     @Test
     fun `test traverse SingleToSingle to SingleToSingle connection (SingleToSingle)`() {
-        val singleToSingleConnection: Connection.SingleToSingle<VertexWithInt, VertexWithInt> = asymmetricSingleToSingle link asymmetricSingleToSingle
+        val singleToSingleConnection: Relationship.SingleToSingle<VertexWithInt, VertexWithInt> = asymmetricSingleToSingle link asymmetricSingleToSingle
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1149,14 +1146,14 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToSingle from c to d)
         gm.saveE(asymmetricSingleToSingle from d to a)
 
-        traverse(from = a, path = singleToSingleConnection, expecting = c)
-        traverse(from = b, path = singleToSingleConnection, expecting = d)
-        traverse(from = c, path = singleToSingleConnection, expecting = a)
+        traverse(from = a, step = singleToSingleConnection, expecting = c)
+        traverse(from = b, step = singleToSingleConnection, expecting = d)
+        traverse(from = c, step = singleToSingleConnection, expecting = a)
     }
 
     @Test
     fun `test traverse SingleToOptional to SingleToOptional connection (SingleToOptional)`() {
-        val singleToOptionalConnection: Connection.SingleToOptional<VertexWithInt, VertexWithInt> = asymmetricSingleToOptional link asymmetricSingleToOptional
+        val singleToOptionalConnection: Relationship.SingleToOptional<VertexWithInt, VertexWithInt> = asymmetricSingleToOptional link asymmetricSingleToOptional
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1164,29 +1161,29 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricSingleToOptional from a to b)
 
-        traverse(from = a, path = singleToOptionalConnection, expecting = null)
-        traverse(from = b, path = singleToOptionalConnection, expecting = null)
-        traverse(from = c, path = singleToOptionalConnection, expecting = null)
-        traverse(from = x, path = singleToOptionalConnection, expecting = null)
+        traverse(from = a, step = singleToOptionalConnection, expecting = null)
+        traverse(from = b, step = singleToOptionalConnection, expecting = null)
+        traverse(from = c, step = singleToOptionalConnection, expecting = null)
+        traverse(from = x, step = singleToOptionalConnection, expecting = null)
 
         gm.saveE(asymmetricSingleToOptional from b to c)
 
-        traverse(from = a, path = singleToOptionalConnection, expecting = c)
-        traverse(from = b, path = singleToOptionalConnection, expecting = null)
-        traverse(from = c, path = singleToOptionalConnection, expecting = null)
-        traverse(from = x, path = singleToOptionalConnection, expecting = null)
+        traverse(from = a, step = singleToOptionalConnection, expecting = c)
+        traverse(from = b, step = singleToOptionalConnection, expecting = null)
+        traverse(from = c, step = singleToOptionalConnection, expecting = null)
+        traverse(from = x, step = singleToOptionalConnection, expecting = null)
 
         gm.saveE(asymmetricSingleToOptional from c to x)
 
-        traverse(from = a, path = singleToOptionalConnection, expecting = c)
-        traverse(from = b, path = singleToOptionalConnection, expecting = x)
-        traverse(from = c, path = singleToOptionalConnection, expecting = null)
-        traverse(from = x, path = singleToOptionalConnection, expecting = null)
+        traverse(from = a, step = singleToOptionalConnection, expecting = c)
+        traverse(from = b, step = singleToOptionalConnection, expecting = x)
+        traverse(from = c, step = singleToOptionalConnection, expecting = null)
+        traverse(from = x, step = singleToOptionalConnection, expecting = null)
     }
 
     @Test
     fun `test traverse SingleToSingle to SingleToOptional connection (SingleToOptional)`() {
-        val singleToOptionalConnection: Connection.SingleToOptional<VertexWithInt, VertexWithInt> = asymmetricSingleToSingle link asymmetricSingleToOptional
+        val singleToOptionalConnection: Relationship.SingleToOptional<VertexWithInt, VertexWithInt> = asymmetricSingleToSingle link asymmetricSingleToOptional
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1196,20 +1193,20 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToSingle from b to c)
         gm.saveE(asymmetricSingleToSingle from c to a)
 
-        traverse(from = a, path = singleToOptionalConnection, expecting = null)
-        traverse(from = b, path = singleToOptionalConnection, expecting = null)
-        traverse(from = c, path = singleToOptionalConnection, expecting = null)
+        traverse(from = a, step = singleToOptionalConnection, expecting = null)
+        traverse(from = b, step = singleToOptionalConnection, expecting = null)
+        traverse(from = c, step = singleToOptionalConnection, expecting = null)
 
         gm.saveE(asymmetricSingleToOptional from a to x)
 
-        traverse(from = a, path = singleToOptionalConnection, expecting = null)
-        traverse(from = b, path = singleToOptionalConnection, expecting = null)
-        traverse(from = c, path = singleToOptionalConnection, expecting = x)
+        traverse(from = a, step = singleToOptionalConnection, expecting = null)
+        traverse(from = b, step = singleToOptionalConnection, expecting = null)
+        traverse(from = c, step = singleToOptionalConnection, expecting = x)
     }
 
     @Test
     fun `test traverse SingleToSingle to OptionalToSingle connection (OptionalToSingle)`() {
-        val optionalToSingleConnection: Connection.OptionalToSingle<VertexWithInt, VertexWithInt> = asymmetricSingleToSingle link asymmetricOptionalToSingle
+        val optionalToSingleConnection: Relationship.OptionalToSingle<VertexWithInt, VertexWithInt> = asymmetricSingleToSingle link asymmetricOptionalToSingle
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1220,12 +1217,12 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToSingle from c to a)
         gm.saveE(asymmetricOptionalToSingle from c to x)
 
-        traverse(from = b, path = optionalToSingleConnection, expecting = x)
+        traverse(from = b, step = optionalToSingleConnection, expecting = x)
     }
 
     @Test
     fun `test traverse OptionalToSingle to SingleToSingle connection (OptionalToSingle)`() {
-        val optionalToSingleConnection: Connection.OptionalToSingle<VertexWithInt, VertexWithInt> = asymmetricOptionalToSingle link symmetricSingleToSingle
+        val optionalToSingleConnection: Relationship.OptionalToSingle<VertexWithInt, VertexWithInt> = asymmetricOptionalToSingle link symmetricSingleToSingle
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val x = gm.saveV(VertexWithInt.sample())
@@ -1233,12 +1230,12 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricOptionalToSingle from a to b)
         gm.saveE(symmetricSingleToSingle from b to x)
 
-        traverse(from = a, path = optionalToSingleConnection, expecting = x)
+        traverse(from = a, step = optionalToSingleConnection, expecting = x)
     }
 
     @Test
     fun `test traverse OptionalToSingle to SingleToOptional connection (OptionalToOptional)`() {
-        val optionalToOptionalConnection: Connection.OptionalToOptional<VertexWithInt, VertexWithInt> = asymmetricOptionalToSingle link asymmetricSingleToOptional
+        val optionalToOptionalConnection: Relationship.OptionalToOptional<VertexWithInt, VertexWithInt> = asymmetricOptionalToSingle link asymmetricSingleToOptional
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1247,18 +1244,18 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricOptionalToSingle from a to b)
         gm.saveE(asymmetricOptionalToSingle from b to c)
 
-        traverse(from = a, path = optionalToOptionalConnection, expecting = null)
-        traverse(from = b, path = optionalToOptionalConnection, expecting = null)
+        traverse(from = a, step = optionalToOptionalConnection, expecting = null)
+        traverse(from = b, step = optionalToOptionalConnection, expecting = null)
 
         gm.saveE(asymmetricSingleToOptional from c to x)
 
-        traverse(from = a, path = optionalToOptionalConnection, expecting = null)
-        traverse(from = b, path = optionalToOptionalConnection, expecting = x)
+        traverse(from = a, step = optionalToOptionalConnection, expecting = null)
+        traverse(from = b, step = optionalToOptionalConnection, expecting = x)
     }
 
     @Test
     fun `test traverse OptionalToOptional to OptionalToSingle connection (OptionalToOptional)`() {
-        val optionalToOptionalConnection: Connection.OptionalToOptional<VertexWithInt, VertexWithInt> = symmetricOptionalToOptional link asymmetricOptionalToSingle
+        val optionalToOptionalConnection: Relationship.OptionalToOptional<VertexWithInt, VertexWithInt> = symmetricOptionalToOptional link asymmetricOptionalToSingle
 
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
@@ -1267,21 +1264,21 @@ internal class GraphMapperTest {
 
         gm.saveE(symmetricOptionalToOptional from a to b)
 
-        traverse(from = x, path = optionalToOptionalConnection, expecting = null)
-        traverse(from = y, path = optionalToOptionalConnection, expecting = null)
+        traverse(from = x, step = optionalToOptionalConnection, expecting = null)
+        traverse(from = y, step = optionalToOptionalConnection, expecting = null)
 
         gm.saveE(asymmetricOptionalToSingle from a to x)
         gm.saveE(asymmetricOptionalToSingle from b to y)
 
-        traverse(from = a, path = optionalToOptionalConnection, expecting = y)
-        traverse(from = b, path = optionalToOptionalConnection, expecting = x)
-        traverse(from = x, path = optionalToOptionalConnection, expecting = null)
-        traverse(from = y, path = optionalToOptionalConnection, expecting = null)
+        traverse(from = a, step = optionalToOptionalConnection, expecting = y)
+        traverse(from = b, step = optionalToOptionalConnection, expecting = x)
+        traverse(from = x, step = optionalToOptionalConnection, expecting = null)
+        traverse(from = y, step = optionalToOptionalConnection, expecting = null)
     }
 
     @Test
     fun `test traverse SingleToOptional to OptionalToOptional connection (OptionalToOptional)`() {
-        val optionalToOptionalConnection: Connection.OptionalToOptional<VertexWithInt, VertexWithInt> = asymmetricSingleToOptional link asymmetricOptionalToOptional
+        val optionalToOptionalConnection: Relationship.OptionalToOptional<VertexWithInt, VertexWithInt> = asymmetricSingleToOptional link asymmetricOptionalToOptional
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val c = gm.saveV(VertexWithInt.sample())
@@ -1290,17 +1287,17 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToOptional from a to b)
         gm.saveE(asymmetricSingleToOptional from c to a)
 
-        traverse(from = a, path = optionalToOptionalConnection, expecting = null)
-        traverse(from = b, path = optionalToOptionalConnection, expecting = null)
-        traverse(from = c, path = optionalToOptionalConnection, expecting = null)
-        traverse(from = x, path = optionalToOptionalConnection, expecting = null)
+        traverse(from = a, step = optionalToOptionalConnection, expecting = null)
+        traverse(from = b, step = optionalToOptionalConnection, expecting = null)
+        traverse(from = c, step = optionalToOptionalConnection, expecting = null)
+        traverse(from = x, step = optionalToOptionalConnection, expecting = null)
 
         gm.saveE(asymmetricOptionalToOptional from b to x)
 
-        traverse(from = a, path = optionalToOptionalConnection, expecting = x)
-        traverse(from = b, path = optionalToOptionalConnection, expecting = null)
-        traverse(from = c, path = optionalToOptionalConnection, expecting = null)
-        traverse(from = x, path = optionalToOptionalConnection, expecting = null)
+        traverse(from = a, step = optionalToOptionalConnection, expecting = x)
+        traverse(from = b, step = optionalToOptionalConnection, expecting = null)
+        traverse(from = c, step = optionalToOptionalConnection, expecting = null)
+        traverse(from = x, step = optionalToOptionalConnection, expecting = null)
     }
 
     @Test
@@ -1309,7 +1306,7 @@ internal class GraphMapperTest {
         val b = gm.saveV(VertexWithInt.sample())
         gm.saveE(asymmetricSingleToSingle from a to b)
         val traversalWithMap = asymmetricSingleToSingle.map(VertexWithInt::a)
-        traverse(from = a, path = traversalWithMap, expecting = b.a)
+        traverse(from = a, step = traversalWithMap, expecting = b.a)
     }
 
     @Test
@@ -1322,7 +1319,7 @@ internal class GraphMapperTest {
         val traversalWithFlatMap = asymmetricSingleToMany.flatMap { vertexWithInt ->
             listOf(vertexWithInt.a, vertexWithInt.a * 10)
         }
-        traverse(from = a, path = traversalWithFlatMap, expecting = listOf(b.a, b.a * 10, c.a, c.a * 10))
+        traverse(from = a, step = traversalWithFlatMap, expecting = listOf(b.a, b.a * 10, c.a, c.a * 10))
     }
 
     @Test
@@ -1332,10 +1329,10 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricSingleToSingle from a to b)
 
         val traversalWithFilterAll = asymmetricSingleToSingle.filter { false }
-        traverse(from = a, path = traversalWithFilterAll, expecting = null)
+        traverse(from = a, step = traversalWithFilterAll, expecting = null)
 
         val traversalWithFilterNone = asymmetricSingleToSingle.filter { true }
-        traverse(from = a, path = traversalWithFilterNone, expecting = b)
+        traverse(from = a, step = traversalWithFilterNone, expecting = b)
     }
 
     @Test
@@ -1346,7 +1343,7 @@ internal class GraphMapperTest {
         val traversalWithEven = asymmetricSingleToSingle.filterMap { vertexWithInt ->
             if (vertexWithInt.a % 2 == 0) vertexWithInt.a else null
         }
-        traverse(from = a, path = traversalWithEven, expecting = if (b.a % 2 == 0) b.a else null)
+        traverse(from = a, step = traversalWithEven, expecting = if (b.a % 2 == 0) b.a else null)
     }
 
     @Test
@@ -1358,7 +1355,7 @@ internal class GraphMapperTest {
         val e = gm.saveV(VertexWithInt.sample())
         gm.saveE(asymmetricSingleToMany from a to listOf(b, c, d, e))
         val traversalWithSlice = asymmetricSingleToMany.slice(range = LongRange(1, 2))
-        traverse(from = a, path = traversalWithSlice, expecting = listOf(c, d))
+        traverse(from = a, step = traversalWithSlice, expecting = listOf(c, d))
     }
 
     @Test
@@ -1370,7 +1367,7 @@ internal class GraphMapperTest {
         val e = gm.saveV(VertexWithInt(int = 2))
         gm.saveE(asymmetricSingleToMany from a to listOf(b, c, d, e))
         val traversalWithSort = asymmetricSingleToMany.sort(Comparator.comparingInt(VertexWithInt::a))
-        traverse(from = a, path = traversalWithSort, expecting = listOf(e, d, c, b))
+        traverse(from = a, step = traversalWithSort, expecting = listOf(e, d, c, b))
     }
 
     @Test
@@ -1383,9 +1380,9 @@ internal class GraphMapperTest {
         gm.saveE(asymmetricManyToMany.inverse from b to d)
         gm.saveE(asymmetricManyToMany.inverse from c to d)
         val connection = asymmetricSingleToMany link asymmetricManyToMany.inverse
-        traverse(from = a, path = connection, expecting = listOf(d, d))
-        traverse(from = a, path = connection.dedup(), expecting = listOf(d))
-        traverse(from = a, path = connection.map(VertexWithInt::a).dedup(), expecting = listOf(d.a))
+        traverse(from = a, step = connection, expecting = listOf(d, d))
+        traverse(from = a, step = connection.dedup(), expecting = listOf(d))
+        traverse(from = a, step = connection.map(VertexWithInt::a).dedup(), expecting = listOf(d.a))
     }
 
     @Test
@@ -1407,6 +1404,6 @@ internal class GraphMapperTest {
 
         gm.saveE(asymmetricSingleToSingle from a to b)
         val edge = gm.saveE(IntToBoolEdge(a = RandomString.make(), from = b, to = c))
-        traverse(from = a, path = asymmetricSingleToSingle outE fromIntToBool, expecting = edge)
+        traverse(from = a, step = asymmetricSingleToSingle outE fromIntToBool, expecting = edge)
     }
 }

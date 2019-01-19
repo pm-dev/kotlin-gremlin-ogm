@@ -1,5 +1,7 @@
 package org.apache.tinkerpop.gremlin.ogm.mappers
 
+import org.apache.tinkerpop.gremlin.ogm.GraphEdge
+import org.apache.tinkerpop.gremlin.ogm.GraphVertex
 import org.apache.tinkerpop.gremlin.ogm.elements.BasicEdge
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
@@ -7,7 +9,8 @@ import org.apache.tinkerpop.gremlin.ogm.exceptions.ConflictingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ObjectNotSaved
 import org.apache.tinkerpop.gremlin.ogm.exceptions.UnregisteredClass
 import org.apache.tinkerpop.gremlin.ogm.extensions.setProperties
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
 import org.apache.tinkerpop.gremlin.ogm.reflection.EdgeDescription
 import org.apache.tinkerpop.gremlin.ogm.reflection.GraphDescription
 import org.apache.tinkerpop.gremlin.ogm.reflection.VertexDescription
@@ -28,66 +31,66 @@ internal class EdgeSerializer(
         val objectSerializer = edgeDescription?.let { ObjectSerializer(graphDescription, it) }
         val fromVertex = from.from
         val toVertex = from.to
-        val relationship = when {
-            graphDescription.edgeClasses.contains(from::class) -> graphDescription.getEdgeDescription(from::class).relationship
-            from is BasicEdge<*, *> -> from.relationship
+        val edgeSpec = when {
+            graphDescription.edgeClasses.contains(from::class) -> graphDescription.getEdgeDescription(from::class).edgeSpec
+            from is BasicEdge<*, *> -> from.spec
             else -> throw UnregisteredClass(from::class)
         }
         val fromID = fromVertexDescription.id.property.get(fromVertex) ?: throw ObjectNotSaved(fromVertex)
         val toID = toVertexDescription.id.property.get(toVertex) ?: throw ObjectNotSaved(toVertex)
-        val existingEdge = ((g.V(fromID) out relationship).hasId(toID) `in` relationship).hasId(fromID) outE relationship
-        val conflictingFrom = if (relationship is Relationship.ToOne) g.V(fromID) outE relationship else null
-        val conflictingTo = if (relationship is Relationship.FromOne) g.V(toID) inE relationship else null
-        val createEdge = when (relationship.direction) {
-            Relationship.Direction.BACKWARD -> g.V(toID)
+        val existingEdge = ((g.V(fromID) out edgeSpec).hasId(toID) `in` edgeSpec).hasId(fromID) outE edgeSpec
+        val conflictingFrom = if (edgeSpec is EdgeSpec.ToOne) g.V(fromID) outE edgeSpec else null
+        val conflictingTo = if (edgeSpec is EdgeSpec.FromOne) g.V(toID) inE edgeSpec else null
+        val createEdge = when (edgeSpec.direction) {
+            EdgeSpec.Direction.BACKWARD -> g.V(toID)
                     .let { if (conflictingFrom == null) it else it.not(conflictingFrom) }
                     .let { if (conflictingTo == null) it else it.not(conflictingTo) }
-                    .addE(relationship.name).to(g.V(fromID))
+                    .addE(edgeSpec.name).to(g.V(fromID))
             else -> g.V(fromID)
                     .let { if (conflictingFrom == null) it else it.not(conflictingFrom) }
                     .let { if (conflictingTo == null) it else it.not(conflictingTo) }
-                    .addE(relationship.name).to(g.V(toID))
+                    .addE(edgeSpec.name).to(g.V(toID))
         }
         val createOrGetEdge = g.inject<Any>(0).coalesce(existingEdge.sideEffect {
-            logger.debug("Updating edge ${relationship.name} from $fromVertex to $toVertex.")
+            logger.debug("Updating edge ${edgeSpec.name} from $fromVertex to $toVertex.")
         }, createEdge.sideEffect {
-            logger.debug("Creating edge ${relationship.name} from $fromVertex to $toVertex.")
+            logger.debug("Creating edge ${edgeSpec.name} from $fromVertex to $toVertex.")
         }).map { edge ->
             objectSerializer?.let {
                 val serializedProperties = it(from)
                 edge.get().setProperties(serializedProperties)
             } ?: edge.get()
         }
-        if (!createOrGetEdge.hasNext()) throw ConflictingEdge(fromVertex, toVertex, relationship.name)
+        if (!createOrGetEdge.hasNext()) throw ConflictingEdge(fromVertex, toVertex, edgeSpec.name)
         return createOrGetEdge.toList().single()
     }
 
-    private infix fun GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex>.out(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex> =
-            when (relationship.direction) {
-                Relationship.Direction.FORWARD -> out(relationship.name)
-                Relationship.Direction.BACKWARD -> `in`(relationship.name)
-                null -> both(relationship.name)
+    private infix fun GraphTraversal<*, GraphVertex>.out(edgeSpec: EdgeSpec<*, *>): GraphTraversal<*, GraphVertex> =
+            when (edgeSpec.direction) {
+                EdgeSpec.Direction.FORWARD -> out(edgeSpec.name)
+                EdgeSpec.Direction.BACKWARD -> `in`(edgeSpec.name)
+                null -> both(edgeSpec.name)
             }
 
-    private infix fun GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex>.`in`(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex> =
-            when (relationship.direction) {
-                Relationship.Direction.FORWARD -> `in`(relationship.name)
-                Relationship.Direction.BACKWARD -> out(relationship.name)
-                null -> both(relationship.name)
+    private infix fun GraphTraversal<*, GraphVertex>.`in`(edgeSpec: EdgeSpec<*, *>): GraphTraversal<*, GraphVertex> =
+            when (edgeSpec.direction) {
+                EdgeSpec.Direction.FORWARD -> `in`(edgeSpec.name)
+                EdgeSpec.Direction.BACKWARD -> out(edgeSpec.name)
+                null -> both(edgeSpec.name)
             }
 
-    private infix fun GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex>.outE(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Edge> =
-            when (relationship.direction) {
-                Relationship.Direction.FORWARD -> outE(relationship.name)
-                Relationship.Direction.BACKWARD -> inE(relationship.name)
-                null -> bothE(relationship.name)
+    private infix fun GraphTraversal<*, GraphVertex>.outE(edgeSpec: EdgeSpec<*, *>): GraphTraversal<*, GraphEdge> =
+            when (edgeSpec.direction) {
+                EdgeSpec.Direction.FORWARD -> outE(edgeSpec.name)
+                EdgeSpec.Direction.BACKWARD -> inE(edgeSpec.name)
+                null -> bothE(edgeSpec.name)
             }
 
-    private infix fun GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Vertex>.inE(relationship: Relationship<*, *>): GraphTraversal<*, org.apache.tinkerpop.gremlin.structure.Edge> =
-            when (relationship.direction) {
-                Relationship.Direction.FORWARD -> inE(relationship.name)
-                Relationship.Direction.BACKWARD -> outE(relationship.name)
-                null -> bothE(relationship.name)
+    private infix fun GraphTraversal<*, GraphVertex>.inE(edgeSpec: EdgeSpec<*, *>): GraphTraversal<*, GraphEdge> =
+            when (edgeSpec.direction) {
+                EdgeSpec.Direction.FORWARD -> inE(edgeSpec.name)
+                EdgeSpec.Direction.BACKWARD -> outE(edgeSpec.name)
+                null -> bothE(edgeSpec.name)
             }
 
     companion object {

@@ -45,24 +45,24 @@ fun <T> DataFetchingEnvironment.mutate(
         validatePermission: GraphMapper.(request: HttpServletRequest?) -> PermissionResult = { PermissionResult.Allow },
         mutation: GraphMapper.() -> T
 ): T {
-    var triesRemaining = if (retry) 5 else 1
+    var triesRemaining = if (retry) 3 else 1
     while (triesRemaining-- > 0) {
         try {
             val request = getContext<GraphQLContext>().httpServletRequest.asNullable
             val permissionResult = graphMapper.validatePermission(request)
             return when (permissionResult) {
-                is PermissionResult.Allow -> graphMapper.traversal.tx().onClose(COMMIT).use {
+                is PermissionResult.Allow -> graphMapper.g.tx().onClose(COMMIT).use {
                     graphMapper.mutation()
                 }
                 is PermissionResult.Deny -> throw PermissionDenied(permissionResult.reason)
             }
         } catch (e: TransactionException) {
             if (triesRemaining == 0) {
-                graphMapper.traversal.tx().rollback()
+                graphMapper.g.tx().rollback()
                 throw e
             }
         } catch (e: Exception) {
-            graphMapper.traversal.tx().rollback()
+            graphMapper.g.tx().rollback()
             throw e
         }
     }

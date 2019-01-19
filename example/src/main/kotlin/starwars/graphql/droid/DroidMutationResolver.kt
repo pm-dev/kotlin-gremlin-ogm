@@ -4,7 +4,6 @@ import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import graphql.schema.DataFetchingEnvironment
 import graphql.servlet.ogm.mutate
 import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.to
 import org.springframework.stereotype.Component
 import starwars.models.Character
 import starwars.models.Droid

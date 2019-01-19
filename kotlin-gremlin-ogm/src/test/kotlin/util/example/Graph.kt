@@ -18,7 +18,7 @@ internal fun exampleGraphMapper() = object : GraphMapper {
         TinkerGraph.open(conf)
     }
 
-    override val traversal: GraphTraversalSource get() = graph.traversal()
+    override val g: GraphTraversalSource get() = graph.traversal()
 
     override val graphDescription = CachedGraphDescription(
             vertices = setOf(
@@ -46,7 +46,7 @@ internal fun exampleGraphMapper() = object : GraphMapper {
                     VertexWithInt::class,
                     VertexWithTransient::class
             ),
-            relationships = mapOf(
+            edgeSpecs = mapOf(
                     asymmetricManyToMany to null,
                     asymmetricOptionalToMany to null,
                     asymmetricOptionalToOptional to null,

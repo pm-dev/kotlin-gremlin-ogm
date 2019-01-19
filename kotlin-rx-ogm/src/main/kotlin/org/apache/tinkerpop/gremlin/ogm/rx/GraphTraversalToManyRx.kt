@@ -6,10 +6,10 @@ import io.reactivex.exceptions.Exceptions
 import io.reactivex.internal.disposables.EmptyDisposable
 import io.reactivex.internal.fuseable.QueueFuseable
 import io.reactivex.internal.observers.BasicQueueDisposable
-import org.apache.tinkerpop.gremlin.ogm.traversals.GraphTraversalToMany
+import org.apache.tinkerpop.gremlin.ogm.traversals.SingleBoundGraphTraversalToMany
 
 internal class GraphTraversalToManyRx<TO>(
-        private val traversal: GraphTraversalToMany<TO>
+        private val traversal: SingleBoundGraphTraversalToMany<TO>
 ) : Observable<TO>() {
 
     override fun subscribeActual(observer: Observer<in TO>) {
@@ -34,7 +34,7 @@ internal class GraphTraversalToManyRx<TO>(
 
     private class FromTraversalDisposable<TO>(
             private val downstream: Observer<in TO>,
-            private val traversal: GraphTraversalToMany<TO>
+            private val traversal: SingleBoundGraphTraversalToMany<TO>
     ) : BasicQueueDisposable<TO>() {
 
         @Volatile

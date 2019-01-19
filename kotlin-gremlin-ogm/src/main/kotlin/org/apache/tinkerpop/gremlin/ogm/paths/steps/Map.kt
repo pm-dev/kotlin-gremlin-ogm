@@ -1,14 +1,8 @@
 package org.apache.tinkerpop.gremlin.ogm.paths.steps
 
-import org.apache.tinkerpop.gremlin.ogm.paths.Path
-
 /**
  * A step that maps the current object to a new object.
  */
-class Map<FROM, TO>(private val map: (FROM) -> TO) : Step.ToSingle<FROM, TO>({ traverser ->
+internal class Map<FROM, TO>(map: (FROM) -> TO) : StepToSingle<FROM, TO>({ traverser ->
     traverser.traversal.map { map(it.get()) }
 })
-
-fun <FROM, TO, NEXT> Path.ToMany<FROM, TO>.map(map: (TO) -> NEXT): Path.ToMany<FROM, NEXT> = to(Map(map))
-fun <FROM, TO, NEXT> Path.ToOptional<FROM, TO>.map(map: (TO) -> NEXT): Path.ToOptional<FROM, NEXT> = to(Map(map))
-fun <FROM, TO, NEXT> Path.ToSingle<FROM, TO>.map(map: (TO) -> NEXT): Path.ToSingle<FROM, NEXT> = to(Map(map))

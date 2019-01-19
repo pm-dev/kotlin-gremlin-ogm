@@ -9,9 +9,8 @@ import org.apache.tinkerpop.gremlin.ogm.mappers.EdgeDeserializer
 import org.apache.tinkerpop.gremlin.ogm.mappers.EdgeSerializer
 import org.apache.tinkerpop.gremlin.ogm.mappers.VertexDeserializer
 import org.apache.tinkerpop.gremlin.ogm.mappers.VertexSerializer
-import org.apache.tinkerpop.gremlin.ogm.paths.Path
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundPath
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.SingleBoundPath
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.BoundStep
+import org.apache.tinkerpop.gremlin.ogm.paths.bound.SingleBoundStep
 import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepTraverser
 import org.apache.tinkerpop.gremlin.ogm.reflection.GraphDescription
 import org.apache.tinkerpop.gremlin.ogm.traversals.*
@@ -30,7 +29,7 @@ interface GraphMapper {
 
     val graphDescription: GraphDescription
 
-    val traversal: GraphTraversalSource
+    val g: GraphTraversalSource
 
     /**
      *
@@ -39,27 +38,27 @@ interface GraphMapper {
      */
 
     /**
-     * Gets a graph traversal that emits a vertex with a given id.
+     * Gets a graph g that emits a vertex with a given id.
      */
-    fun <V : Vertex> V(id: Any): GraphTraversalToOptional<V> = V<V>(setOf(id)).asToOptional()
+    fun <V : Vertex> V(id: Any): SingleBoundGraphTraversalToOptional<V> = V<V>(setOf(id)).asToOptional()
 
     /**
-     * Gets a graph traversal that emits vertices for given ids.
-     * No exception is thrown for ids that don't correspond to a vertex, thus the number of vertices the traversal emits
+     * Gets a graph g that emits vertices for given ids.
+     * No exception is thrown for ids that don't correspond to a vertex, thus the number of vertices the g emits
      * may be less than the number of ids.
      */
-    fun <V : Vertex> V(vararg ids: Any): GraphTraversalToMany<V> = V(ids.toSet())
+    fun <V : Vertex> V(vararg ids: Any): SingleBoundGraphTraversalToMany<V> = V(ids.toSet())
 
     /**
-     * Gets a graph traversal that emits vertices for given ids.
-     * No exception is thrown for ids that don't correspond to a vertex, thus the number of vertices the traversal emits
+     * Gets a graph g that emits vertices for given ids.
+     * No exception is thrown for ids that don't correspond to a vertex, thus the number of vertices the g emits
      * may be less than the number of ids.
      */
-    fun <V : Vertex> V(ids: Set<Any>) = GraphTraversalToMany(
+    fun <V : Vertex> V(ids: Set<Any>) = SingleBoundGraphTraversalToMany(
             if (ids.none()) {
-                traversal.inject<V>()
+                g.inject<V>()
             } else {
-                traversal.V(*ids.toTypedArray()).map { vertex ->
+                g.V(*ids.toTypedArray()).map { vertex ->
                     deserialize<V>(vertex.get())
                 }
             }
@@ -67,13 +66,13 @@ interface GraphMapper {
 
 
     /**
-     * Get a traversal that emits all vertices for class V (which has been registered as a vertex with this GraphMapper).
+     * Get a g that emits all vertices for class V (which has been registered as a vertex with this GraphMapper).
      * V may be a superclass of classes registered as a vertex.
      */
     fun <V : Vertex> V(
             kClass: KClass<V>,
             then: GraphTraversal<*, GraphVertex>.() -> GraphTraversal<*, GraphVertex> = { this }
-    ): GraphTraversalToMany<V> {
+    ): SingleBoundGraphTraversalToMany<V> {
         val labels = graphDescription.vertexClasses.asSequence().filter { vertexKClass ->
             vertexKClass.isSubclassOf(kClass)
         }.map { vertexClass ->
@@ -82,13 +81,13 @@ interface GraphMapper {
         if (labels.isEmpty()) throw UnregisteredClass(kClass)
         logger.debug("Will get all vertices with labels $labels")
         val traversal = labels.asSequence().map { label ->
-            traversal.V().hasLabel(label)
+            g.V().hasLabel(label)
         }.reduce { traversal1, traversal2 ->
-            traversal.V().union(traversal1, traversal2)
+            g.V().union(traversal1, traversal2)
         }.then().map { vertex ->
             deserialize<V>(vertex.get())
         }
-        return GraphTraversalToMany(traversal)
+        return SingleBoundGraphTraversalToMany(traversal)
     }
 
     /**
@@ -126,40 +125,40 @@ interface GraphMapper {
      */
 
     /**
-     * Gets a graph traversal that emits an edge with the given id.
+     * Gets a graph g that emits an edge with the given id.
      */
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(id: Any): GraphTraversalToOptional<E> = E<FROM, TO, E>(setOf(id)).asToOptional()
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(id: Any): SingleBoundGraphTraversalToOptional<E> = E<FROM, TO, E>(setOf(id)).asToOptional()
 
     /**
-     * Gets a graph traversal that emits edges for given ids.
-     * No exception is thrown for ids that don't correspond to an edge, thus the number of edges the traversal emits
+     * Gets a graph g that emits edges for given ids.
+     * No exception is thrown for ids that don't correspond to an edge, thus the number of edges the g emits
      * may be less than the number of ids.
      */
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(vararg ids: Any): GraphTraversalToMany<E> = E(ids.toSet())
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(vararg ids: Any): SingleBoundGraphTraversalToMany<E> = E(ids.toSet())
 
     /**
-     * Gets a graph traversal that emits edges for given ids.
-     * No exception is thrown for ids that don't correspond to an edge, thus the number of edges the traversal emits
+     * Gets a graph g that emits edges for given ids.
+     * No exception is thrown for ids that don't correspond to an edge, thus the number of edges the g emits
      * may be less than the number of ids.
      */
-    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(ids: Set<Any>) = GraphTraversalToMany(
+    fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(ids: Set<Any>) = SingleBoundGraphTraversalToMany(
             if (ids.none()) {
-                traversal.inject<E>()
+                g.inject<E>()
             } else {
-                traversal.E(*ids.toTypedArray()).map { edge ->
+                g.E(*ids.toTypedArray()).map { edge ->
                     deserialize<FROM, TO, E>(edge.get())
                 }
             }
     )
 
     /**
-     * Get a traversal that emits all edges for class E (which has been registered with a relationship as
+     * Get a g that emits all edges for class E (which has been registered with a spec as
      * an edge with this GraphMapper).
      */
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> E(
             kClass: KClass<E>,
             then: GraphTraversal<*, GraphEdge>.() -> GraphTraversal<*, GraphEdge> = { this }
-    ): GraphTraversalToMany<E> {
+    ): SingleBoundGraphTraversalToMany<E> {
         val labels = graphDescription.edgeClasses.asSequence().filter { edgeKClass ->
             edgeKClass.isSubclassOf(kClass)
         }.map { vertexClass ->
@@ -168,13 +167,13 @@ interface GraphMapper {
         if (labels.isEmpty()) throw UnregisteredClass(kClass)
         logger.debug("Will get all edges with labels $labels")
         val traversal = labels.asSequence().map { label ->
-            traversal.E().hasLabel(label)
+            g.E().hasLabel(label)
         }.reduce { traversal1, traversal2 ->
-            traversal.E().union(traversal1, traversal2)
+            g.E().union(traversal1, traversal2)
         }.then().map { edge ->
             deserialize<FROM, TO, E>(edge.get())
         }
-        return GraphTraversalToMany(traversal)
+        return SingleBoundGraphTraversalToMany(traversal)
     }
 
     /**
@@ -211,56 +210,52 @@ interface GraphMapper {
     /**
      * Traverses from a vertex to the path's required destination object.
      */
-    fun <FROM : Vertex, TO> traverse(boundPath: SingleBoundPath.ToSingle<FROM, TO>): GraphTraversalToSingle<TO> =
-            GraphTraversalToSingle(_traversal(boundPath).traversal.map { traverser -> traverser.get().second })
+    fun <FROM : Vertex, TO> traversal(boundStep: SingleBoundStep.ToSingle<FROM, TO>): SingleBoundGraphTraversalToSingle<TO> =
+            SingleBoundGraphTraversalToSingle(_traversal(boundStep).traversal.map { traverser -> traverser.get().second })
 
     /**
      * Traverses from a vertex to the path's optional destination object.
      */
-    fun <FROM : Vertex, TO> traverse(boundPath: SingleBoundPath.ToOptional<FROM, TO>): GraphTraversalToOptional<TO> =
-            GraphTraversalToOptional(_traversal(boundPath).traversal.map { traverser -> traverser.get().second })
+    fun <FROM : Vertex, TO> traversal(boundStep: SingleBoundStep.ToOptional<FROM, TO>): SingleBoundGraphTraversalToOptional<TO> =
+            SingleBoundGraphTraversalToOptional(_traversal(boundStep).traversal.map { traverser -> traverser.get().second })
 
     /**
      * Traverses from vertex to the path's destination objects.
      */
-    fun <FROM : Vertex, TO> traversal(boundPath: SingleBoundPath.ToMany<FROM, TO>): GraphTraversalToMany<TO> =
-            GraphTraversalToMany(_traversal(boundPath).traversal.map { traverser -> traverser.get().second })
+    fun <FROM : Vertex, TO> traversal(boundStep: SingleBoundStep.ToMany<FROM, TO>): SingleBoundGraphTraversalToMany<TO> =
+            SingleBoundGraphTraversalToMany(_traversal(boundStep).traversal.map { traverser -> traverser.get().second })
 
     /**
      * Traverses from multiple vertices to the path's required destination object for each origin vertex.
      */
-    fun <FROM : Vertex, TO> traversal(boundPath: BoundPath.ToSingle<FROM, TO>): MultiBoundGraphTraversalToSingle<FROM, TO> =
-            _traversal(boundPath).asToSingle()
+    fun <FROM : Vertex, TO> traversal(boundStep: BoundStep.ToSingle<FROM, TO>): MultiBoundGraphTraversalToSingle<FROM, TO> =
+            _traversal(boundStep).asToSingle()
 
     /**
      * Traverses from multiple vertices to the path's optional destination object for each origin vertex.
      */
-    fun <FROM : Vertex, TO> traversal(boundPath: BoundPath.ToOptional<FROM, TO>): MultiBoundGraphTraversalToOptional<FROM, TO> =
-            _traversal(boundPath).asToOptional()
+    fun <FROM : Vertex, TO> traversal(boundStep: BoundStep.ToOptional<FROM, TO>): MultiBoundGraphTraversalToOptional<FROM, TO> =
+            _traversal(boundStep).asToOptional()
 
     /**
      * Traverses from multiple vertices to the path's destination objects for each origin vertex.
      */
-    fun <FROM : Vertex, TO> traversal(boundPath: BoundPath.ToMany<FROM, TO>): MultiBoundGraphTraversalToMany<FROM, TO> =
-            _traversal(boundPath)
+    fun <FROM : Vertex, TO> traversal(boundStep: BoundStep.ToMany<FROM, TO>): MultiBoundGraphTraversalToMany<FROM, TO> =
+            _traversal(boundStep)
 
     /**
      * Traverses from any number of vertices to the path's destination object(s) for each origin vertex.
      */
-    private fun <FROM : Vertex, TO> _traversal(boundPath: BoundPath<FROM, TO>) = MultiBoundGraphTraversalToMany(
-            froms = boundPath.froms,
+    private fun <FROM : Vertex, TO> _traversal(boundStep: BoundStep<FROM, TO>) = MultiBoundGraphTraversalToMany(
+            froms = boundStep.froms,
             traversal =
-            if (boundPath.froms.none()) {
-                traversal.inject<Pair<FROM, TO>>()
+            if (boundStep.froms.none()) {
+                g.inject<Pair<FROM, TO>>()
             } else {
-                val traversalStart = boundPath.froms.fold(initial = traversal.inject<FROM>()) { traversal, from ->
+                val traversalStart = boundStep.froms.fold(initial = g.inject<FROM>()) { traversal, from ->
                     traversal.inject(from).`as`(fromKey)
                 }
-                @Suppress("UNCHECKED_CAST")
-                val traversed = boundPath.path.path().fold(initial = traversalStart as GraphTraversal<Any, Any>) { traversal, step ->
-                    step as Path<Any, Any>
-                    step(StepTraverser(traversal, this)) as GraphTraversal<Any, Any>
-                }
+                val traversed = boundStep.step.invoke(StepTraverser(traversalStart, this))
                 @Suppress("UNCHECKED_CAST")
                 traversed.`as`(toKey).select<Any>(fromKey, toKey).map {
                     val map = it.get()
@@ -272,13 +267,13 @@ interface GraphMapper {
             })
 
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> serialize(edge: E): GraphEdge =
-            EdgeSerializer(graphDescription, traversal)(edge)
+            EdgeSerializer(graphDescription, g)(edge)
 
     fun <FROM : Vertex, TO : Vertex, E : Edge<FROM, TO>> deserialize(graphEdge: GraphEdge): E =
             EdgeDeserializer(graphDescription)(graphEdge)
 
     fun <V : Vertex> serialize(vertex: V): GraphVertex =
-            VertexSerializer(graphDescription, traversal)(vertex)
+            VertexSerializer(graphDescription, g)(vertex)
 
     fun <V : Vertex> deserialize(graphVertex: GraphVertex): V =
             VertexDeserializer(graphDescription)(graphVertex)
@@ -314,17 +309,17 @@ typealias GraphVertex = org.apache.tinkerpop.gremlin.structure.Vertex
 typealias GraphEdge = org.apache.tinkerpop.gremlin.structure.Edge
 
 /**
- * Get a traversal that emits all vertices for class V (which has been registered as a vertex with this GraphMapper).
+ * Get a g that emits all vertices for class V (which has been registered as a vertex with this GraphMapper).
  * V may be a superclass of classes registered as a vertex.
  */
 inline fun <reified V : Vertex> GraphMapper.allV(
         noinline then: GraphTraversal<*, GraphVertex>.() -> GraphTraversal<*, GraphVertex> = { this }
-): GraphTraversalToMany<V> = V(V::class, then)
+): SingleBoundGraphTraversalToMany<V> = V(V::class, then)
 
 /**
- * Get a traversal that emits all edges for class E (which has been registered with a relationship as
+ * Get a g that emits all edges for class E (which has been registered with a spec as
  * an edge with this GraphMapper).
  */
 inline fun <FROM : Vertex, TO : Vertex, reified E : Edge<FROM, TO>> GraphMapper.allE(
         noinline then: GraphTraversal<*, GraphEdge>.() -> GraphTraversal<*, GraphEdge> = { this }
-): GraphTraversalToMany<E> = E(E::class, then)
+): SingleBoundGraphTraversalToMany<E> = E(E::class, then)

@@ -14,7 +14,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 
 internal class StarwarsGraphMapper(
         override val graphDescription: GraphDescription,
-        override val traversal: GraphTraversalSource
+        override val g: GraphTraversalSource
 ) : CachedGraphMapper {
 
     override val cache = object : GraphMapperCache {

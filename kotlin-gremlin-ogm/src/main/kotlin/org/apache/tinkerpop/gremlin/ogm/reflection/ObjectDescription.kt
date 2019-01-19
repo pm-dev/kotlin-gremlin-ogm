@@ -12,7 +12,7 @@ import org.apache.tinkerpop.gremlin.ogm.extensions.nestedPropertyDelimiter
 import org.apache.tinkerpop.gremlin.ogm.mappers.EdgeDeserializer.Companion.idTag
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
-import org.apache.tinkerpop.gremlin.ogm.paths.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
 import java.util.function.Supplier
 import kotlin.reflect.*
 import kotlin.reflect.full.*
@@ -71,9 +71,9 @@ class VertexDescription<T : Vertex>(kClass: KClass<T>) : ElementDescription<T>(k
 class EdgeDescription<out FROM : Vertex, out TO : Vertex, T : Edge<FROM, TO>>(
 
         /**
-         * The relationship for this edge
+         * The [EdgeSpec] for this edge
          */
-        val relationship: Relationship<out FROM, out TO>,
+        val edgeSpec: EdgeSpec<out FROM, out TO>,
 
         kClass: KClass<T>
 

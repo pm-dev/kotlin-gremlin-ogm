@@ -47,7 +47,7 @@ dependencies {
 	compile("org.jetbrains.kotlin:kotlin-reflect")
 
 	// Gremlin
-	compile("org.apache.tinkerpop:gremlin-driver:3.3.4")
+	compile("org.apache.tinkerpop:gremlin-driver:3.4.0")
 
 	// Logging
 	compile("org.slf4j:slf4j-api:1.7.25")
@@ -56,7 +56,7 @@ dependencies {
 	testCompile("org.assertj:assertj-core:3.11.1")
 	testCompile("junit:junit:4.12")
 	testCompile("com.google.guava:guava:27.0.1-jre")
-	testCompile("org.apache.tinkerpop:tinkergraph-gremlin:3.3.4")
+	testCompile("org.apache.tinkerpop:tinkergraph-gremlin:3.4.0")
 	testCompile("org.slf4j:slf4j-log4j12:1.7.25")
 }
 
