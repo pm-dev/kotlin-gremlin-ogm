@@ -1,9 +1,8 @@
 package starwars.traversals.character
 
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.Step
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepToOptional
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.StepToSingle
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.dedup
+import org.apache.tinkerpop.gremlin.ogm.steps.Step
+import org.apache.tinkerpop.gremlin.ogm.steps.StepTraverser
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal
 import starwars.models.Character
 
 /**
@@ -23,38 +22,46 @@ internal val Character.Companion.secondDegreeFriends
 
 /**
  * This step saves the results of the first friends step so that the first degree friends can be filtered out later.
- * It it a 'ToSingle' step because it does not change the result count of the g.
+ * It it a 'ToSingle' step because it does not change the result count of the traversal.
  */
-private val saveFirstDegreeFriends = StepToSingle<Character, Character> {
-    it.traversal.aggregate(firstDegreeFriendsKey)
+private val saveFirstDegreeFriends = object : Step.ToSingle<Character, Character> {
+
+    override fun invoke(from: StepTraverser<Character>): GraphTraversal<*, Character> =
+            from.traversal.aggregate(firstDegreeFriendsKey)
 }
 
-private val saveCharacter = StepToSingle<Character, Character> {
-    it.traversal.aggregate(characterKey)
+private val saveCharacter = object : Step.ToSingle<Character, Character> {
+
+    override fun invoke(from: StepTraverser<Character>): GraphTraversal<*, Character> =
+            from.traversal.aggregate(characterKey)
 }
 
 /**
  * This step removes any characters that are first degree friends. It is a 'ToOptional' step because it may reduce
- * the result count of the g.
+ * the result count of the traversal.
  */
-private val filterFirstDegreeFriends = StepToOptional<Character, Character> { it ->
-    it.traversal.`as`(secondDegreeFriendKey).select<Any>(firstDegreeFriendsKey, secondDegreeFriendKey).flatMap {
-        val map = it.get()
-        @Suppress("UNCHECKED_CAST")
-        val first = map[firstDegreeFriendsKey] as Set<Character>
-        val second = map[secondDegreeFriendKey] as Character
-        if (first.contains(second)) emptyList<Character>().iterator() else listOf(second).iterator()
-    }
+private val filterFirstDegreeFriends = object : Step.ToOptional<Character, Character> {
+
+    override fun invoke(from: StepTraverser<Character>): GraphTraversal<*, Character> =
+            from.traversal.`as`(secondDegreeFriendKey).select<Any>(firstDegreeFriendsKey, secondDegreeFriendKey).flatMap {
+                val map = it.get()
+                @Suppress("UNCHECKED_CAST")
+                val first = map[firstDegreeFriendsKey] as Set<Character>
+                val second = map[secondDegreeFriendKey] as Character
+                if (first.contains(second)) emptyList<Character>().iterator() else listOf(second).iterator()
+            }
 }
 
-private val filterCharacter = StepToOptional<Character, Character> { traverser ->
-    traverser.traversal.`as`(secondDegreeFriendKey).select<Any>(characterKey, secondDegreeFriendKey).flatMap {
-        val map = it.get()
-        @Suppress("UNCHECKED_CAST")
-        val first = map[characterKey] as Set<Character>
-        val second = map[secondDegreeFriendKey] as Character
-        if (first.contains(second)) emptyList<Character>().iterator() else listOf(second).iterator()
-    }
+private val filterCharacter = object : Step.ToOptional<Character, Character> {
+
+    override fun invoke(from: StepTraverser<Character>): GraphTraversal<*, Character> =
+            from.traversal.`as`(secondDegreeFriendKey).select<Any>(characterKey, secondDegreeFriendKey).flatMap {
+                val map = it.get()
+                @Suppress("UNCHECKED_CAST")
+                val first = map[characterKey] as Set<Character>
+                val second = map[secondDegreeFriendKey] as Character
+                if (first.contains(second)) emptyList<Character>().iterator() else listOf(second).iterator()
+            }
 }
 
 private const val characterKey = "characterKey"

@@ -1,6 +1,6 @@
 package org.apache.tinkerpop.gremlin.ogm.elements
 
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.Relationship
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.Relationship
 
 
 /**

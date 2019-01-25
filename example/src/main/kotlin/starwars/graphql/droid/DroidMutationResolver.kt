@@ -1,9 +1,10 @@
+@file:Suppress("unused")
+
 package starwars.graphql.droid
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import graphql.schema.DataFetchingEnvironment
 import graphql.servlet.ogm.mutate
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
 import org.springframework.stereotype.Component
 import starwars.models.Character
 import starwars.models.Droid
@@ -19,16 +20,15 @@ internal class DroidMutationResolver : GraphQLMutationResolver {
             primaryFunction: String,
             friendIds: Set<Long>,
             appearsIn: Set<Episode>,
-            env: DataFetchingEnvironment): Droid {
-        return env.mutate {
-            val friends = V<Character>(friendIds).traverse()
-            val droid = saveV(Droid(
-                    name = Name.parse(name),
-                    appearsIn = appearsIn,
-                    createdAt = Instant.now(),
-                    primaryFunction = primaryFunction))
-            saveE(Character.friends from droid to friends)
-            droid
-        }
+            env: DataFetchingEnvironment
+    ): Droid = env.mutate {
+        val friends = V<Character>(ids = friendIds)
+        val droid = saveV(vertex = Droid(
+                name = Name.parse(raw = name),
+                appearsIn = appearsIn,
+                createdAt = Instant.now(),
+                primaryFunction = primaryFunction))
+        saveE(edges = Character.friends from droid to friends)
+        droid
     }
 }

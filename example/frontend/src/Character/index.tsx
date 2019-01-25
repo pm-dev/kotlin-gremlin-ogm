@@ -57,14 +57,14 @@ export default class CharacterComponent extends React.Component<Props, State> {
               <br/>
               <h4>{'Friends'}</h4>
               <hr/>
-              {character.friends.map(friend =>
+              {character.friends.results.map(friend =>
                 <h6 key={friend.id}>
                   <Link to={`/character/${friend.name.full}`}>{friend.name.full}</Link>
                 </h6>)}
               <br/>
               <h4>{'Second Degree Friends'}</h4>
               <hr/>
-              {character.secondDegreeFriends.map(friend =>
+              {character.secondDegreeFriends.results.map(friend =>
                 <h6 key={friend.id}>
                   <Link to={`/character/${friend.name.full}`}>{friend.name.full}</Link>
                 </h6>)}

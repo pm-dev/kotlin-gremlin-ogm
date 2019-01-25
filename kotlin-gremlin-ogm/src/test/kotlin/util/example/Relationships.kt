@@ -1,6 +1,6 @@
 package util.example
 
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.*
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.edgespec.*
 
 internal val asymmetricManyToMany = ManyToManyAsymmetricEdgeSpec<VertexWithInt, VertexWithInt>(name = "asymmetric_many_to_many")
 internal val asymmetricOptionalToMany = OptionalToManyEdgeSpec<VertexWithInt, VertexWithInt>(name = "asymmetric_optional_to_many")

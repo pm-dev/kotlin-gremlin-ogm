@@ -5,7 +5,7 @@ internal fun <K, V> MutableMap<K, V>.mapValuesInPlace(transform: (Map.Entry<K, V
             entry.setValue(transform(entry))
         }
 
-internal fun <K, V> Iterable<Pair<K, V>>.toMultiMap(requireKeys: Iterable<K> = emptyList()): Map<K, List<V>> {
+internal fun <K, V> Iterator<Pair<K, V>>.toMultiMap(requireKeys: Collection<K> = emptyList()): Map<K, List<V>> {
     val remainingRequiredKeys = requireKeys.toMutableSet()
     val map = mutableMapOf<K, MutableList<V>>()
     forEach {
@@ -20,7 +20,8 @@ internal fun <K, V> Iterable<Pair<K, V>>.toMultiMap(requireKeys: Iterable<K> = e
     return map
 }
 
-internal fun <K, V> Iterable<Pair<K, V>>.toOptionalMap(requireKeys: Iterable<K> = emptyList()): Map<K, V?> {
+
+internal fun <K, V> Iterator<Pair<K, V>>.toOptionalMap(requireKeys: Collection<K> = emptyList()): Map<K, V?> {
     val remainingRequiredKeys = requireKeys.toMutableSet()
     val finalMap = mutableMapOf<K, V?>()
     forEach { pair ->
@@ -36,7 +37,7 @@ internal fun <K, V> Iterable<Pair<K, V>>.toOptionalMap(requireKeys: Iterable<K> 
     return finalMap
 }
 
-internal fun <K, V> Iterable<Pair<K, V>>.toSingleMap(requireKeys: Iterable<K> = emptyList()): Map<K, V> {
+internal fun <K, V> Iterator<Pair<K, V>>.toSingleMap(requireKeys: Collection<K> = emptyList()): Map<K, V> {
     val remainingRequiredKeys = requireKeys.toMutableSet()
     val finalMap = mutableMapOf<K, V>()
     forEach { pair ->

@@ -11,7 +11,7 @@ import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.InstantPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.URLPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.UUIDPropertyMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.scalar.identity.*
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.edgespec.EdgeSpec
 import java.math.BigDecimal
 import java.net.URL
 import java.time.Instant

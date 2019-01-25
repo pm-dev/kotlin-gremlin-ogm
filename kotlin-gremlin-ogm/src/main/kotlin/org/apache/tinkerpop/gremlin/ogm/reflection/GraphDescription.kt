@@ -4,7 +4,7 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Edge
 import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.edgespec.EdgeSpec
 import kotlin.reflect.KClass
 
 /**

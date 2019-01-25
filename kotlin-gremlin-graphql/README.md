@@ -31,12 +31,12 @@ An example of a working implementation can be seen in the [starwars example proj
 
 - Gradle
 
-        compile 'com.github.pm-dev:kotlin-gremlin-graphql:0.20.0'
+        compile 'com.github.pm-dev:kotlin-gremlin-graphql:0.21.0'
 
 - Maven
 
         <dependency>
             <groupId>com.github.pm-dev</groupId>
             <artifactId>kotlin-gremlin-graphql</artifactId>
-            <version>0.20.0</version>
+            <version>0.21.0</version>
         </dependency>

@@ -1,0 +1,9 @@
+# One of the films in the Star Wars Trilogy
+enum Episode {
+
+    NEW_HOPE,
+
+    EMPIRE,
+
+    JEDI
+}

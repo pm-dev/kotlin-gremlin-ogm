@@ -8,8 +8,7 @@ import graphql.schema.GraphQLScalarType
 import starwars.graphql.scalars.GraphQLTimestamp.MILLIS_IN_SECOND
 import java.time.Instant
 
-
-object GraphQLTimestamp : GraphQLScalarType(
+internal object GraphQLTimestamp : GraphQLScalarType(
         "Timestamp",
         "A single instantaneous point on the time-line. This timestamp counts in seconds from the unix epoch. " +
                 "Accurate to the nearest millisecond. Formatted as a json number.",

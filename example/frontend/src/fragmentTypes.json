@@ -1,1 +1,1 @@
-{"__schema":{"types":[{"kind":"INTERFACE","name":"Character","possibleTypes":[{"name":"Human"},{"name":"Droid"}]},{"kind":"INTERFACE","name":"Node","possibleTypes":[{"name":"Human"},{"name":"Droid"}]}]}}
+{"__schema":{"types":[{"kind":"INTERFACE","name":"Node","possibleTypes":[{"name":"Human"},{"name":"Droid"}]},{"kind":"INTERFACE","name":"Character","possibleTypes":[{"name":"Human"},{"name":"Droid"}]}]}}

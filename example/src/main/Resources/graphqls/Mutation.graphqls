@@ -1,0 +1,7 @@
+type Mutation {
+
+    # Create a new droid
+    createDroid(name: String!, primaryFunction: String!, friendIds: [ID!]!, appearsIn: [Episode!]!): Droid!
+
+    updateCharacterName(characterID: ID!, name: String!): Character
+}

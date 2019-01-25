@@ -13,29 +13,34 @@ export interface Character_character_Human_name {
   full: string;
 }
 
-export interface Character_character_Human_friends_name {
+export interface Character_character_Human_friends_results_name {
   __typename: "Name";
   full: string;
+}
+
+export interface Character_character_Human_friends_results {
+  __typename: "Human" | "Droid";
+  /**
+   * The id of the character
+   */
+  id: string;
+  /**
+   * The name of the character
+   */
+  name: Character_character_Human_friends_results_name;
 }
 
 export interface Character_character_Human_friends {
-  __typename: "Human" | "Droid";
-  /**
-   * The id of the character
-   */
-  id: string;
-  /**
-   * The name of the character
-   */
-  name: Character_character_Human_friends_name;
+  __typename: "CharacterPage";
+  results: Character_character_Human_friends_results[];
 }
 
-export interface Character_character_Human_secondDegreeFriends_name {
+export interface Character_character_Human_secondDegreeFriends_results_name {
   __typename: "Name";
   full: string;
 }
 
-export interface Character_character_Human_secondDegreeFriends {
+export interface Character_character_Human_secondDegreeFriends_results {
   __typename: "Human" | "Droid";
   /**
    * The id of the character
@@ -44,7 +49,12 @@ export interface Character_character_Human_secondDegreeFriends {
   /**
    * The name of the character
    */
-  name: Character_character_Human_secondDegreeFriends_name;
+  name: Character_character_Human_secondDegreeFriends_results_name;
+}
+
+export interface Character_character_Human_secondDegreeFriends {
+  __typename: "CharacterPage";
+  results: Character_character_Human_secondDegreeFriends_results[];
 }
 
 export interface Character_character_Human {
@@ -72,11 +82,11 @@ export interface Character_character_Human {
   /**
    * The friends of the human, or an empty list if they have none
    */
-  friends: Character_character_Human_friends[];
+  friends: Character_character_Human_friends;
   /**
    * The friends of the human's friends
    */
-  secondDegreeFriends: Character_character_Human_secondDegreeFriends[];
+  secondDegreeFriends: Character_character_Human_secondDegreeFriends;
 }
 
 export interface Character_character_Droid_name {
@@ -84,29 +94,34 @@ export interface Character_character_Droid_name {
   full: string;
 }
 
-export interface Character_character_Droid_friends_name {
+export interface Character_character_Droid_friends_results_name {
   __typename: "Name";
   full: string;
+}
+
+export interface Character_character_Droid_friends_results {
+  __typename: "Human" | "Droid";
+  /**
+   * The id of the character
+   */
+  id: string;
+  /**
+   * The name of the character
+   */
+  name: Character_character_Droid_friends_results_name;
 }
 
 export interface Character_character_Droid_friends {
-  __typename: "Human" | "Droid";
-  /**
-   * The id of the character
-   */
-  id: string;
-  /**
-   * The name of the character
-   */
-  name: Character_character_Droid_friends_name;
+  __typename: "CharacterPage";
+  results: Character_character_Droid_friends_results[];
 }
 
-export interface Character_character_Droid_secondDegreeFriends_name {
+export interface Character_character_Droid_secondDegreeFriends_results_name {
   __typename: "Name";
   full: string;
 }
 
-export interface Character_character_Droid_secondDegreeFriends {
+export interface Character_character_Droid_secondDegreeFriends_results {
   __typename: "Human" | "Droid";
   /**
    * The id of the character
@@ -115,7 +130,12 @@ export interface Character_character_Droid_secondDegreeFriends {
   /**
    * The name of the character
    */
-  name: Character_character_Droid_secondDegreeFriends_name;
+  name: Character_character_Droid_secondDegreeFriends_results_name;
+}
+
+export interface Character_character_Droid_secondDegreeFriends {
+  __typename: "CharacterPage";
+  results: Character_character_Droid_secondDegreeFriends_results[];
 }
 
 export interface Character_character_Droid {
@@ -143,11 +163,11 @@ export interface Character_character_Droid {
   /**
    * The friends of the droid, or an empty list if they have none
    */
-  friends: Character_character_Droid_friends[];
+  friends: Character_character_Droid_friends;
   /**
    * The friends of the droid's friends
    */
-  secondDegreeFriends: Character_character_Droid_secondDegreeFriends[];
+  secondDegreeFriends: Character_character_Droid_secondDegreeFriends;
 }
 
 export type Character_character = Character_character_Human | Character_character_Droid;

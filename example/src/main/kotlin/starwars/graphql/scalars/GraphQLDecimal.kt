@@ -8,10 +8,10 @@ import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLScalarType
 import java.math.BigDecimal
 
-object GraphQLDecimal : GraphQLScalarType(
+internal object GraphQLDecimal : GraphQLScalarType(
         "Decimal",
-        "A number in base 10. Formatted as a json string (because floating point decimal numbers do not have " +
-                "an exact binary representation on most architectures when stored as a float or double)",
+        "A number in base 10. Formatted as a json string (because floating point decimal numbers may not have " +
+                "an exact binary representation when stored as a float or double)",
         object : Coercing<BigDecimal, String> {
 
             override fun serialize(dataFetcherResult: Any?): String = when (dataFetcherResult) {

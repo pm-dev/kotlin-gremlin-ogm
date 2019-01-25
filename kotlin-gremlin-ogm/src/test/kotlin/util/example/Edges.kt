@@ -2,8 +2,7 @@ package util.example
 
 import org.apache.tinkerpop.gremlin.ogm.annotations.*
 import org.apache.tinkerpop.gremlin.ogm.elements.Edge
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.Relationship
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.SingleToSingleAsymmetricEdgeSpec
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.edgespec.SingleToSingleAsymmetricEdgeSpec
 
 @Element(label = "fromIntToBool")
 internal class IntToBoolEdge(

@@ -2,7 +2,7 @@ package framework
 
 import java.time.Instant
 
-internal abstract class BaseVertex(
-        id: Long?,
-        val createdAt: Instant
-) : BaseElement<Long>(id)
+internal abstract class BaseVertex : BaseElement<Long>() {
+
+    abstract val createdAt: Instant
+}

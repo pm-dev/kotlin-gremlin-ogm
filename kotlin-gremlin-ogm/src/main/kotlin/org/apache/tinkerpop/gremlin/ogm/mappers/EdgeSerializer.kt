@@ -9,8 +9,7 @@ import org.apache.tinkerpop.gremlin.ogm.exceptions.ConflictingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ObjectNotSaved
 import org.apache.tinkerpop.gremlin.ogm.exceptions.UnregisteredClass
 import org.apache.tinkerpop.gremlin.ogm.extensions.setProperties
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.Relationship
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.edgespec.EdgeSpec
 import org.apache.tinkerpop.gremlin.ogm.reflection.EdgeDescription
 import org.apache.tinkerpop.gremlin.ogm.reflection.GraphDescription
 import org.apache.tinkerpop.gremlin.ogm.reflection.VertexDescription

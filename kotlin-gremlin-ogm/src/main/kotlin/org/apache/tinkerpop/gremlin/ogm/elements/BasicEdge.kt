@@ -1,6 +1,6 @@
 package org.apache.tinkerpop.gremlin.ogm.elements
 
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.edgespec.EdgeSpec
 
 
 internal class BasicEdge<FROM : Vertex, TO : Vertex>(

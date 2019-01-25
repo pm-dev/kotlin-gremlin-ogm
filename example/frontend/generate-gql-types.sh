@@ -6,16 +6,22 @@ set -euo pipefail
 find . -prune -type d -name '__generated__' -exec rm -rf {} +;
 echo "  ✔ Deleted __generated__ directories"
 
+$(npm bin)/apollo schema:download \
+  --endpoint="http://localhost:5000/graphql" \
+  schema.json
+
+echo "  ✔ Downloaded schema"
+
 # It would be nice to use the backend local
 # schema file so that the backend wouldn't need to
 # be running, however it seems apollo codegen doesn't
 # handle types that inherit multiple interfaces
-# --localSchemaFile=../src/main/Resources/starwars.graphqls \
+# --localSchemaFile=../src/main/Resources/graphqls/**.graphqls \
 
 $(npm bin)/apollo client:codegen \
-  --endpoint="http://localhost:5000/graphql" \
-  --queries=src/**/*.graphql \
-  --target=typescript \
+  --localSchemaFile="schema.json" \
+  --queries="src/**/*.graphql" \
+  --target="typescript" \
   --passthroughCustomScalars \
   --mergeInFieldsFromFragmentSpreads \
   --addTypename;

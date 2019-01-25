@@ -1,0 +1,8 @@
+type Name {
+
+    given: String!
+
+    surname: String
+
+    full: String!
+}

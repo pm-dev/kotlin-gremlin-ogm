@@ -1,0 +1,65 @@
+# A humanoid creature in the Star Wars universe
+type Human implements Node, Character {
+
+    # The id of the human
+    id: ID!
+
+    # The name of the human
+    name: Name!
+
+    # The moment this human was created
+    createdAt: Timestamp!
+
+    # The friends of the human, or an empty list if they have none
+    friends(
+        resume: CharacterPageCursor,
+        limit: PageLimit = 100,
+        order: CharacterPageOrder = CREATED_AT_DESCENDING
+    ): CharacterPage!
+
+    # Which movies they appear in
+    appearsIn: [Episode!]!
+
+    # The home planet of the human, or null if unknown
+    homePlanet: String
+
+    # The friends of the human's friends
+    secondDegreeFriends(
+        resume: CharacterPageCursor,
+        limit: PageLimit = 100,
+        order: CharacterPageOrder = CREATED_AT_DESCENDING
+    ): CharacterPage!
+
+    # Siblings of this human who have the same birthday
+    twinSiblings(
+        resume: HumanPageCursor,
+        limit: PageLimit = 100,
+        order: HumanPageOrder = CREATED_AT_DESCENDING
+    ): HumanPage!
+}
+
+type HumanPage {
+
+    previous: HumanPageCursor
+
+    next: HumanPageCursor
+
+    results: [Human!]!
+}
+
+scalar HumanPageCursor
+
+enum HumanPageOrder {
+
+    CREATED_AT_ASCENDING,
+
+    CREATED_AT_DESCENDING,
+
+    FULL_NAME_ASCENDING,
+
+    FULL_NAME_DESCENDING,
+
+    HOME_PLANET_ASCENDING,
+
+    HOME_PLANET_DESCENDING
+}

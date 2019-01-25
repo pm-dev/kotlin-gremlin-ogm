@@ -1,0 +1,51 @@
+# A character in the Star Wars Trilogy
+interface Character {
+
+    # The id of the character
+    id: ID!
+
+    # The timestamp this character was created
+    createdAt: Timestamp!
+
+    # The name of the character
+    name: Name!
+
+    # The friends of the character, or an empty list if they have none
+    friends(
+        resume: CharacterPageCursor,
+        limit: PageLimit = 100,
+        order: CharacterPageOrder = CREATED_AT_DESCENDING
+    ): CharacterPage!
+
+    # Which movies they appear in
+    appearsIn: [Episode!]!
+
+    # The paginated friends of the droid, or an empty list if they have none
+    secondDegreeFriends(
+        resume: CharacterPageCursor,
+        limit: PageLimit = 100,
+        order: CharacterPageOrder = CREATED_AT_DESCENDING
+    ): CharacterPage!
+}
+
+type CharacterPage {
+
+    previous: CharacterPageCursor
+
+    next: CharacterPageCursor
+
+    results: [Character!]!
+}
+
+scalar CharacterPageCursor
+
+enum CharacterPageOrder {
+
+    CREATED_AT_ASCENDING,
+
+    CREATED_AT_DESCENDING,
+
+    FULL_NAME_ASCENDING,
+
+    FULL_NAME_DESCENDING
+}

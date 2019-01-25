@@ -1,0 +1,32 @@
+# A mechanical creature in the Star Wars universe
+type Droid implements Node, Character {
+
+    # The id of the droid
+    id: ID!
+
+    # The moment this droid was created
+    createdAt: Timestamp!
+
+    # The name of the droid
+    name: Name!
+
+    # The friends of the droid, or an empty list if they have none
+    friends(
+        resume: CharacterPageCursor,
+        limit: PageLimit = 100,
+        order: CharacterPageOrder = CREATED_AT_DESCENDING
+    ): CharacterPage!
+
+    # Which movies they appear in
+    appearsIn: [Episode!]!
+
+    # The primary function of the droid
+    primaryFunction: String!
+
+    # The friends of the droid's friends
+    secondDegreeFriends(
+        resume: CharacterPageCursor,
+        limit: PageLimit = 100,
+        order: CharacterPageOrder = CREATED_AT_DESCENDING
+    ): CharacterPage!
+}

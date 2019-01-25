@@ -1,70 +1,83 @@
 package starwars.models
 
 import framework.BaseVertex
-import io.reactivex.Observable
-import kotlinx.coroutines.rx2.await
-import org.apache.tinkerpop.gremlin.ogm.GraphMapper
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.bind
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.ManyToManySymmetricEdgeSpec
-import org.apache.tinkerpop.gremlin.ogm.rx.rx
-import org.apache.tinkerpop.gremlin.ogm.traversals.SingleBoundMapper
+import org.apache.tinkerpop.gremlin.ogm.annotations.Element
+import org.apache.tinkerpop.gremlin.ogm.annotations.ID
+import org.apache.tinkerpop.gremlin.ogm.annotations.Property
+import org.apache.tinkerpop.gremlin.ogm.annotations.defaults.DefaultString
+import org.apache.tinkerpop.gremlin.ogm.annotations.defaults.DefaultValue
+import org.apache.tinkerpop.gremlin.ogm.steps.bound.single.SingleBoundStep
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.edgespec.ManyToManySymmetricEdgeSpec
 import org.janusgraph.ogm.annotations.Indexed
+import starwars.traversals.character.secondDegreeFriends
+import starwars.traversals.human.twinSiblings
 import java.time.Instant
+import java.util.function.Supplier
 
-internal abstract class Character(
+internal sealed class Character : BaseVertex() {
 
-        id: Long?,
+    abstract val name: Name
 
-        createdAt: Instant,
+    abstract val appearsIn: Set<Episode>
 
-        @Indexed
-        val name: Name,
+    val friends: SingleBoundStep.ToMany<Character, Character> get() = Companion.friends from this
 
-        val appearsIn: Set<Episode>
-) : BaseVertex(
-        id = id,
-        createdAt = createdAt
-) {
-
-    fun friends(mapper: GraphMapper): List<Character> = mapper bind this traverse friends
-
-    fun friendsMovies(mapper: GraphMapper): List<Episode> =
-            friends(mapper).flatMap(Character::appearsIn)
-
-    fun secondDegreeFriends(mapper: GraphMapper): List<Character> {
-        val firstDegreeFriends = friends(mapper)
-        val secondDegreeFriends = mapper.traversal(friends from firstDegreeFriends).traverse()
-        return secondDegreeFriends.values.asSequence()
-                .flatten()
-                .distinct()
-                .filter { !secondDegreeFriends.containsKey(it) }
-                .toList()
-    }
+    val secondDegreeFriends get() = Companion.secondDegreeFriends from this
 
     companion object {
+
         val friends = ManyToManySymmetricEdgeSpec<Character>(name = "friends")
     }
 }
 
-internal val SingleBoundMapper<Character>.friends: Observable<Character>
-    get() = traversal(Character.friends).rx()
+@Element(label = "Droid")
+internal data class Droid(
 
-internal val SingleBoundMapper<Character>.friendsMovies: Observable<Episode>
-    get() = friends
-            .flatMap { Observable.fromIterable(it.appearsIn) }
-            .distinct()
+        @ID
+        override val id: Long? = null,
 
-internal suspend fun SingleBoundMapper<Character>.secondDegreeFriends(): Sequence<Character> = friends
-        .toList()
-        .flatMap { friends -> (mapper bind friends traversal Character.friends).rx() }
-        .map { friendsToTheirFriends ->
-            friendsToTheirFriends
-                    .values
-                    .asSequence()
-                    .flatten()
-                    .distinct()
-                    .filter { !friendsToTheirFriends.containsKey(it) }
+        @Property(key = "createdAt")
+        override val createdAt: Instant,
+
+        @Indexed
+        @Property(key = "name")
+        override val name: Name,
+
+        @Property(key = "appearsIn")
+        override val appearsIn: Set<Episode>,
+
+        @Property(key = "primaryFunction")
+        @DefaultString("Unknown Function")
+        val primaryFunction: String
+) : Character()
+
+@Element(label = "Human")
+internal data class Human(
+
+        @ID
+        override val id: Long? = null,
+
+        @Property(key = "createdAt")
+        override val createdAt: Instant,
+
+        @Indexed
+        @Property(key = "name")
+        @DefaultValue(DefaultName::class)
+        override val name: Name,
+
+        @Property(key = "appearsIn")
+        override val appearsIn: Set<Episode>,
+
+        @Property(key = "homePlanet")
+        val homePlanet: String?
+) : Character() {
+
+    val twins get() = Human.twinSiblings from this
+
+    companion object {
+        
+        class DefaultName : Supplier<Name> {
+            override fun get() = Name(given = "Unknown", surname = "Name")
         }
-        .await()
-
+    }
+}

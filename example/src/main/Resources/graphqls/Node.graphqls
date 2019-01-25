@@ -1,0 +1,8 @@
+interface Node {
+
+    # The id of the node
+    id: ID!
+
+    # The timestamp this node was created
+    createdAt: Timestamp!
+}

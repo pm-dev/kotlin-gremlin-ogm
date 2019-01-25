@@ -2,7 +2,6 @@ package starwars.models
 
 import org.apache.tinkerpop.gremlin.ogm.annotations.Property
 
-
 internal data class Name(
 
         @Property(key = "given")

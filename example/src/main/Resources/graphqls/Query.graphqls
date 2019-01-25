@@ -1,0 +1,14 @@
+type Query {
+
+    # Hero of the Star wars saga
+    hero: Character!
+
+    # Find character by its full name
+    character(name: String!): Character
+
+    # Find human by its full name
+    human(name: String!): Human
+
+    # Find droid by its full name
+    droid(name: String!): Droid
+}

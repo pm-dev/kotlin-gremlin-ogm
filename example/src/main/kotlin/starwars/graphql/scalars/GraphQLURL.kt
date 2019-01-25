@@ -6,7 +6,7 @@ import graphql.schema.CoercingSerializeException
 import graphql.schema.GraphQLScalarType
 import java.net.URL
 
-object GraphQLURL : GraphQLScalarType(
+internal object GraphQLURL : GraphQLScalarType(
         "URL",
         "A url to a resource on the web. Formatted as a json string.",
         object : Coercing<URL, String> {

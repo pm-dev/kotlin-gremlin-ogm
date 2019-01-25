@@ -8,12 +8,12 @@ import org.apache.tinkerpop.gremlin.ogm.elements.Vertex
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ConflictingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.MissingEdge
 import org.apache.tinkerpop.gremlin.ogm.exceptions.ObjectNotSaved
-import org.apache.tinkerpop.gremlin.ogm.paths.bound.from
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.*
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.Relationship
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
+import org.apache.tinkerpop.gremlin.ogm.steps.*
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.Relationship
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.edgespec.EdgeSpec
 import org.apache.tinkerpop.gremlin.ogm.reflection.CachedGraphDescription
 import org.apache.tinkerpop.gremlin.ogm.reflection.GraphDescription
+import org.apache.tinkerpop.gremlin.ogm.steps.edgestep.outE
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.internal.bytebuddy.utility.RandomString
@@ -196,7 +196,7 @@ internal class GraphMapperTest {
         assertThat(saved.id).isNotNull()
         assertThat(saved.a).isNull()
 
-        val loaded = gm2.V<VertexWithDefault>(saved.id!!).traverse()
+        val loaded = gm2.V<VertexWithDefault>(saved.id!!)
         assertThat(loaded).isNotNull
         assertThat(loaded!!.id).isEqualTo(saved.id)
         assertThat(loaded.a).isEqualTo(defaultStringSupplier.get())
@@ -212,7 +212,7 @@ internal class GraphMapperTest {
         assertThat(saved.id).isNotNull()
         assertThat(saved.transientString).isNull()
 
-        val loaded = gm.V<VertexWithTransient>(saved.id!!).traverse()
+        val loaded = gm.V<VertexWithTransient>(saved.id!!)
         assertThat(loaded).isNotNull
         assertThat(loaded!!.id).isEqualTo(saved.id)
         assertThat(loaded.transientString).isNull()
@@ -241,7 +241,7 @@ internal class GraphMapperTest {
         assertThat(saved.to).isEqualTo(edge.to)
         assertThat(saved.from).isEqualTo(edge.from)
 
-        val loaded = gm.E<VertexWithInt, VertexWithBoolean, IntToBoolEdge>(saved.id!!).traverse()
+        val loaded = gm.E<VertexWithInt, VertexWithBoolean, IntToBoolEdge>(saved.id!!)
         assertThat(loaded).isNotNull
         assertThat(loaded!!.id).isEqualTo(saved.id)
         assertThat(loaded.a).isEqualTo(saved.a)
@@ -254,7 +254,7 @@ internal class GraphMapperTest {
         val a = gm.saveV(VertexWithInt.sample())
         val b = gm.saveV(VertexWithInt.sample())
         val objs = gm.allV<VertexWithInt>()
-        assertThat(objs.traverse()).isEqualTo(listOf(a, b))
+        assertThat(objs).isEqualTo(listOf(a, b))
     }
 
     private inline fun <reified T : BaseVertex<*>> saveAndLoadVertex(vertex: T) {
@@ -264,7 +264,7 @@ internal class GraphMapperTest {
         assertThat(saved.id).isNotNull()
         assertThat(saved.a).isEqualTo(vertex.a)
 
-        val loaded = gm.V<T>(saved.id!!).traverse()
+        val loaded = gm.V<T>(saved.id!!)
         assertThat(loaded).isNotNull
         assertThat(loaded!!.id).isEqualTo(saved.id)
         assertThat(loaded.a).isEqualTo(saved.a)
@@ -449,7 +449,7 @@ internal class GraphMapperTest {
         val asymmetricManyToSingle: EdgeSpec.ManyToSingle<VertexWithInt, VertexWithInt> =
                 asymmetricSingleToMany.inverse
         val a = gm.saveV(VertexWithInt.sample())
-        gm.traversal(asymmetricManyToSingle from a).traverse()
+        gm.traverse(asymmetricManyToSingle from a)
     }
 
     @Test
@@ -507,7 +507,7 @@ internal class GraphMapperTest {
     @Test(expected = MissingEdge::class)
     fun `test traverse AsymmetricSingleToSingle relationship missing edge to vertex`() {
         val a = gm.saveV(VertexWithInt.sample())
-        gm.traversal(asymmetricSingleToSingle from a).traverse()
+        gm.traverse(asymmetricSingleToSingle from a)
     }
 
     @Test
@@ -597,7 +597,7 @@ internal class GraphMapperTest {
     @Test(expected = MissingEdge::class)
     fun `test traverse AsymmetricOptionalToSingle relationship missing edge to vertex`() {
         val a = gm.saveV(VertexWithInt.sample())
-        gm.traversal(asymmetricOptionalToSingle from a).traverse()
+        gm.traverse(asymmetricOptionalToSingle from a)
     }
 
     @Test
@@ -761,7 +761,7 @@ internal class GraphMapperTest {
     @Test(expected = MissingEdge::class)
     fun `test traverse SymmetricSingleToSingle relationship missing edge to vertex`() {
         val a = gm.saveV(VertexWithInt.sample())
-        gm.traversal(symmetricSingleToSingle from a).traverse()
+        gm.traverse(symmetricSingleToSingle from a)
     }
 
     @Test
@@ -798,13 +798,13 @@ internal class GraphMapperTest {
     }
 
     private fun <FROM : Vertex, TO : Any> traverse(from: FROM, step: Step.ToSingle<FROM, TO>, expecting: TO) =
-            assertThat(gm.traversal(step from from).traverse()).isEqualTo(expecting)
+            assertThat(gm.traverse(step from from)).isEqualTo(expecting)
 
     private fun <FROM : Vertex, TO : Any> traverse(from: FROM, step: Step.ToMany<FROM, TO>, expecting: List<TO>) =
-            assertThat(gm.traversal(step from from).traverse()).isEqualTo(expecting)
+            assertThat(gm.traverse(step from from)).isEqualTo(expecting)
 
     private fun <FROM : Vertex, TO : Any> traverse(from: FROM, step: Step.ToOptional<FROM, TO>, expecting: TO?) =
-            assertThat(gm.traversal(step from from).traverse()).isEqualTo(expecting)
+            assertThat(gm.traverse(step from from)).isEqualTo(expecting)
 
     @Test
     fun `test traverse ManyToMany to SingleToOptional connection (ManyToMany)`() {
@@ -1392,7 +1392,7 @@ internal class GraphMapperTest {
 
         val edge = gm.saveE(IntToBoolEdge(a = RandomString.make(), from = a, to = b))
 
-        val traversalResult = gm.traversal(a outE fromIntToBool).traverse()
+        val traversalResult = gm.traverse(a outE fromIntToBool)
         assertThat(traversalResult).isEqualTo(edge)
     }
 

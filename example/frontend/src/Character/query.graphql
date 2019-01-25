@@ -13,15 +13,19 @@ query Character($name: String!) {
             primaryFunction
         }
         friends {
-            id
-            name {
-                full
+            results {
+                id
+                name {
+                    full
+                }
             }
         }
         secondDegreeFriends {
-            id
-            name {
-                full
+            results {
+                id
+                name {
+                    full
+                }
             }
         }
     }

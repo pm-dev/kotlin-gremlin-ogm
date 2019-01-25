@@ -12,7 +12,7 @@ import org.apache.tinkerpop.gremlin.ogm.extensions.nestedPropertyDelimiter
 import org.apache.tinkerpop.gremlin.ogm.mappers.EdgeDeserializer.Companion.idTag
 import org.apache.tinkerpop.gremlin.ogm.mappers.PropertyBiMapper
 import org.apache.tinkerpop.gremlin.ogm.mappers.SerializedProperty
-import org.apache.tinkerpop.gremlin.ogm.paths.steps.relationships.edgespec.EdgeSpec
+import org.apache.tinkerpop.gremlin.ogm.steps.relationship.edgespec.EdgeSpec
 import java.util.function.Supplier
 import kotlin.reflect.*
 import kotlin.reflect.full.*
@@ -215,14 +215,13 @@ internal fun KParameter.findDefault(): Supplier<out Any>? {
 }
 
 private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T, *>> {
-    val memberProperties = memberProperties
+    val memberProperties = declaredMemberProperties
     val annotatedMemberProperties = memberProperties
             .associate { property -> property to property.findAnnotation<Property>() }
             .filterNullValues()
     val memberPropertiesByKey = annotatedMemberProperties.entries.associate { it.value.key to it.key }
     if (memberPropertiesByKey.size != annotatedMemberProperties.size) throw DuplicatePropertyName(this)
     val memberPropertiesByName = memberProperties.associateBy(KProperty1<T, *>::name)
-
     val parameters = constructor().parameters
     val parametersToAnnotation = parameters.associate { param -> param to param.findAnnotation<Property>() }.filterNullValues()
     val propertyDescriptionsByKey = parametersToAnnotation.map { (param, annotation) ->
@@ -237,6 +236,17 @@ private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T,
         annotation.key to PropertyDescription(param, property, param.findMapper(), param.findDefault())
     }.associate { it }
     if (propertyDescriptionsByKey.size != parametersToAnnotation.size) throw DuplicatePropertyName(this)
+    superclasses.forEach { superClass ->
+        declaredMemberProperties.forEach { superclassProperty ->
+            val superclassAnnotations = superclassProperty.annotations
+                    .filter {
+                        allPropertyAnnotationClasses.contains(it::class)
+                    }
+            if (superclassAnnotations.isNotEmpty()) {
+                throw SuperclassAnnotationException(this, superClass, superclassProperty, superclassAnnotations)
+            }
+        }
+    }
     return propertyDescriptionsByKey
 }
 
@@ -274,3 +284,20 @@ private fun verifyClassifiersAreCompatible(lowerBound: KClassifier?, upperBound:
         throw ClassInheritanceMismatch(lowerBound, upperBound)
     }
 }
+
+private val allPropertyAnnotationClasses = setOf(
+        ToVertex::class,
+        FromVertex::class,
+        ID::class,
+        Mapper::class,
+        Property::class,
+        DefaultValue::class,
+        DefaultBoolean::class,
+        DefaultByte::class,
+        DefaultChar::class,
+        DefaultDouble::class,
+        DefaultFloat::class,
+        DefaultInt::class,
+        DefaultLong::class,
+        DefaultShort::class,
+        DefaultString::class)
