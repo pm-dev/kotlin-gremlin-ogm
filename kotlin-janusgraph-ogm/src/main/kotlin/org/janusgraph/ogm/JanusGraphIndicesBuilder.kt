@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.superclasses
 
 interface JanusGraphIndicesBuilder {
@@ -91,7 +92,7 @@ interface JanusGraphIndicesBuilder {
                 elementType: KClass<out Element>,
                 graphDescription: GraphDescription
         ): List<IndexDescription> =
-                elementClass.declaredMemberProperties.flatMap { property ->
+                elementClass.memberProperties.flatMap { property ->
                     val indexAnnotations = property.annotations.filterIsInstance(Indexed::class.java)
                     if (indexAnnotations.isNotEmpty()) {
                         val propertyDescriptions = element.properties.filter { it.value.property == property }
@@ -107,7 +108,7 @@ interface JanusGraphIndicesBuilder {
                     }
                 }.also {
                     elementClass.superclasses.forEach { superclass ->
-                        superclass.declaredMemberProperties.forEach { superclassProperty ->
+                        superclass.memberProperties.forEach { superclassProperty ->
                             val indexAnnotations = superclassProperty.annotations.filterIsInstance(Indexed::class.java)
                             if (indexAnnotations.isNotEmpty()) {
                                 throw SuperclassAnnotationException(elementClass, superclass, superclassProperty, indexAnnotations)

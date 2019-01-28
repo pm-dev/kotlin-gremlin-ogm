@@ -215,7 +215,7 @@ internal fun KParameter.findDefault(): Supplier<out Any>? {
 }
 
 private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T, *>> {
-    val memberProperties = declaredMemberProperties
+    val memberProperties = memberProperties
     val annotatedMemberProperties = memberProperties
             .associate { property -> property to property.findAnnotation<Property>() }
             .filterNullValues()
@@ -237,7 +237,7 @@ private fun <T : Any> KClass<T>.properties(): Map<String, PropertyDescription<T,
     }.associate { it }
     if (propertyDescriptionsByKey.size != parametersToAnnotation.size) throw DuplicatePropertyName(this)
     superclasses.forEach { superClass ->
-        declaredMemberProperties.forEach { superclassProperty ->
+        memberProperties.forEach { superclassProperty ->
             val superclassAnnotations = superclassProperty.annotations
                     .filter {
                         allPropertyAnnotationClasses.contains(it::class)
