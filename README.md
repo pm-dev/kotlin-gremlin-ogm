@@ -5,19 +5,9 @@
 [![Kotlin Version](https://img.shields.io/badge/kotlin-1.3.10-blue.svg)](http://kotlinlang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
-An interactive example can be run using the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example).
-From the repo root directory, run:
-
-    ./gradlew :example:run
-
-Then load GraphiQL at `http://localhost:5000/graphiql.html` to explore the data mapped with this library.
-
-
 
 Gremlin is the graph traversal language for the Apache TinkerPop graph framework and is
 supported by most graph database implementations. 
-Check out [kotlin-janusgraph-ogm](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/kotlin-janusgraph-ogm)
-for additional JanusGraph specific features and [kotlin-gremlin-graphql](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/kotlin-gremlin-graphql)
 
 
 #### Basic Usage:
@@ -25,7 +15,7 @@ for additional JanusGraph specific features and [kotlin-gremlin-graphql](https:/
 Define a Vertex
 
     @Element("Person")
-    class Person(
+    data class Person(
     
             @ID
             val id: Long? = null,
@@ -35,8 +25,10 @@ Define a Vertex
     
 Define a Relationship
 
-       val friends = Relationship.symmetricManyToMany<Person>("friends")
-
+       val friends = ManyToManySymmetricEdgeSpec<Person>("friends")
+       val subordinates = SingleToManyEdgeSpec<Person, Person>("boss_to_subordinates")
+       val boss = subordinates.inverse
+       
 Save a Vertex
 
         val mighael = graphMapper.saveV(Person(name = "Michael Scott"))
@@ -45,11 +37,35 @@ Save a Vertex
 Save an Edge
 
         graphMapper.saveE(friends from michael to dwight)
+        graphMapper.saveE(boss from michael to dwight)
         
 Traverse an Edge
 
-        graphMapper.traverse(friends from michael).fetch() // returns list: [ dwight ]
-        graphMapper.traverse(friends from dwight).fetch() // returns list: [ michael ]        
+        graphMapper.traverse(friends from michael) // returns List<Person> [ dwight ]
+        graphMapper.traverse(friends from dwight) // returns List<Person> [ michael ]
+        graphMapper.traverse(subordinates from michael) // returns List<Person> [ dwight ]
+        graphMapper.traverse(boss from dwight) // returns non-optional Person micheal
+
+The `graphMapper` is an implementation of the `GraphMapper` interface which requires two properties:
+1. A `GraphTraversalSource` spawned from a tinkerpop graph
+2. A `GraphDescription` which is easily instantiated using `CachedGraphDescription(vertices = setOf(Person::class))`
+
+
+#### Sample Starwars App
+
+An interactive example can be run using the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example).
+From the repo root directory, run:
+
+    ./gradlew run
+
+Then load GraphiQL at `http://localhost:5000/graphiql.html` to explore the data mapped with this library.
+
+
+A small typescript + apollo + react web client that uses this starwars API can also be sampled:
+
+    cd example/frontend && yarn start 
+    
+Then load `http://localhost:3000` (server must also be running)
 
 
 #### Installation:
@@ -67,6 +83,15 @@ Traverse an Edge
         </dependency>
         
         
+#### Library Extensions
+
+Mix and match the following extensions to this library
+
+- JanusGraph: [kotlin-janusgraph-ogm](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/kotlin-janusgraph-ogm)
+- GraphQL: [kotlin-gremlin-graphql](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/kotlin-gremlin-graphql)
+- ReactiveX: [kotlin-rx-ogm](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/kotlin-rx-ogm)
+
+
 #### Features:
 
 - Take full advantage of Kotlin's type-safety. Traversals return either a list, non-optional, or optional based on
@@ -111,7 +136,7 @@ that call back into the library, thus, your graph implementation must be running
 - `String`
 
 If your Gremlin implementation does not support one of these native types, make sure to register a 
-property mapper for it with `GraphMapper` using the `scalarMappers` param
+property mapper for they type with your `GraphDescription` 
 or declare a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
 
@@ -119,27 +144,18 @@ or declare a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/maste
 
 - [`Instant` -> `String`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/InstantPropertyMapper.kt)
 - [`UUID` -> `String`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/UUIDPropertyMapper.kt)
+- [`URL` -> `String`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/URLPropertyMapper.kt)
+- [`BigDecimal` -> `String`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/mappers/scalar/BigDecimalPropertyMapper.kt)
 
-To use other property types, register your custom property mapper with `GraphMapper` using the `scalarMappers` param or declare
+
+To use other property types, register your custom property mapper with `GraphDescription` by returning a `PropertyMapper` from the `getScalarPropertyMapper` function
 a [`@Mapper`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/annotations/Mapper.kt) for that property.
 
-
-#### Built-in traversal steps:
-
-- [`Dedup`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Dedup.kt)
-- [`Filter`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Filter.kt)
-- [`FilterMap`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/FilterMap.kt)
-- [`FlatMap`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/FlatMap.kt)
-- [`Map`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Map.kt)
-- [`Slice`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Slice.kt)
-- [`Sort`](https://github.com/pm-dev/kotlin-gremlin-ogm/blob/master/kotlin-gremlin-ogm/src/main/kotlin/org/apache/tinkerpop/gremlin/ogm/relationships/steps/Sort.kt)
-
-Or build your own custom traversal-step. 
 
 #### How the mapping works:
 
 - A description of your graph, based annotations, is processed and cached when your `GraphMapper` is instantiated.
-- Using this description of the graph, we can create 'vertex mappers' that knows how to serialize/deserialize objects marked with `@Element` to/from
+- Using this description of the graph, we can create 'vertex mappers' that know how to serialize/deserialize objects marked with `@Element` to/from
 the graph.
 - Nested objects are not natively supported by Gremlin. When mapping a nested object to properties of a vertex, 
 the property key uses periods ('.') to denote a nested object. For example:

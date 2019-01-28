@@ -16,31 +16,21 @@ additional features:
 Define a Vertex
 
     @Element("Person")
-    class Person(
+    data class Person(
     
             @ID
             val id: Long? = null,
                
             @Indexed(unique = false) @Property("name")
             val name: String)
-    
-Define a Relationship
-
-       val friends = Relationship.symmetricManyToMany<Person>("friends")
-
+                
 Save a Vertex
 
         val mighael = graphMapper.saveV(Person(name = "Michael Scott"))
-        val dwight = graphMapper.saveV(Person(name = "Dwight Schrute"))
         
-Save an Edge
+Lookup Vertex by a property other than its ID
 
-        graphMapper.saveE(friends from michael to dwight)
-        
-Lookup Vertex and Traverse an Edge
-
-        val michael = graphMapper.allV<Person> { has("name", "Michael Scott") }.toSingle().fetch()      
-        val dwight = graphMapper.traverse(friends from michael).toSingle().fetch()
+        val michael = graphMapper.allV<Person> { has("name", "Michael Scott") }.single()    
 
 More complex examples can be seen in the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example/src/main/kotlin/starwars), 
 which exposes a graph database through a GraphQL endpoint.

@@ -3,26 +3,13 @@
 
 #### Basic Usage:
 
-Create a Servlet
+Fetching relationships with coroutines in batched data loaders is as easy as
 
-        val contextBuilder = GraphMapperGQLContextBuilder(graphMapperSupplier, dataLoaderRegisterySupplier)
-        SimpleGraphQLHttpServlet.newBuilder(
-            GraphQLInvocationInputFactory.newBuilder(graphQLSchema)
-                .withGraphQLContextBuilder(contextBuilder)
-                .build())
-            .build()
-
-Fetch from a DataFetchingEnvironment
-
-        fun getNode(nodeId: String, env: DataFetchingEnvironment): Node? {
-            return env.graphMapper.V<Node>(nodeId).fetch()
-        }
-
-Use batched data loaders for fetching relationships
-
-    fun getFriends(person: Person, env: DataFetchingEnvironment): CompletableFuture<List<Person>> {
-        return env.dataLoader<Person, List<Person>>("friends").load(person)
+    fun getFriends(person: Person, env: DataFetchingEnvironment): CompletableFuture<List<Person>> = env.fetch {
+        (friends from person).load() // returns List<Person>       
     }
+    
+Just build your GraphQLConfiguration with a `GraphMapperGQLContextBuilder` from this library
 
 
 An example of a working implementation can be seen in the [starwars example project](https://github.com/pm-dev/kotlin-gremlin-ogm/tree/master/example/src/main/kotlin/starwars)
